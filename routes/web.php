@@ -15,7 +15,7 @@ Route::get('/', function () {
 
 // Protected Routes (Require Login)
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
 
@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Read
     Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
     Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
-    
+
     //Update
     Route::get('/series/{series}/edit', [SeriesController::class, 'edit'])->name('series.edit');
     Route::put('/series/{series}', [SeriesController::class, 'update'])->name('series.update');
@@ -38,7 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //Clipper Management
     Route::post('/clippers/{clipper}/toggle', [ClipperController::class, 'toggle'])->name('clippers.toggle');
-    
+    Route::post('/series/{series}/toggle-collection', [SeriesController::class, 'toggleCollection'])->name('series.toggle-collection');
+
+
 });
 
 require __DIR__.'/settings.php';

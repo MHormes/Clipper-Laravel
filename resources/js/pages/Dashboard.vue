@@ -3,6 +3,15 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
+import { 
+    Layers, 
+    Library, 
+    Flame, 
+    CheckCircle,
+    ArrowRight,
+    PlusCircle,
+    Trophy
+} from 'lucide-vue-next';
 
 // Define Props from Controller
 defineProps<{
@@ -11,11 +20,28 @@ defineProps<{
         name: string;
         image_data: string;
         clippers_count: number;
-        user?: { name: string };
+        creator?: { name: string };
         created_at: string;
     }>;
     stats: Array<{ label: string, value: string | number }>;
 }>();
+
+const getStatConfig = (label: string) => {
+    switch (label) {
+        case 'Total Series':
+            return { icon: Library, color: 'text-blue-600', bg: 'bg-blue-500/10' };
+        case 'Total Clippers':
+            return { icon: Flame, color: 'text-orange-600', bg: 'bg-orange-500/10' };
+        case 'My Clippers':
+            return { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-500/10' };
+        case 'My Series':
+            return { icon: Layers, color: 'text-purple-600', bg: 'bg-purple-500/10' };
+        case 'Completed Series':
+            return { icon: Trophy, color: 'text-amber-600', bg: 'bg-amber-500/10' };
+        default:
+            return { icon: Layers, color: 'text-gray-600', bg: 'bg-gray-500/10' };
+    }
+};
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -30,39 +56,53 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Clipper MS | Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
+        <div class="flex h-full flex-1 flex-col gap-8 p-8 max-w-7xl mx-auto w-full">
 
-            <div class="grid gap-4 md:grid-cols-3">
+            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div v-for="stat in stats" :key="stat.label"
-                    class="flex flex-col rounded-xl border border-sidebar-border bg-white p-6 shadow-sm dark:bg-[#161615]">
-                    <span class="text-sm font-medium text-muted-foreground">{{ stat.label }}</span>
-                    <span class="text-3xl font-bold tracking-tight">{{ stat.value }}</span>
+                    class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615]">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-bold text-muted-foreground uppercase tracking-wider">{{ stat.label }}</span>
+                        <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
+                            <component :is="getStatConfig(stat.label).icon" :class="['w-5 h-5', getStatConfig(stat.label).color]" />
+                        </div>
+                    </div>
+                    <span class="text-4xl font-black tracking-tight">{{ stat.value }}</span>
                 </div>
             </div>
 
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
                 <Link :href="route('series.index')"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-orange-500/50 dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-orange-500/50 hover:shadow-md dark:bg-[#161615]">
                     <div class="relative z-10">
-                        <h3 class="text-2xl font-bold">Series Catalog</h3>
-                        <p class="mt-2 text-muted-foreground">View all series, check missing designs, and organize your
-                            sets.</p>
-                        <div class="mt-6 font-semibold text-orange-600 group-hover:underline">Open Catalog →</div>
-                    </div>
-                    <div class="absolute -right-4 -bottom-4 opacity-5 transition-transform group-hover:scale-110">
-                        <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17,1H7A2,2 0 0,0 5,3V21A2,2 0 0,0 7,23H17A2,2 0 0,0 19,21V3A2,2 0 0,0 17,1Z" />
-                        </svg>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 rounded-lg bg-orange-500/10 text-orange-600">
+                                <Library class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-2xl font-black">Series Catalog</h3>
+                        </div>
+                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">View all series, check missing designs, and organize your sets.</p>
+                        <div class="mt-8 flex items-center font-bold text-orange-600 group-hover:gap-2 transition-all">
+                            <span>Open Catalog</span>
+                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
                     </div>
                 </Link>
 
-                <Link :href="route('series.create')"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-green-500/50 dark:bg-[#161615]">
+                <Link v-if="$page.props.auth.can.manage_series" :href="route('series.create')"
+                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-green-500/50 hover:shadow-md dark:bg-[#161615]">
                     <div class="relative z-10">
-                        <h3 class="text-2xl font-bold">Add to System</h3>
-                        <p class="mt-2 text-muted-foreground">Found a new series? Help the community by adding it to the
-                            database.</p>
-                        <div class="mt-6 font-semibold text-green-600 group-hover:underline">Register Series →</div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 rounded-lg bg-green-500/10 text-green-600">
+                                <PlusCircle class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-2xl font-black">Add to System</h3>
+                        </div>
+                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">Found a new series? Help the community by adding it to the database.</p>
+                        <div class="mt-8 flex items-center font-bold text-green-600 group-hover:gap-2 transition-all">
+                            <span>Register Series</span>
+                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
                     </div>
                 </Link>
             </div>
@@ -81,8 +121,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                         class="flex items-center gap-4 rounded-lg border border-sidebar-border/50 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
 
                         <div
-                            class="h-12 w-16 rounded bg-gray-100 dark:bg-gray-800 overflow-hidden border border-sidebar-border">
-                            <img :src="`/storage/${item.image_data}`" class="h-full w-full object-cover" />
+                            class="h-12 w-16 rounded bg-white dark:bg-black overflow-hidden border border-sidebar-border">
+                            <img :src="`/storage/${item.image_data}`" class="h-full w-full object-contain" />
                         </div>
 
                         <div class="flex-1">
@@ -91,7 +131,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 {{ item.name }}
                             </Link>
                             <p class="text-[10px] text-muted-foreground uppercase tracking-tight">
-                                {{ item.clippers_count }} Designs • Added by {{ item.user?.name || 'System' }}
+                                {{ item.clippers_count }} Designs • Added by {{ item.creator?.name || 'System' }}
                             </p>
                         </div>
 

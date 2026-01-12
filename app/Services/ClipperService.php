@@ -55,6 +55,20 @@ class ClipperService
             $series->custom = filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN);
             
 
+            // 1. Delete explicitly requested clippers
+            if (isset($data['deleted_ids']) && is_array($data['deleted_ids'])) {
+                foreach ($data['deleted_ids'] as $id) {
+                    /** @var \App\Models\Clipper $clipper */
+                    $clipper = \App\Models\Clipper::find($id);
+                    if ($clipper) {
+                        // Delete related collections first to avoid FK constraint issues
+                        $clipper->collections()->delete();
+                        Storage::disk('public')->delete($clipper->image_data);
+                        $clipper->delete();
+                    }
+                }
+            }
+
             // 2. Main Image: Only replace if a new file is provided
             if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
                 if ($series->image_data) {
@@ -65,25 +79,21 @@ class ClipperService
             
             $series->save();
 
-            // 3. Clipper Slots (Looping 0-3 based on form structure)
+            // 3. Clipper Slots: Update or Create based on form index
             if (isset($data['clippers']) && is_array($data['clippers'])) {
                 foreach ($data['clippers'] as $index => $clipperData) {
                     $slotNumber = $index + 1;
 
-                    // We only act if a NEW image file was uploaded for this slot
                     if (isset($clipperData['image']) && $clipperData['image'] instanceof \Illuminate\Http\UploadedFile) {
-                        
-                        // Look for an existing clipper in this specific slot
+                        /** @var \App\Models\Clipper $clipper */
                         $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
                         if ($clipper) {
-                            // Cleanup old file and update record
                             Storage::disk('public')->delete($clipper->image_data);
                             $clipper->update([
                                 'image_data' => $clipperData['image']->store('clippers', 'public')
                             ]);
                         } else {
-                            // Slot was previously empty; create new record
                             $series->clippers()->create([
                                 'series_number' => $slotNumber,
                                 'image_data'    => $clipperData['image']->store('clippers', 'public'),
@@ -93,6 +103,15 @@ class ClipperService
                     }
                 }
             }
+
+            // 4. Re-index if series is custom to ensure sequential numbering (1, 2, 3...)
+            if ($series->custom) {
+                $series->refresh();
+                $series->clippers()->orderBy('series_number')->get()->each(function ($clipper, $index) {
+                    /** @var \App\Models\Clipper $clipper */
+                    $clipper->update(['series_number' => $index + 1]);
+                });
+            }
         });
     }
 
@@ -101,6 +120,8 @@ class ClipperService
         return DB::transaction(function () use ($series) {
             // Delete all clipper images
             foreach ($series->clippers as $clipper) {
+                // Delete collections for each clipper in this series
+                $clipper->collections()->delete();
                 Storage::disk('public')->delete($clipper->image_data);
             }
             // Delete main series image

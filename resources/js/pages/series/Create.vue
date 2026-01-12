@@ -3,6 +3,9 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { route } from 'ziggy-js';
+import { Plus, X } from 'lucide-vue-next';
+import { watch } from 'vue';
+import ImageCropper from '@/components/ImageCropper.vue';
 
 // Previews for UX
 const seriesPreview = ref<string | null>(null);
@@ -20,22 +23,102 @@ const form = useForm({
     ],
 });
 
+// Cropper State
+const cropperOpen = ref(false);
+const cropperSrc = ref<string | null>(null);
+const cropperTitle = ref('');
+const cropperAspectRatio = ref(1);
+const cropperTarget = ref<{ type: 'series' | 'clipper', index?: number } | null>(null);
+
+// Watch custom toggle to reset slots if needed
+watch(() => form.custom, (isCustom) => {
+    if (isCustom) {
+        // Standard -> Custom: Sweep away empty slots and shift filled ones
+        const filledClippers = [];
+        const filledPreviews = [];
+        
+        for (let i = 0; i < form.clippers.length; i++) {
+            if (form.clippers[i].image || clipperPreviews.value[i]) {
+                filledClippers.push(form.clippers[i]);
+                filledPreviews.push(clipperPreviews.value[i]);
+            }
+        }
+
+        if (filledClippers.length > 0) {
+            form.clippers = filledClippers;
+            clipperPreviews.value = filledPreviews;
+        } else {
+            // If all empty, reset to 1 empty slot
+            form.clippers = [{ image: null }];
+            clipperPreviews.value = [null];
+        }
+    } else {
+        // Custom -> Standard: Pad or truncate to exactly 4 slots
+        if (form.clippers.length > 4) {
+            form.clippers = form.clippers.slice(0, 4);
+            clipperPreviews.value = clipperPreviews.value.slice(0, 4);
+        } else {
+            while (form.clippers.length < 4) {
+                form.clippers.push({ image: null });
+                clipperPreviews.value.push(null);
+            }
+        }
+    }
+});
+
+const clearSlot = (index: number) => {
+    form.clippers[index].image = null;
+    clipperPreviews.value[index] = null;
+};
+
+const addSlot = () => {
+    form.clippers.push({ image: null });
+    clipperPreviews.value.push(null);
+};
+
+const removeSlot = (index: number) => {
+    form.clippers.splice(index, 1);
+    clipperPreviews.value.splice(index, 1);
+};
+
 const handleSeriesImage = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-        form.image = file;
-        seriesPreview.value = URL.createObjectURL(file);
+        cropperSrc.value = URL.createObjectURL(file);
+        cropperTitle.value = 'Crop Series Main Image';
+        cropperAspectRatio.value = 4 / 3;
+        cropperTarget.value = { type: 'series' };
+        cropperOpen.value = true;
     }
+    // Reset input so same file can be selected again
+    (e.target as HTMLInputElement).value = '';
 };
 
 const handleClipperImage = (index: number, e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-        form.clippers[index].image = file;
-        clipperPreviews.value[index] = URL.createObjectURL(file);
-    } else {
-        form.clippers[index].image = null;
-        clipperPreviews.value[index] = null;
+        cropperSrc.value = URL.createObjectURL(file);
+        cropperTitle.value = `Crop Clipper #${index + 1}`;
+        cropperAspectRatio.value = 1 / 4;
+        cropperTarget.value = { type: 'clipper', index };
+        cropperOpen.value = true;
+    }
+    // Reset input
+    (e.target as HTMLInputElement).value = '';
+};
+
+const onCropDone = (blob: Blob) => {
+    if (!cropperTarget.value) return;
+
+    const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+    const url = URL.createObjectURL(blob);
+
+    if (cropperTarget.value.type === 'series') {
+        form.image = file;
+        seriesPreview.value = url;
+    } else if (cropperTarget.value.type === 'clipper' && cropperTarget.value.index !== undefined) {
+        form.clippers[cropperTarget.value.index].image = file;
+        clipperPreviews.value[cropperTarget.value.index] = url;
     }
 };
 
@@ -84,7 +167,7 @@ const submit = () => {
                                 class="block text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">Series
                                 Master Image (Required)</label>
                             <div
-                                class="aspect-video w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl overflow-hidden flex flex-col items-center justify-center relative">
+                                class="aspect-[4/3] w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl overflow-hidden flex flex-col items-center justify-center relative bg-white dark:bg-black">
                                 <img v-if="seriesPreview" :src="seriesPreview"
                                     class="absolute inset-0 w-full h-full object-cover" />
                                 <div v-else class="text-center p-4">
@@ -106,7 +189,25 @@ const submit = () => {
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div v-for="(clipper, index) in form.clippers" :key="index"
-                            class="bg-white dark:bg-[#161615] p-5 rounded-2xl border border-sidebar-border shadow-sm flex flex-col">
+                            class="bg-white dark:bg-[#161615] p-5 rounded-2xl border border-sidebar-border shadow-sm flex flex-col relative group">
+                            
+                            <!-- Standard Series: Clear button (No shift) -->
+                            <button v-if="!form.custom && clipperPreviews[index]" 
+                                type="button"
+                                @click="clearSlot(index)"
+                                class="absolute -top-2 -right-2 p-1 bg-gray-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-lg"
+                            >
+                                <X class="w-3 h-3" />
+                            </button>
+
+                            <!-- Custom Series: Remove button (Always shift) -->
+                            <button v-if="form.custom" 
+                                type="button"
+                                @click="removeSlot(index)"
+                                class="absolute -top-2 -right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-lg"
+                            >
+                                <X class="w-3 h-3" />
+                            </button>
 
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs font-black text-gray-400">#{{ index + 1 }}</span>
@@ -115,7 +216,7 @@ const submit = () => {
                             </div>
 
                             <div
-                                class="aspect-[3/4] w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden relative group mb-4">
+                                class="aspect-[1/4] w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden relative group mb-4">
                                 <img v-if="clipperPreviews[index]" :src="clipperPreviews[index]!"
                                     class="w-full h-full object-cover" />
                                 <div v-else
@@ -131,6 +232,18 @@ const submit = () => {
                                 Invalid Image File
                             </div>
                         </div>
+
+                        <!-- Add Slot Button (Custom Only) -->
+                        <button v-if="form.custom" 
+                            type="button"
+                            @click="addSlot"
+                            class="aspect-[1/4] border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 hover:border-orange-500/50 hover:bg-orange-50/10 transition-all gap-2"
+                        >
+                            <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600">
+                                <Plus class="w-6 h-6" />
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-gray-500">Add Design Slot</span>
+                        </button>
                     </div>
                 </div>
 
@@ -155,4 +268,12 @@ const submit = () => {
             </form>
         </div>
     </AppLayout>
+
+    <ImageCropper 
+        v-model:open="cropperOpen"
+        :image="cropperSrc"
+        :aspect-ratio="cropperAspectRatio"
+        :title="cropperTitle"
+        @crop="onCropDone"
+    />
 </template>

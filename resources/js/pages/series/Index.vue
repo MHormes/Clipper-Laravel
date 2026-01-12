@@ -29,7 +29,7 @@ defineProps<{
                     <p class="text-muted-foreground">Browse all released and custom clipper sets.</p>
                 </div>
 
-                <Link :href="route('series.create')"
+                <Link v-if="$page.props.auth.can.manage_series" :href="route('series.create')"
                     class="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold text-sm hover:bg-orange-700 transition-colors">
                     + REGISTER NEW SERIES
                 </Link>
@@ -39,9 +39,9 @@ defineProps<{
                 <Link v-for="item in series.data" :key="item.id" :href="route('series.show', item.id)"
                     class="group bg-white dark:bg-[#161615] rounded-2xl overflow-hidden border border-sidebar-border shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
 
-                    <div class="aspect-video relative overflow-hidden">
+                    <div class="aspect-[4/3] relative overflow-hidden bg-white dark:bg-black">
                         <img :src="`/storage/${item.image_data}`"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                            class="w-full h-full object-contain" />
                         <div v-if="item.custom"
                             class="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white font-bold rounded">
                             CUSTOM

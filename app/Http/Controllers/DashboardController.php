@@ -20,11 +20,17 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
+        $mySeriesCount = \App\Models\Series::whereHas('clippers.collections', function ($query) use ($request) {
+            $query->where('user_id', $request->user()->id);
+        })->count();
+
         return Inertia::render('Dashboard', [
             'recentSeries' => $this->clipperService->getSeriesCatalog(8),
             'stats' => [
-                ['label' => 'Total Series', 'value' => Series::count()],
-                ['label' => 'My Clippers', 'value' => $request->user()->myCollection()->count()],
+                ['label' => 'Total Series', 'value' => (string) Series::count()],
+                ['label' => 'Total Clippers', 'value' => (string) \App\Models\Clipper::count()],
+                ['label' => 'My Clippers', 'value' => (string) $request->user()->myCollection()->count()],
+                ['label' => 'My Series', 'value' => (string) $mySeriesCount],
                 ['label' => 'Completed Series', 'value' => '0'],
             ]
         ]);

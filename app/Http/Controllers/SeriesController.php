@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Series;
 use Illuminate\Validation\Rule;
+use Illuminate\Http\RedirectResponse;
 
 class SeriesController extends Controller
 {
@@ -63,19 +64,25 @@ class SeriesController extends Controller
             'custom' => 'required',
             'image' => 'required|image|max:10240',
             'clippers' => [
-                    'array',
-                    'max:4',
-                    function ($attribute, $value, $fail) {
-                        $hasAtLeastOne = collect($value)->contains(function ($slot) {
-                            return isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile;
-                        });
+                'array',
+                $request->boolean('custom') ? 'max:100' : 'max:4',
+                function ($attribute, $value, $fail) use ($request) {
+                    $isCustom = $request->boolean('custom');
+                    $clippers = collect($value);
 
-                        if (!$hasAtLeastOne) {
-                            // We can keep this, but ensure Vue looks for "clippers"
-                            $fail('Please upload at least one clipper image to any of the slots.');
+                    if ($isCustom) {
+                        $allFilled = $clippers->every(fn($slot) => isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile);
+                        if (!$allFilled) {
+                            $fail('For custom series, you must provide an image for every slot you have added.');
                         }
-                    },
-                ],
+                    } else {
+                        $hasAtLeastOne = $clippers->contains(fn($slot) => isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile);
+                        if (!$hasAtLeastOne) {
+                            $fail('Please upload at least one clipper image.');
+                        }
+                    }
+                },
+            ],
             'clippers.*.image' => 'nullable|image|max:10240',
         ]);
 
@@ -97,7 +104,10 @@ class SeriesController extends Controller
             'name' => ['required', 'string', 'max:255', Rule::unique('series')->ignore($series->id)],
             'custom' => 'nullable',
             'image' => 'nullable|image|max:10240',
-            'clippers' => 'array|max:4',
+            'clippers' => [
+                'array',
+                $request->boolean('custom') ? 'max:100' : 'max:4',
+            ],
             'clippers.*.image' => 'nullable|image|max:10240',
         ]);
 
@@ -123,5 +133,40 @@ class SeriesController extends Controller
         $this->clipperService->deleteSeries($series);
 
         return to_route('series.index')->with('success', 'Series and all associated images deleted.');
+    }
+
+    /**
+     * Toggle all clippers in a series for the current user.
+     */
+    public function toggleCollection(Request $request, Series $series): RedirectResponse
+    {
+        $user = $request->user();
+        $clipperIds = $series->clippers()->pluck('id');
+        
+        // Find how many of these clippers are already in the user's collection
+        $collectedCount = $user->myCollection()
+            ->whereIn('clipper_id', $clipperIds)
+            ->count();
+
+        if ($collectedCount === $clipperIds->count()) {
+            // Uncollect all if all are already collected
+            $user->myCollection()->whereIn('clipper_id', $clipperIds)->delete();
+        } else {
+            // Collect all missing clippers
+            $existingIds = $user->myCollection()
+                ->whereIn('clipper_id', $clipperIds)
+                ->pluck('clipper_id');
+
+            $missingIds = $clipperIds->diff($existingIds);
+
+            foreach ($missingIds as $id) {
+                $user->myCollection()->create([
+                    'clipper_id' => $id,
+                    'date_added' => now(),
+                ]);
+            }
+        }
+
+        return back();
     }
 }
