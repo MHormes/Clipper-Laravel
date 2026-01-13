@@ -6,7 +6,6 @@ use App\Models\Series;
 use App\Models\Clipper;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 
 class ClipperService
@@ -18,7 +17,9 @@ class ClipperService
     {
         return DB::transaction(function () use ($user, $data) {
             // 1. Store Main Series Image
-            $seriesPath = $data['image']->store('series', 'public');
+            $seriesPath = cloudinary()->uploadApi()->upload($data['image']->getRealPath(), [
+                'folder' => 'series'
+            ])['secure_url'];
 
             $series = Series::create([
                 'name'       => $data['name'],
@@ -30,7 +31,9 @@ class ClipperService
             // 2. Loop through the 4 possible clipper slots in the form
             foreach ($data['clippers'] as $index => $clipperData) {
                 if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                    $path = $clipperData['image']->store('clippers', 'public');
+                    $path = cloudinary()->uploadApi()->upload($clipperData['image']->getRealPath(), [
+                        'folder' => 'clippers'
+                    ])['secure_url'];
 
                     $series->clippers()->create([
                         'series_number' => $index + 1,
@@ -58,23 +61,25 @@ class ClipperService
             // 1. Delete explicitly requested clippers
             if (isset($data['deleted_ids']) && is_array($data['deleted_ids'])) {
                 foreach ($data['deleted_ids'] as $id) {
-                    /** @var \App\Models\Clipper $clipper */
-                    $clipper = \App\Models\Clipper::find($id);
+                    /** @var Clipper $clipper */
+                    $clipper = Clipper::find($id);
                     if ($clipper) {
                         // Delete related collections first to avoid FK constraint issues
                         $clipper->collections()->delete();
-                        Storage::disk('public')->delete($clipper->image_data);
+                        $this->deleteFromCloudinary($clipper->image_data);
                         $clipper->delete();
                     }
                 }
             }
 
             // 2. Main Image: Only replace if a new file is provided
-            if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+            if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 if ($series->image_data) {
-                    Storage::disk('public')->delete($series->image_data);
+                    $this->deleteFromCloudinary($series->image_data);
                 }
-                $series->image_data = $data['image']->store('series', 'public');
+                $series->image_data = cloudinary()->uploadApi()->upload($data['image']->getRealPath(), [
+                        'folder' => 'series'
+                    ])['secure_url'];
             }
             
             $series->save();
@@ -89,14 +94,18 @@ class ClipperService
                         $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
                         if ($clipper) {
-                            Storage::disk('public')->delete($clipper->image_data);
+                            $this->deleteFromCloudinary($clipper->image_data);
                             $clipper->update([
-                                'image_data' => $clipperData['image']->store('clippers', 'public')
+                                'image_data' => cloudinary()->uploadApi()->upload($clipperData['image']->getRealPath(), [
+                                    'folder' => 'clippers'
+                                ])['secure_url']
                             ]);
                         } else {
                             $series->clippers()->create([
                                 'series_number' => $slotNumber,
-                                'image_data'    => $clipperData['image']->store('clippers', 'public'),
+                                'image_data'    => cloudinary()->uploadApi()->upload($clipperData['image']->getRealPath(), [
+                                    'folder' => 'clippers'
+                                ])['secure_url'],
                                 'created_by'    => $user->id,
                             ]);
                         }
@@ -122,14 +131,41 @@ class ClipperService
             foreach ($series->clippers as $clipper) {
                 // Delete collections for each clipper in this series
                 $clipper->collections()->delete();
-                Storage::disk('public')->delete($clipper->image_data);
+                $this->deleteFromCloudinary($clipper->image_data);
             }
             // Delete main series image
-            Storage::disk('public')->delete($series->image_data);
+            $this->deleteFromCloudinary($series->image_data);
             // Delete database record
             return $series->delete();
         });
     }
+
+
+    /**
+     * Helper to extract Public ID from a URL and delete it.
+     */
+    private function deleteFromCloudinary(?string $url)
+    {
+        if (!$url) return;
+
+        // Extracts 'folder/filename' from 'https://res.cloudinary.com/cloud/image/upload/v123/folder/filename.jpg'
+        $path = parse_url($url, PHP_URL_PATH);
+        $segments = explode('/', $path);
+        
+        // Find where 'upload' is and take everything after the version (v12345)
+        $uploadIndex = array_search('upload', $segments);
+        if ($uploadIndex !== false) {
+            $publicIdWithExtension = implode('/', array_slice($segments, $uploadIndex + 2));
+            $publicId = pathinfo($publicIdWithExtension, PATHINFO_FILENAME);
+            
+            // Re-attach folder if it exists
+            $folder = $segments[$uploadIndex + 2];
+            $finalPublicId = $folder . '/' . $publicId;
+
+            cloudinary()->uploadApi()->destroy($finalPublicId);
+        }
+    }
+
 
     public function getSeriesCatalog(?int $limit = null, ?string $search = null)
     {

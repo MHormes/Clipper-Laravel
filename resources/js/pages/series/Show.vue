@@ -93,7 +93,7 @@ const getClipperByNumber = (n: number) => {
 
                 <div
                     class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-                    <img :src="`/storage/${series.image_data}`" class="w-full h-full object-cover" />
+                    <img :src="series.image_data" class="w-full h-full object-cover" />
                 </div>
 
                 <div class="flex-1 space-y-6">
@@ -169,7 +169,7 @@ const getClipperByNumber = (n: number) => {
                                 </button>
                             </div>
                             <div class="aspect-[1/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-900 bg-white dark:bg-black">
-                                <img :src="`/storage/${clipper.image_data}`" class="w-full h-full object-cover" />
+                                <img :src="clipper.image_data" class="w-full h-full object-cover" />
                             </div>
                         </div>
                     </div>
@@ -194,7 +194,7 @@ const getClipperByNumber = (n: number) => {
     
                             <div
                                 class="aspect-[1/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-900 bg-white dark:bg-black">
-                                <img :src="`/storage/${getClipperByNumber(n)!.image_data}`"
+                                <img :src="getClipperByNumber(n)!.image_data"
                                     class="w-full h-full object-cover" />
                             </div>
                         </div>

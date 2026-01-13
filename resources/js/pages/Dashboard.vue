@@ -122,7 +122,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                         <div
                             class="h-12 w-16 rounded bg-white dark:bg-black overflow-hidden border border-sidebar-border">
-                            <img :src="`/storage/${item.image_data}`" class="h-full w-full object-contain" />
+                            <img :src="item.image_data" class="h-full w-full object-contain" />
                         </div>
 
                         <div class="flex-1">

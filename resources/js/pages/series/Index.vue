@@ -86,7 +86,7 @@ watch(search, (value) => {
                             class="group bg-white dark:bg-[#161615] rounded-2xl overflow-hidden border border-sidebar-border shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
         
                             <div class="aspect-[4/3] relative overflow-hidden bg-white dark:bg-black border-b border-sidebar-border">
-                                <img :src="`/storage/${item.image_data}`"
+                                <img :src="item.image_data"
                                     class="w-full h-full object-contain" />
                                 <div v-if="item.custom"
                                     class="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white font-bold rounded">

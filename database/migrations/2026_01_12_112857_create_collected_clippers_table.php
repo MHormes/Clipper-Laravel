@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('collected_clippers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(\App\Models\Clipper::class)->constrained();
-            $table->foreignIdFor(\App\Models\User::class)->constrained(); 
+            $table->foreignUuid('clipper_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->string('notes')->nullable();
             $table->string('location_bought')->nullable();
             $table->date('date_added');

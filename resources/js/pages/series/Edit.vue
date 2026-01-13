@@ -30,7 +30,7 @@ const getInitialPreviews = () => {
     const previews: (string | null)[] = [];
     for (let i = 1; i <= maxNum; i++) {
         const clipper = props.series.clippers.find(c => c.series_number === i);
-        previews.push(clipper ? `/storage/${clipper.image_data}` : null);
+        previews.push(clipper ? clipper.image_data : null);
     }
     return previews;
 };
@@ -47,7 +47,7 @@ const getInitialClippers = () => {
     });
 };
 
-const seriesPreview = ref<string | null>(`/storage/${props.series.image_data}`);
+const seriesPreview = ref<string | null>(props.series.image_data);
 const clipperPreviews = ref<(string | null)[]>(getInitialPreviews());
 
 const form = useForm({

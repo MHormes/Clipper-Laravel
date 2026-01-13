@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('clippers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(\App\Models\Series::class)->constrained()->onDelete('cascade');
+            $table->foreignUuid('series_id')->constrained()->onDelete('cascade');
             $table->integer('series_number')->nullable();
             $table->foreignUuid('created_by')->constrained('users')->onDelete('cascade');
             $table->binary('image_data')->nullable();
