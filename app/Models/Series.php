@@ -26,4 +26,12 @@ class Series extends Model
         'name' => 'Deleted User',
     ]);
     }
+
+    public function getImageDataAttribute($value)
+    {
+        if (is_resource($value)) {
+            return stream_get_contents($value);
+        }
+        return $value;
+    }
 }

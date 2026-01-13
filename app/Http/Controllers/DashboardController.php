@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\ClipperService;
 use App\Models\Series;
+use App\Models\Clipper;
 
 class DashboardController extends Controller
 {
@@ -20,7 +21,7 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $mySeriesCount = \App\Models\Series::whereHas('clippers.collections', function ($query) use ($request) {
+        $mySeriesCount = Series::whereHas('clippers.collections', function ($query) use ($request) {
             $query->where('user_id', $request->user()->id);
         })->count();
 
@@ -28,7 +29,7 @@ class DashboardController extends Controller
             'recentSeries' => $this->clipperService->getSeriesCatalog(8),
             'stats' => [
                 ['label' => 'Total Series', 'value' => (string) Series::count()],
-                ['label' => 'Total Clippers', 'value' => (string) \App\Models\Clipper::count()],
+                ['label' => 'Total Clippers', 'value' => (string) Clipper::count()],
                 ['label' => 'My Clippers', 'value' => (string) $request->user()->myCollection()->count()],
                 ['label' => 'My Series', 'value' => (string) $mySeriesCount],
                 ['label' => 'Completed Series', 'value' => '0'],

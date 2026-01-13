@@ -23,4 +23,12 @@ class Clipper extends Model
     {
         return $this->hasMany(CollectedClipper::class);
     }
+
+    public function getImageDataAttribute($value)
+    {
+        if (is_resource($value)) {
+            return stream_get_contents($value);
+        }
+        return $value;
+    }
 }
