@@ -6,6 +6,7 @@ use Laravel\Fortify\Features;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClipperController;
+use App\Http\Controllers\CollectionController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -20,15 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
 
     // Collection
-    Route::get('/collection', [App\Http\Controllers\CollectionController::class, 'index'])->name('collection.index');
-    Route::get('/collection/clippers', [App\Http\Controllers\CollectionController::class, 'clippers'])->name('collection.clippers');
-    Route::get('/collection/{series}', [App\Http\Controllers\CollectionController::class, 'show'])->name('collection.show');
-
-    // Series Management
-
-    // Series Management - Read (Auth required)
-    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
-    Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
+    Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
+    Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+    Route::get('/collection/{series}', [CollectionController::class, 'show'])->name('collection.show');
 
     // Series Management - Write (Admin only)
     Route::middleware(['admin'])->group(function () {
@@ -40,6 +35,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::delete('/series/{series}', [SeriesController::class, 'destroy'])->name('series.destroy');
     });
+
+    // Series Management - Read (Auth required)
+    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
+    Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
 
     //Clipper Management
     Route::post('/clippers/{clipper}/toggle', [ClipperController::class, 'toggle'])->name('clippers.toggle');
