@@ -137,7 +137,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                         <Link :href="route('series.show', item.id)"
                             class="text-[10px] font-black text-orange-600 uppercase border border-orange-600/20 px-3 py-1 rounded hover:bg-orange-600 hover:text-white transition-all">
-                            View Set
+                            View Series
                         </Link>
                     </div>
 

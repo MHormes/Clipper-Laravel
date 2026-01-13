@@ -119,6 +119,9 @@ const addSlot = () => {
 };
 
 const removeSlot = (index: number) => {
+    if (form.custom && form.clippers.length <= 1) {
+        return;
+    }
     const clipper = form.clippers[index];
     if (clipper.id) {
         form.deleted_ids.push(clipper.id);
@@ -167,6 +170,20 @@ const onCropDone = (blob: Blob) => {
 };
 
 const submit = () => {
+    // Custom series validation
+    if (form.custom) {
+        if (form.clippers.length === 0) {
+            form.setError('clippers', 'Custom series must have at least one clipper.');
+            return;
+        }
+
+        const missingImages = form.clippers.some(c => !c.id && !c.image);
+        if (missingImages) {
+            form.setError('clippers', 'All clipper slots in a custom series must have an image.');
+            return;
+        }
+    }
+
     form.post(route('series.update', props.series.id), {
         forceFormData: true,
         preserveScroll: true,
@@ -282,7 +299,7 @@ const submit = () => {
                             </div>
 
                             <div
-                                class="aspect-[1/4] w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden relative mb-4">
+                                class="w-full max-w-[140px] mx-auto aspect-[1/4] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden relative mb-4">
                                 <img v-if="clipperPreviews[index]" :src="clipperPreviews[index]!"
                                     class="w-full h-full object-cover" />
                                 <div v-else
@@ -309,13 +326,22 @@ const submit = () => {
                         <button v-if="form.custom" 
                             type="button"
                             @click="addSlot"
-                            class="aspect-[1/4] border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 hover:border-orange-500/50 hover:bg-orange-50/10 transition-all gap-2"
+                            class="w-full max-w-[140px] mx-auto aspect-[1/4] border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 hover:border-orange-500/50 hover:bg-orange-50/10 transition-all gap-2"
                         >
                             <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600">
                                 <Plus class="w-6 h-6" />
                             </div>
                             <span class="text-xs font-bold uppercase tracking-widest text-gray-500">Add Design Slot</span>
                         </button>
+                    </div>
+                    <div v-if="form.errors.clippers"
+                        class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-sm font-bold">{{ form.errors.clippers }}</span>
                     </div>
                 </div>
 

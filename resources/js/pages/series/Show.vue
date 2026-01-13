@@ -119,20 +119,20 @@ const getClipperByNumber = (n: number) => {
                         <div v-if="isAdmin">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">System
                                 Status</span>
-                            <p class="text-xl font-bold">{{ registeredCount }} / {{ series.custom ? registeredCount : 4 }} Registered</p>
+                            <p class="text-xl font-bold">{{ registeredCount }} / {{ registeredCount }} Registered</p>
                             <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2">
                                 <div class="bg-blue-500 h-full transition-all"
-                                    :style="{ width: `${(registeredCount / (series.custom ? registeredCount : 4)) * 100}%` }"></div>
+                                    :style="{ width: `${(registeredCount / Math.max(registeredCount, 1)) * 100}%` }"></div>
                             </div>
                         </div>
                         <div>
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Your
                                 Collection</span>
-                            <p class="text-xl font-bold text-orange-600">{{ collectedCount }} / {{ series.custom ? registeredCount : 4 }}
+                            <p class="text-xl font-bold text-orange-600">{{ collectedCount }} / {{ registeredCount }}
                                 Owned</p>
                             <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2">
                                 <div class="bg-orange-500 h-full transition-all"
-                                    :style="{ width: `${(collectedCount / Math.max(series.custom ? registeredCount : 4, 1)) * 100}%` }">
+                                    :style="{ width: `${(collectedCount / Math.max(registeredCount, 1)) * 100}%` }">
                                 </div>
                             </div>
                         </div>
@@ -148,7 +148,7 @@ const getClipperByNumber = (n: number) => {
                         >
                             <CheckCheck v-if="collectedCount === registeredCount" class="w-4 h-4" />
                             <Heart v-else class="w-4 h-4 fill-current group-hover/btn:scale-110 transition-transform" />
-                            {{ collectedCount === (series.custom ? registeredCount : 4) ? 'Uncollect Series' : 'Collect Complete Series' }}
+                            {{ collectedCount === registeredCount ? 'Uncollect Series' : 'Collect Complete Series' }}
                         </button>
                     </div>
                 </div>

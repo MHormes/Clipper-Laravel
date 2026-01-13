@@ -131,17 +131,21 @@ class ClipperService
         });
     }
 
-        public function getSeriesCatalog(?int $limit = null)
+    public function getSeriesCatalog(?int $limit = null, ?string $search = null)
     {
         $query = Series::withCount('clippers')
-            ->with('creator:id,name') // Eager load the creator for the "Added by" text
+            ->with(['creator:id,name'])
             ->latest();
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
 
         if ($limit) {
             return $query->limit($limit)->get();
         }
 
-        return $query->paginate(12);
+        return $query->paginate(12)->withQueryString();
     }
 
     public function getCollectedClippersForSeries(Series $series, ?User $user)

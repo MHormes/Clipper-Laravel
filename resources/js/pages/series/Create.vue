@@ -77,6 +77,9 @@ const addSlot = () => {
 };
 
 const removeSlot = (index: number) => {
+    if (form.custom && form.clippers.length <= 1) {
+        return;
+    }
     form.clippers.splice(index, 1);
     clipperPreviews.value.splice(index, 1);
 };
@@ -123,6 +126,20 @@ const onCropDone = (blob: Blob) => {
 };
 
 const submit = () => {
+    // Custom series validation
+    if (form.custom) {
+        if (form.clippers.length === 0) {
+            form.setError('clippers', 'Custom series must have at least one clipper.');
+            return;
+        }
+
+        const missingImages = form.clippers.some(c => !c.image);
+        if (missingImages) {
+            form.setError('clippers', 'All clipper slots in a custom series must have an image.');
+            return;
+        }
+    }
+
     form.post(route('series.store'), {
         forceFormData: true,
         preserveScroll: true,
@@ -216,7 +233,7 @@ const submit = () => {
                             </div>
 
                             <div
-                                class="aspect-[1/4] w-full bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden relative group mb-4">
+                                class="w-full max-w-[140px] mx-auto aspect-[1/4] bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden relative group mb-4">
                                 <img v-if="clipperPreviews[index]" :src="clipperPreviews[index]!"
                                     class="w-full h-full object-cover" />
                                 <div v-else
@@ -237,7 +254,7 @@ const submit = () => {
                         <button v-if="form.custom" 
                             type="button"
                             @click="addSlot"
-                            class="aspect-[1/4] border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 hover:border-orange-500/50 hover:bg-orange-50/10 transition-all gap-2"
+                            class="w-full max-w-[140px] mx-auto aspect-[1/4] border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 hover:border-orange-500/50 hover:bg-orange-50/10 transition-all gap-2"
                         >
                             <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600">
                                 <Plus class="w-6 h-6" />

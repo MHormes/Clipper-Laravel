@@ -47,10 +47,11 @@ class SeriesController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('series/Index', [
-            'series' => $this->clipperService->getSeriesCatalog()
+            'series' => $this->clipperService->getSeriesCatalog(null, $request->input('search')),
+            'filters' => $request->only(['search'])
         ]);
     }
 
@@ -71,6 +72,10 @@ class SeriesController extends Controller
                     $clippers = collect($value);
 
                     if ($isCustom) {
+                        if ($clippers->isEmpty()) {
+                            $fail('Custom series must have at least one clipper.');
+                            return;
+                        }
                         $allFilled = $clippers->every(fn($slot) => isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile);
                         if (!$allFilled) {
                             $fail('For custom series, you must provide an image for every slot you have added.');
@@ -107,6 +112,30 @@ class SeriesController extends Controller
             'clippers' => [
                 'array',
                 $request->boolean('custom') ? 'max:100' : 'max:4',
+                function ($attribute, $value, $fail) use ($request, $series) {
+                    $isCustom = $request->boolean('custom');
+                    $clippersArray = collect($value);
+
+                    if ($isCustom) {
+                        if ($clippersArray->isEmpty()) {
+                            $fail('Custom series must have at least one clipper.');
+                            return;
+                        }
+
+                        // Ensure every slot has either an existing ID or a newly uploaded image
+                        $allValid = $clippersArray->every(function ($slot) {
+                            $hasId = isset($slot['id']) && !empty($slot['id']);
+                            $hasNewImage = isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile;
+                            return $hasId || $hasNewImage;
+                        });
+
+                        if (!$allValid) {
+                            $fail('All clipper slots in a custom series must have an image.');
+                        }
+                    } else {
+                        // For standard series, we don't strictly enforce all 4 have images
+                    }
+                },
             ],
             'clippers.*.image' => 'nullable|image|max:10240',
         ]);

@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { X, Check, RotateCcw } from 'lucide-vue-next';
+import { X, Check, RotateCcw, RotateCw } from 'lucide-vue-next';
 
 const props = defineProps<{
     open: boolean;
@@ -18,6 +18,8 @@ const emit = defineEmits<{
 }>();
 
 const cropperRef = ref<any>(null);
+const rotation = ref(0);
+const lastRotation = ref(0);
 
 const handleCancel = () => {
     emit('update:open', false);
@@ -36,9 +38,29 @@ const handleAccept = () => {
     }
 };
 
+const rotateLeft = () => {
+    rotation.value = (rotation.value - 90);
+    handleRotationSlide();
+};
+
+const rotateRight = () => {
+    rotation.value = (rotation.value + 90);
+    handleRotationSlide();
+};
+
+const handleRotationSlide = () => {
+    if (cropperRef.value) {
+        const delta = rotation.value - lastRotation.value;
+        cropperRef.value.rotate(delta);
+        lastRotation.value = rotation.value;
+    }
+};
+
 const reset = () => {
     if (cropperRef.value) {
         cropperRef.value.reset();
+        rotation.value = 0;
+        lastRotation.value = 0;
     }
 };
 </script>
@@ -71,18 +93,58 @@ const reset = () => {
                     :stencil-props="{
                         aspectRatio: aspectRatio,
                     }"
+                    image-restriction="stencil"
+                    :auto-zoom="true"
+                    :canvas="true"
                 />
             </div>
 
             <!-- Footer -->
             <div class="px-6 py-4 border-t border-sidebar-border bg-gray-50/50 dark:bg-white/2 flex items-center justify-between">
-                <button 
-                    @click="reset"
-                    class="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
-                >
-                    <RotateCcw class="w-3.5 h-3.5" />
-                    Reset
-                </button>
+                <div class="flex items-center gap-1">
+                    <button 
+                        @click="reset"
+                        class="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                        title="Reset"
+                    >
+                        <RotateCcw class="w-3.5 h-3.5" />
+                        Reset
+                    </button>
+
+                    <div class="w-px h-4 bg-sidebar-border mx-2"></div>
+
+                    <button 
+                        @click="rotateLeft"
+                        class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                        title="Rotate Left"
+                    >
+                        <RotateCcw class="w-4 h-4" />
+                    </button>
+
+                    <button 
+                        @click="rotateRight"
+                        class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                        title="Rotate Right"
+                    >
+                        <RotateCw class="w-4 h-4" />
+                    </button>
+
+                    <div class="w-px h-4 bg-sidebar-border mx-2"></div>
+
+                    <div class="flex items-center gap-3 px-2">
+                        <span class="text-[10px] font-bold text-muted-foreground w-8 uppercase tracking-tighter">Rotate</span>
+                        <input 
+                            type="range" 
+                            v-model.number="rotation" 
+                            min="-180" 
+                            max="180" 
+                            step="1"
+                            @input="handleRotationSlide"
+                            class="w-32 h-1.5 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-600"
+                        />
+                        <span class="text-[10px] font-mono font-bold text-orange-600 w-8 text-right">{{ rotation }}°</span>
+                    </div>
+                </div>
 
                 <div class="flex gap-3">
                     <button 
