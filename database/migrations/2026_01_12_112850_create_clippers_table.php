@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('series_id')->constrained()->onDelete('cascade');
             $table->integer('series_number')->nullable();
             $table->foreignUuid('created_by')->constrained('users')->onDelete('cascade');
-            $table->binary('image_data')->nullable();
+            $table->string('image_data')->nullable();
             $table->timestamps();
         });
     }

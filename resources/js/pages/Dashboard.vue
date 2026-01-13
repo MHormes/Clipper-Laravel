@@ -29,11 +29,11 @@ defineProps<{
 const getStatConfig = (label: string) => {
     switch (label) {
         case 'Total Series':
-            return { icon: Library, color: 'text-blue-600', bg: 'bg-blue-500/10' };
+            return { icon: Library, color: 'text-cyan-600', bg: 'bg-cyan-500/10' };
         case 'Total Clippers':
             return { icon: Flame, color: 'text-orange-600', bg: 'bg-orange-500/10' };
         case 'My Clippers':
-            return { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-500/10' };
+            return { icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-500/10' };
         case 'My Series':
             return { icon: Layers, color: 'text-purple-600', bg: 'bg-purple-500/10' };
         case 'Completed Series':
@@ -101,6 +101,40 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">Found a new series? Help the community by adding it to the database.</p>
                         <div class="mt-8 flex items-center font-bold text-green-600 group-hover:gap-2 transition-all">
                             <span>Register Series</span>
+                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </div>
+                </Link>
+
+                <Link :href="route('collection.index')"
+                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-[#161615]">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 rounded-lg bg-purple-500/10 text-purple-600">
+                                <Layers class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-2xl font-black">My Collection</h3>
+                        </div>
+                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
+                        <div class="mt-8 flex items-center font-bold text-purple-600 group-hover:gap-2 transition-all">
+                            <span>View Collection</span>
+                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </div>
+                </Link>
+
+                <Link :href="route('collection.clippers')"
+                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-blue-500/50 hover:shadow-md dark:bg-[#161615]">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 rounded-lg bg-blue-500/10 text-blue-600">
+                                <CheckCircle class="w-6 h-6" />
+                            </div>
+                            <h3 class="text-2xl font-black">My Clippers</h3>
+                        </div>
+                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">A dedicated board view of every single clipper you own.</p>
+                        <div class="mt-8 flex items-center font-bold text-blue-600 group-hover:gap-2 transition-all">
+                            <span>Open Board View</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
                     </div>

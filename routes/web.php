@@ -19,6 +19,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
 
+    // Collection
+    Route::get('/collection', [App\Http\Controllers\CollectionController::class, 'index'])->name('collection.index');
+    Route::get('/collection/clippers', [App\Http\Controllers\CollectionController::class, 'clippers'])->name('collection.clippers');
+    Route::get('/collection/{series}', [App\Http\Controllers\CollectionController::class, 'show'])->name('collection.show');
+
     // Series Management
 
     //Create

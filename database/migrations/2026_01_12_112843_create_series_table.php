@@ -15,8 +15,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name')->unique();
             $table->boolean('custom')->default(false);
-            $table->uuid('created_by')->constrained('users')->onDelete('cascade'); // Link to user who added it
-            $table->binary('image_data')->nullable(); // For your @Lob
+            $table->uuid('created_by')->constrained('users')->onDelete('cascade'); 
+            $table->string('image_data')->nullable();
             $table->timestamps();
         });
     }

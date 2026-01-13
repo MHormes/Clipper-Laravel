@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids; // Important for your UUIDs
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 class Series extends Model
 {
@@ -27,11 +29,10 @@ class Series extends Model
     ]);
     }
 
-    public function getImageDataAttribute($value)
+    protected function imageData(): Attribute
     {
-        if (is_resource($value)) {
-            return stream_get_contents($value);
-        }
-        return $value;
+        return Attribute::make(
+            get: fn ($value) => $value ? Storage::url($value) : null,
+        );
     }
 }

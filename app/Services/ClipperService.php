@@ -17,24 +17,22 @@ class ClipperService
     public function createSeriesWithClippers($user, array $data)
     {
         return DB::transaction(function () use ($user, $data) {
-            // 1. Store Main Series Image
             $seriesPath = $this->uploadImage($data['image'], 'series');
 
             $series = Series::create([
                 'name'       => $data['name'],
-                'custom'  => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
-                'image_data' => $seriesPath,
+                'custom'     => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
+                'image_data' => $seriesPath, // Stores: "series/filename.jpg"
                 'created_by' => $user->id,
             ]);
 
-            // 2. Loop through the 4 possible clipper slots in the form
             foreach ($data['clippers'] as $index => $clipperData) {
                 if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
                     $path = $this->uploadImage($clipperData['image'], 'clippers');
 
                     $series->clippers()->create([
                         'series_number' => $index + 1,
-                        'image_data'    => $path,
+                        'image_data'    => $path, // Stores: "clippers/filename.jpg"
                         'created_by'    => $user->id,
                     ]);
                 }
@@ -49,44 +47,34 @@ class ClipperService
      */
     public function updateSeries(Series $series, $user, array $data)
     {
-        return DB::transaction(function () use ($series, $user, $data) {
-            // 1. Update Basic Fields
+       return DB::transaction(function () use ($series, $user, $data) {
             $series->name = $data['name'];
             $series->custom = filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN);
-            
 
             // 1. Delete explicitly requested clippers
-            if (isset($data['deleted_ids']) && is_array($data['deleted_ids'])) {
-                foreach ($data['deleted_ids'] as $id) {
-                    /** @var Clipper $clipper */
-                    $clipper = Clipper::find($id);
-                    if ($clipper) {
-                        // Delete related collections first to avoid FK constraint issues
-                        $clipper->collections()->delete();
-                        $clipper->collections()->delete();
-                        $this->deleteImage($clipper->image_data);
-                        $clipper->delete();
-                    }
+            if (!empty($data['deleted_ids'])) {
+                $clippersToDelete = Clipper::whereIn('id', $data['deleted_ids'])->get();
+                foreach ($clippersToDelete as $clipper) {
+                    $clipper->collections()->delete();
+                    $this->deleteImage($clipper->image_data);
+                    $clipper->delete();
                 }
             }
 
-            // 2. Main Image: Only replace if a new file is provided
+            // 2. Main Image Update
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-                if ($series->image_data) {
-                    $this->deleteImage($series->image_data);
-                }
+                $this->deleteImage($series->image_data);
                 $series->image_data = $this->uploadImage($data['image'], 'series');
             }
             
             $series->save();
 
-            // 3. Clipper Slots: Update or Create based on form index
+            // 3. Clipper Slots Update/Create
             if (isset($data['clippers']) && is_array($data['clippers'])) {
                 foreach ($data['clippers'] as $index => $clipperData) {
                     $slotNumber = $index + 1;
 
-                    if (isset($clipperData['image']) && $clipperData['image'] instanceof \Illuminate\Http\UploadedFile) {
-                        /** @var \App\Models\Clipper $clipper */
+                    if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
                         $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
                         if ($clipper) {
@@ -105,11 +93,9 @@ class ClipperService
                 }
             }
 
-            // 4. Re-index if series is custom to ensure sequential numbering (1, 2, 3...)
+            // 4. Re-index custom series
             if ($series->custom) {
-                $series->refresh();
                 $series->clippers()->orderBy('series_number')->get()->each(function ($clipper, $index) {
-                    /** @var \App\Models\Clipper $clipper */
                     $clipper->update(['series_number' => $index + 1]);
                 });
             }
@@ -119,15 +105,11 @@ class ClipperService
     public function deleteSeries(Series $series)
     {
         return DB::transaction(function () use ($series) {
-            // Delete all clipper images
             foreach ($series->clippers as $clipper) {
-                // Delete collections for each clipper in this series
                 $clipper->collections()->delete();
                 $this->deleteImage($clipper->image_data);
             }
-            // Delete main series image
             $this->deleteImage($series->image_data);
-            // Delete database record
             return $series->delete();
         });
     }
@@ -138,56 +120,20 @@ class ClipperService
      */
     private function uploadImage(UploadedFile $file, string $folder): string
     {
-        if (app()->environment('local')) {
-            // Store in storage/app/public/{folder} and return full public URL
-            $path = Storage::disk('public')->putFile($folder, $file, 'public');
-            return Storage::disk('public')->url($path);
-        }
-
-        // Production: usage of Cloudinary
-        return cloudinary()->uploadApi()->upload($file->getRealPath(), [
-            'folder' => $folder
-        ])['secure_url'];
+        // store() uses the default disk from .env and returns the relative path automatically.
+        return $file->store($folder);
     }
 
     /**
      * Helper to delete image based on environment
      */
-    private function deleteImage(?string $url)
+    private function deleteImage(?string $path)
     {
-        if (!$url) return;
+        if (!$path) return;
 
-        if (app()->environment('local')) {
-            // URL is like http://localhost/storage/series/filename.jpg
-            // We need relative path: series/filename.jpg
-            
-            // 1. Get the path after '/storage/'
-            $path = parse_url($url, PHP_URL_PATH);
-            $relativePath = str_replace('/storage/', '', $path);
-            
-            // 2. Delete from public disk
-            Storage::disk('public')->delete($relativePath);
-            return;
-        }
-
-        // Extracts 'folder/filename' from 'https://res.cloudinary.com/cloud/image/upload/v123/folder/filename.jpg'
-        $path = parse_url($url, PHP_URL_PATH);
-        $segments = explode('/', $path);
-        
-        // Find where 'upload' is and take everything after the version (v12345)
-        $uploadIndex = array_search('upload', $segments);
-        if ($uploadIndex !== false) {
-            $publicIdWithExtension = implode('/', array_slice($segments, $uploadIndex + 2));
-            $publicId = pathinfo($publicIdWithExtension, PATHINFO_FILENAME);
-            
-            // Re-attach folder if it exists
-            $folder = $segments[$uploadIndex + 2];
-            $finalPublicId = $folder . '/' . $publicId;
-
-            cloudinary()->uploadApi()->destroy($finalPublicId);
-        }
+        // Laravel automatically knows if this path is on Cloudinary or Local based on your .env
+        Storage::delete($path);
     }
-
 
     public function getSeriesCatalog(?int $limit = null, ?string $search = null)
     {
