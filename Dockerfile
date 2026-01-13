@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -25,5 +25,4 @@ RUN npm install && npm run build
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/cache
 
-CMD ["php", "artisan", "migrate", "--force"]
-CMD ["apache2-foreground"]
+CMD ["sh", "./start.sh"]
