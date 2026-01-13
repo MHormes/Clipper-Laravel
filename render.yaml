@@ -21,3 +21,5 @@ services:
         value: stderr
       - key: DB_CONNECTION
         value: pgsql
+      - key: PHP_VERSION
+        value: 8.4.16
