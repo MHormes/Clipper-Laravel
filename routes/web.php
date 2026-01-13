@@ -26,20 +26,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Series Management
 
-    //Create
-    Route::get('/series/create', [SeriesController::class, 'create'])->name('series.create');
-    Route::post('/series', [SeriesController::class, 'store'])->name('series.store');
-
-    //Read
+    // Series Management - Read (Auth required)
     Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
     Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
 
-    //Update
-    Route::get('/series/{series}/edit', [SeriesController::class, 'edit'])->name('series.edit');
-    Route::put('/series/{series}', [SeriesController::class, 'update'])->name('series.update');
+    // Series Management - Write (Admin only)
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/series/create', [SeriesController::class, 'create'])->name('series.create');
+        Route::post('/series', [SeriesController::class, 'store'])->name('series.store');
 
-    //Delete
-    Route::delete('/series/{series}', [SeriesController::class, 'destroy'])->name('series.destroy');
+        Route::get('/series/{series}/edit', [SeriesController::class, 'edit'])->name('series.edit');
+        Route::put('/series/{series}', [SeriesController::class, 'update'])->name('series.update');
+
+        Route::delete('/series/{series}', [SeriesController::class, 'destroy'])->name('series.destroy');
+    });
 
     //Clipper Management
     Route::post('/clippers/{clipper}/toggle', [ClipperController::class, 'toggle'])->name('clippers.toggle');
