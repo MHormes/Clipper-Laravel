@@ -7,6 +7,7 @@ use App\Models\Clipper;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ClipperService
 {
@@ -17,9 +18,7 @@ class ClipperService
     {
         return DB::transaction(function () use ($user, $data) {
             // 1. Store Main Series Image
-            $seriesPath = cloudinary()->uploadApi()->upload($data['image']->getRealPath(), [
-                'folder' => 'series'
-            ])['secure_url'];
+            $seriesPath = $this->uploadImage($data['image'], 'series');
 
             $series = Series::create([
                 'name'       => $data['name'],
@@ -31,9 +30,7 @@ class ClipperService
             // 2. Loop through the 4 possible clipper slots in the form
             foreach ($data['clippers'] as $index => $clipperData) {
                 if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                    $path = cloudinary()->uploadApi()->upload($clipperData['image']->getRealPath(), [
-                        'folder' => 'clippers'
-                    ])['secure_url'];
+                    $path = $this->uploadImage($clipperData['image'], 'clippers');
 
                     $series->clippers()->create([
                         'series_number' => $index + 1,
@@ -66,7 +63,8 @@ class ClipperService
                     if ($clipper) {
                         // Delete related collections first to avoid FK constraint issues
                         $clipper->collections()->delete();
-                        $this->deleteFromCloudinary($clipper->image_data);
+                        $clipper->collections()->delete();
+                        $this->deleteImage($clipper->image_data);
                         $clipper->delete();
                     }
                 }
@@ -75,11 +73,9 @@ class ClipperService
             // 2. Main Image: Only replace if a new file is provided
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 if ($series->image_data) {
-                    $this->deleteFromCloudinary($series->image_data);
+                    $this->deleteImage($series->image_data);
                 }
-                $series->image_data = cloudinary()->uploadApi()->upload($data['image']->getRealPath(), [
-                        'folder' => 'series'
-                    ])['secure_url'];
+                $series->image_data = $this->uploadImage($data['image'], 'series');
             }
             
             $series->save();
@@ -94,18 +90,14 @@ class ClipperService
                         $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
                         if ($clipper) {
-                            $this->deleteFromCloudinary($clipper->image_data);
+                            $this->deleteImage($clipper->image_data);
                             $clipper->update([
-                                'image_data' => cloudinary()->uploadApi()->upload($clipperData['image']->getRealPath(), [
-                                    'folder' => 'clippers'
-                                ])['secure_url']
+                                'image_data' => $this->uploadImage($clipperData['image'], 'clippers')
                             ]);
                         } else {
                             $series->clippers()->create([
                                 'series_number' => $slotNumber,
-                                'image_data'    => cloudinary()->uploadApi()->upload($clipperData['image']->getRealPath(), [
-                                    'folder' => 'clippers'
-                                ])['secure_url'],
+                                'image_data'    => $this->uploadImage($clipperData['image'], 'clippers'),
                                 'created_by'    => $user->id,
                             ]);
                         }
@@ -131,10 +123,10 @@ class ClipperService
             foreach ($series->clippers as $clipper) {
                 // Delete collections for each clipper in this series
                 $clipper->collections()->delete();
-                $this->deleteFromCloudinary($clipper->image_data);
+                $this->deleteImage($clipper->image_data);
             }
             // Delete main series image
-            $this->deleteFromCloudinary($series->image_data);
+            $this->deleteImage($series->image_data);
             // Delete database record
             return $series->delete();
         });
@@ -142,11 +134,41 @@ class ClipperService
 
 
     /**
-     * Helper to extract Public ID from a URL and delete it.
+     * Helper to upload image based on environment
      */
-    private function deleteFromCloudinary(?string $url)
+    private function uploadImage(UploadedFile $file, string $folder): string
+    {
+        if (app()->environment('local')) {
+            // Store in storage/app/public/{folder} and return full public URL
+            $path = Storage::disk('public')->putFile($folder, $file, 'public');
+            return Storage::disk('public')->url($path);
+        }
+
+        // Production: usage of Cloudinary
+        return cloudinary()->uploadApi()->upload($file->getRealPath(), [
+            'folder' => $folder
+        ])['secure_url'];
+    }
+
+    /**
+     * Helper to delete image based on environment
+     */
+    private function deleteImage(?string $url)
     {
         if (!$url) return;
+
+        if (app()->environment('local')) {
+            // URL is like http://localhost/storage/series/filename.jpg
+            // We need relative path: series/filename.jpg
+            
+            // 1. Get the path after '/storage/'
+            $path = parse_url($url, PHP_URL_PATH);
+            $relativePath = str_replace('/storage/', '', $path);
+            
+            // 2. Delete from public disk
+            Storage::disk('public')->delete($relativePath);
+            return;
+        }
 
         // Extracts 'folder/filename' from 'https://res.cloudinary.com/cloud/image/upload/v123/folder/filename.jpg'
         $path = parse_url($url, PHP_URL_PATH);
