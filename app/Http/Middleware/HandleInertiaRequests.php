@@ -46,7 +46,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'can' => [
                     'manage_series' => $request->user()?->isAdmin() ?? false,
-                ]
+                ],
+                'is_admin' => $request->user()?->isAdmin() ?? false,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

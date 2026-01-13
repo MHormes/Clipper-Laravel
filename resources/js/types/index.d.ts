@@ -6,6 +6,7 @@ export interface Auth {
     can: {
         manage_series: boolean;
     };
+    is_admin: boolean;
 }
 
 export interface BreadcrumbItem {
@@ -34,6 +35,7 @@ export interface User {
     name: string;
     email: string;
     role: 'admin' | 'user';
+    is_active: boolean;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;
