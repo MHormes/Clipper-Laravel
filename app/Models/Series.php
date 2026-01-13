@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Series extends Model
 {
-    use HasUuids; // Tells Laravel to auto-generate UUIDs for new series
+    use HasFactory, HasUuids; // Tells Laravel to auto-generate UUIDs for new series
 
     protected $fillable = ['name', 'custom', 'created_by', 'image_data'];
 

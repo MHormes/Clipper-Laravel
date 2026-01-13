@@ -169,4 +169,27 @@ class ClipperService
                 });
         })->pluck('series_number')->toArray();
     }
+
+    public function countCompletedSeries(User $user): int
+    {
+        // 1. Fetch series with:
+        //    - clippers_count: Total clippers in the series
+        //    - collected_count: How many distinct clippers of this series the user owns
+        $seriesStats = Series::withCount(['clippers', 'clippers as collected_count' => function ($query) use ($user) {
+            $query->whereHas('collections', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }])->get();
+
+        // 2. Filter in memory
+        return $seriesStats->filter(function ($series) {
+            if ($series->custom) {
+                // Custom: User has all existing clippers in DB
+                return $series->clippers_count > 0 && $series->collected_count >= $series->clippers_count;
+            } else {
+                // Non-custom: User has all 4
+                return $series->collected_count >= 4;
+            }
+        })->count();
+    }
 }

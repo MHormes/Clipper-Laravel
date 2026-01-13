@@ -32,7 +32,7 @@ class DashboardController extends Controller
                 ['label' => 'Total Clippers', 'value' => (string) Clipper::count()],
                 ['label' => 'My Series', 'value' => (string) $mySeriesCount],
                 ['label' => 'My Clippers', 'value' => (string) $request->user()->myCollection()->count()],
-                ['label' => 'Completed Series', 'value' => '0'],
+                ['label' => 'Completed Series', 'value' => (string) $this->clipperService->countCompletedSeries($request->user())],
             ]
         ]);
     }

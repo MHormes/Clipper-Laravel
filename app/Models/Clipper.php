@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Clipper extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = ['series_id', 'series_number', 'created_by', 'image_data'];
 
