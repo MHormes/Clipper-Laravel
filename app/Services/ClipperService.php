@@ -11,37 +11,35 @@ use Illuminate\Support\Facades\Storage;
 
 class ClipperService
 {
-    /**
+   /**
      * Create a brand new series and its clippers.
      */
     public function createSeriesWithClippers($user, array $data)
     {
-        return DB::transaction(function () use ($user, $data) {
-            $seriesPath = $this->uploadImage($data['image'], 'series');
+        $seriesPath = $this->uploadImage($data['image'], 'series');
 
-            $series = Series::create([
-                'name'       => $data['name'],
-                'custom'     => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
-                'image_data' => $seriesPath, // Stores: "series/filename.jpg"
-                'requested_by' => $user->id,
-                'accepted_by' => $user->id,
-            ]);
+        $series = Series::create([
+            'name'         => $data['name'],
+            'custom'       => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
+            'image_data'   => $seriesPath,
+            'requested_by' => $user->id,
+            'accepted_by'  => $user->id,
+        ]);
 
-            foreach ($data['clippers'] as $index => $clipperData) {
-                if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                    $path = $this->uploadImage($clipperData['image'], 'clippers');
+        foreach ($data['clippers'] as $index => $clipperData) {
+            if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
+                $path = $this->uploadImage($clipperData['image'], 'clippers');
 
-                    $series->clippers()->create([
-                        'series_number' => $index + 1,
-                        'image_data'    => $path, // Stores: "clippers/filename.jpg"
-                        'requested_by'    => $user->id,
-                        'accepted_by'    => $user->id,
-                    ]);
-                }
+                $series->clippers()->create([
+                    'series_number' => $index + 1,
+                    'image_data'    => $path,
+                    'requested_by'  => $user->id,
+                    'accepted_by'   => $user->id,
+                ]);
             }
+        }
 
-            return $series;
-        });
+        return $series;
     }
 
     /**
@@ -49,94 +47,94 @@ class ClipperService
      */
     public function updateSeries(Series $series, $user, array $data)
     {
-       return DB::transaction(function () use ($series, $user, $data) {
-            $series->name = $data['name'];
-            $series->custom = filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN);
+        $series->name = $data['name'];
+        $series->custom = filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN);
 
-            // 1. Delete explicitly requested clippers
-            if (!empty($data['deleted_ids'])) {
-                $clippersToDelete = Clipper::whereIn('id', $data['deleted_ids'])->get();
-                foreach ($clippersToDelete as $clipper) {
-                    $clipper->collections()->delete();
-                    $this->deleteImage($clipper->image_data);
-                    $clipper->delete();
-                }
+        // 1. Delete explicitly requested clippers
+        if (!empty($data['deleted_ids'])) {
+            $clippersToDelete = Clipper::whereIn('id', $data['deleted_ids'])->get();
+            foreach ($clippersToDelete as $clipper) {
+                $clipper->collections()->delete();
+                // Use getRawOriginal to get "clippers/file.jpg" instead of "https://..."
+                $this->deleteImage($clipper->getRawOriginal('image_data'));
+                $clipper->delete();
             }
+        }
 
-            // 2. Main Image Update
-            if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-                $this->deleteImage($series->image_data);
-                $series->image_data = $this->uploadImage($data['image'], 'series');
-                $series->accepted_by = $user->id;
-            }
-            
-            $series->save();
+        // 2. Main Image Update
+        if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
+            $this->deleteImage($series->getRawOriginal('image_data'));
+            $series->image_data = $this->uploadImage($data['image'], 'series');
+        }
+        
+        $series->accepted_by = $user->id;
+        $series->save();
 
-            // 3. Clipper Slots Update/Create
-            if (isset($data['clippers']) && is_array($data['clippers'])) {
-                foreach ($data['clippers'] as $index => $clipperData) {
-                    $slotNumber = $index + 1;
+        // 3. Clipper Slots Update/Create
+        if (isset($data['clippers']) && is_array($data['clippers'])) {
+            foreach ($data['clippers'] as $index => $clipperData) {
+                $slotNumber = $index + 1;
 
-                    if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                        $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
+                if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
+                    $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
-                        if ($clipper) {
-                            $this->deleteImage($clipper->image_data);
-                            $clipper->update([
-                                'image_data' => $this->uploadImage($clipperData['image'], 'clippers'),
-                                'accepted_by'    => $user->id,
-                            ]);
-                        } else {
-                            $series->clippers()->create([
-                                'series_number' => $slotNumber,
-                                'image_data'    => $this->uploadImage($clipperData['image'], 'clippers'),
-                                'requested_by'    => $user->id,
-                                'accepted_by'    => $user->id,
-                            ]);
-                        }
+                    if ($clipper) {
+                        $this->deleteImage($clipper->getRawOriginal('image_data'));
+                        $clipper->update([
+                            'image_data'  => $this->uploadImage($clipperData['image'], 'clippers'),
+                            'accepted_by' => $user->id,
+                        ]);
+                    } else {
+                        $series->clippers()->create([
+                            'series_number' => $slotNumber,
+                            'image_data'    => $this->uploadImage($clipperData['image'], 'clippers'),
+                            'requested_by'  => $user->id,
+                            'accepted_by'   => $user->id,
+                        ]);
                     }
                 }
             }
+        }
 
-            // 4. Re-index custom series
-            if ($series->custom) {
-                $series->clippers()->orderBy('series_number')->get()->each(function ($clipper, $index) {
-                    $clipper->update(['series_number' => $index + 1]);
-                });
-            }
-        });
+        // 4. Re-index custom series
+        if ($series->custom) {
+            $series->clippers()->orderBy('series_number')->get()->each(function ($clipper, $index) {
+                $clipper->update(['series_number' => $index + 1]);
+            });
+        }
+        
+        return $series;
     }
 
     public function deleteSeries(Series $series)
     {
-        return DB::transaction(function () use ($series) {
-            foreach ($series->clippers as $clipper) {
-                $clipper->collections()->delete();
-                $this->deleteImage($clipper->image_data);
-            }
-            $this->deleteImage($series->image_data);
-            return $series->delete();
-        });
+        foreach ($series->clippers as $clipper) {
+            $clipper->collections()->delete();
+            $this->deleteImage($clipper->getRawOriginal('image_data'));
+            $clipper->delete();
+        }
+
+        $this->deleteImage($series->getRawOriginal('image_data'));
+        return $series->delete();
     }
 
-
     /**
-     * Helper to upload image based on environment
+     * Environment dependent upload
      */
     private function uploadImage(UploadedFile $file, string $folder): string
     {
-        // store() uses the default disk from .env and returns the relative path automatically.
         return $file->store($folder);
     }
 
     /**
-     * Helper to delete image based on environment
+     * Environment dependent delete
      */
     private function deleteImage(?string $path)
     {
         if (!$path) return;
 
-        // Laravel automatically knows if this path is on Cloudinary or Local based on your .env
+        // If using Cloudinary, it needs the path without the extension sometimes.
+        // But Laravel's Storage::delete() usually handles this if the disk is set correctly.
         Storage::delete($path);
     }
 

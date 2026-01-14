@@ -165,7 +165,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 {{ item.name }}
                             </Link>
                             <p class="text-[10px] text-muted-foreground uppercase tracking-tight">
-                                {{ item.clippers_count }} Designs • Added by {{ item.requester?.name || 'System' }}
+                                {{ item.clippers_count }} Design(s) • Added by {{ item.requester?.name || 'System' }}
                             </p>
                         </div>
 

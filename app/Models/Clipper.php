@@ -15,7 +15,7 @@ class Clipper extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['series_id', 'series_number', 'accepted_by' ,'requested_by', 'image_data'];
+    protected $fillable = ['series_id', 'series_number', 'requested_by' ,'accepted_by', 'image_data'];
 
     public function series(): BelongsTo
     {
