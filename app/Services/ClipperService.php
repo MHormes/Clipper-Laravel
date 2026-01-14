@@ -23,7 +23,8 @@ class ClipperService
                 'name'       => $data['name'],
                 'custom'     => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
                 'image_data' => $seriesPath, // Stores: "series/filename.jpg"
-                'created_by' => $user->id,
+                'requested_by' => $user->id,
+                'accepted_by' => $user->id,
             ]);
 
             foreach ($data['clippers'] as $index => $clipperData) {
@@ -33,7 +34,8 @@ class ClipperService
                     $series->clippers()->create([
                         'series_number' => $index + 1,
                         'image_data'    => $path, // Stores: "clippers/filename.jpg"
-                        'created_by'    => $user->id,
+                        'requested_by'    => $user->id,
+                        'accepted_by'    => $user->id,
                     ]);
                 }
             }
@@ -65,6 +67,7 @@ class ClipperService
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 $this->deleteImage($series->image_data);
                 $series->image_data = $this->uploadImage($data['image'], 'series');
+                $series->accepted_by = $user->id;
             }
             
             $series->save();
@@ -80,13 +83,15 @@ class ClipperService
                         if ($clipper) {
                             $this->deleteImage($clipper->image_data);
                             $clipper->update([
-                                'image_data' => $this->uploadImage($clipperData['image'], 'clippers')
+                                'image_data' => $this->uploadImage($clipperData['image'], 'clippers'),
+                                'accepted_by'    => $user->id,
                             ]);
                         } else {
                             $series->clippers()->create([
                                 'series_number' => $slotNumber,
                                 'image_data'    => $this->uploadImage($clipperData['image'], 'clippers'),
-                                'created_by'    => $user->id,
+                                'requested_by'    => $user->id,
+                                'accepted_by'    => $user->id,
                             ]);
                         }
                     }
@@ -141,7 +146,7 @@ class ClipperService
         $direction = in_array(strtolower($sortDir ?? ''), ['asc', 'desc']) ? $sortDir : 'desc';
 
         $query = Series::withCount('clippers')
-            ->with(['creator:id,name'])
+            ->with(['requester:id,name'])
             ->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
             $query->whereHas('collections', function ($q) use ($user) {
                 $q->where('user_id', $user->id);

@@ -169,12 +169,12 @@ watch(search, () => {
                                 </div>
                                 <div class="flex justify-between items-center mt-3">
                                     <span class="text-xs font-semibold text-muted-foreground uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-2 py-1 rounded">
-                                        {{ item.collected_clippers_count }} / {{ item.clippers_count }} Collected
+                                        {{ item.collected_clippers_count }} / {{ item.custom ? item.clippers_count : 4 }} Collected
                                     </span>
                                 </div>
                                 <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-3">
                                     <div class="bg-orange-500 h-full transition-all rounded-full"
-                                        :style="{ width: `${(item.collected_clippers_count / Math.max(item.clippers_count, 1)) * 100}%` }">
+                                        :style="{ width: `${(item.collected_clippers_count / (item.custom ? item.clippers_count : 4)) * 100}%` }">
                                     </div>
                                 </div>
                             </div>

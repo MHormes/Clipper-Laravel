@@ -13,7 +13,7 @@ interface Clipper {
     image_data: string;
 }
 
-interface Creator {
+interface Requester {
     name: string;
 }
 
@@ -23,7 +23,7 @@ interface Series {
     custom: boolean;
     image_data: string;
     clippers: Clipper[];
-    creator?: Creator;
+    requester?: Requester;
 }
 
 const props = defineProps<{
@@ -106,7 +106,7 @@ const getClipperByNumber = (n: number) => {
                             </span>
                         </div>
                         <p class="text-sm text-muted-foreground font-medium">
-                            Added by <span class="text-foreground font-bold">{{ series.creator?.name || 'System'
+                            Added by <span class="text-foreground font-bold">{{ series.requester?.name || 'System'
                                 }}</span>
                         </p>
                         <p v-if="isAdmin"
@@ -119,20 +119,19 @@ const getClipperByNumber = (n: number) => {
                         <div v-if="isAdmin">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">System
                                 Status</span>
-                            <p class="text-xl font-bold">{{ registeredCount }} / {{ registeredCount }} Registered</p>
+                            <p class="text-xl font-bold">{{ registeredCount }} / {{ series.custom ? registeredCount : 4 }} Registered</p>
                             <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2">
                                 <div class="bg-blue-500 h-full transition-all"
-                                    :style="{ width: `${(registeredCount / Math.max(registeredCount, 1)) * 100}%` }"></div>
+                                    :style="{ width: `${(registeredCount / (series.custom ?Math.max(registeredCount, 1) : 4)) * 100}%` }"></div>
                             </div>
                         </div>
                         <div>
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Your
                                 Collection</span>
-                            <p class="text-xl font-bold text-orange-600">{{ collectedCount }} / {{ registeredCount }}
-                                Owned</p>
+                            <p class="text-xl font-bold text-orange-600">{{ collectedCount }} / {{ series.custom ? registeredCount : 4 }} Owned</p>
                             <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2">
                                 <div class="bg-orange-500 h-full transition-all"
-                                    :style="{ width: `${(collectedCount / Math.max(registeredCount, 1)) * 100}%` }">
+                                    :style="{ width: `${(collectedCount / (series.custom ? registeredCount : 4)) * 100}%` }">
                                 </div>
                             </div>
                         </div>

@@ -37,7 +37,7 @@ class SeriesController extends Controller
     public function show(Request $request, Series $series)
     {
         // Eager load the clippers associated with this series
-        $series->load(['clippers', 'creator:id,name']);
+        $series->load(['clippers', 'requester:id,name']);
 
         $user = $request->user();
 

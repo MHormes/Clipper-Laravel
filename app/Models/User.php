@@ -57,12 +57,21 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Get all series created by this user.
-     */
-    public function createdSeries(): HasMany
-    {
-        return $this->hasMany(Series::class, 'created_by');
+
+    public function requestedSeries() {
+        return $this->hasMany(Series::class, 'requested_by');
+    }
+
+    public function acceptedSeries() {
+        return $this->hasMany(Series::class, 'accepted_by');
+    }
+
+    public function requestedClippers() {
+        return $this->hasMany(Clipper::class, 'requested_by');
+    }
+
+    public function acceptedClippers() {
+        return $this->hasMany(Clipper::class, 'accepted_by');
     }
 
     /**

@@ -20,7 +20,7 @@ defineProps<{
         name: string;
         image_data: string;
         clippers_count: number;
-        creator?: { name: string };
+        requester?: { name: string };
         created_at: string;
     }>;
     stats: Array<{ label: string, value: string | number }>;
@@ -165,7 +165,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 {{ item.name }}
                             </Link>
                             <p class="text-[10px] text-muted-foreground uppercase tracking-tight">
-                                {{ item.clippers_count }} Designs • Added by {{ item.creator?.name || 'System' }}
+                                {{ item.clippers_count }} Designs • Added by {{ item.requester?.name || 'System' }}
                             </p>
                         </div>
 

@@ -15,7 +15,7 @@ class Series extends Model
 {
     use HasFactory, HasUuids; // Tells Laravel to auto-generate UUIDs for new series
 
-    protected $fillable = ['name', 'custom', 'created_by', 'image_data'];
+    protected $fillable = ['name', 'custom', 'requested_by', 'accepted_by', 'image_data'];
 
     // Relationship: A Series has 4 (usually) Clippers
     public function clippers(): HasMany
@@ -23,14 +23,20 @@ class Series extends Model
         return $this->hasMany(Clipper::class);
     }
 
-    // Relationship: A Series was created by a User
-    public function creator(): BelongsTo
+    // Relationship: A Series was requested by a User
+    public function requester(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by')->withDefault([
+        return $this->belongsTo(User::class, 'requested_by')->withDefault([
         'name' => 'Deleted User',
     ]);
     }
-
+    
+    public function accepter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'accepted_by')->withDefault([
+        'name' => 'Deleted User',
+    ]);
+    }
     protected function imageData(): Attribute
     {
         return Attribute::make(

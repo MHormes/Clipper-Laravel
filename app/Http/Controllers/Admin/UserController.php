@@ -43,16 +43,33 @@ class UserController extends Controller
      */
     public function destroy(Request $request, User $user)
     {
+        $systemId = '019bb7be-fec4-7390-a7e1-63b1a0c1067f';
+
+        // 1. Prevent self-deletion
         if ($user->id === $request->user()->id) {
             return back()->with('error', 'You cannot delete yourself.');
         }
 
-        // Remove their collection ONLY
-        // Series and Clippers are preserved because foreign keys are 'onDelete: set null'
+        // 2. Prevent deleting the System User
+        if ($user->id === $systemId) {
+            return back()->with('error', 'The system fallback user cannot be deleted.');
+        }
+
+        // 3. Re-assign Series and Clippers to the System User
+        // This prevents 'cascade delete' from removing the records
+        $user->requestedSeries()->update(['requested_by' => $systemId]);
+        $user->acceptedSeries()->update(['accepted_by' => $systemId]);
+        
+        $user->requestedClippers()->update(['requested_by' => $systemId]);
+        $user->acceptedClippers()->update(['accepted_by' => $systemId]);
+
+        // 4. Remove their personal collection items
+        // These are usually private to the user, so deleting them is fine
         $user->myCollection()->delete();
         
-        $user->delete();
+        // 5. Finally, delete the user
+        $user->delete($user->id);
 
-        return back()->with('success', 'User deleted successfully.');
+        return back()->with('success', 'User deleted and their contributions archived.');
     }
 }

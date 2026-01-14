@@ -53,7 +53,7 @@ const toggleCollection = (clipperId: number) => {
                             </span>
                         </div>
                         <p class="text-sm text-muted-foreground font-medium mt-2">
-                            You have collected <span class="text-foreground font-bold">{{ series.clippers.length }}</span> clippers from this series.
+                            You have collected <span class="text-foreground font-bold">{{ series.clippers.length }}</span> of <span class="text-foreground font-bold">{{ series.custom ? series.clippers.length : 4 }}</span> clippers from this series.
                         </p>
                     </div>
 
