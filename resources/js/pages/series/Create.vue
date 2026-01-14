@@ -166,7 +166,7 @@ const submit = () => {
                                     Name</label>
                                 <input v-model="form.name" type="text"
                                     class="w-full rounded-lg border-gray-300 dark:bg-black p-3 border focus:ring-2 focus:ring-orange-500 outline-none"
-                                    placeholder="e.g. Mandala Series 1" />
+                                    placeholder="e.g. Mandala 1" />
                                 <div v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}
                                 </div>
                             </div>

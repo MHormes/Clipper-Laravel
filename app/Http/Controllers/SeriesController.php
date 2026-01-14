@@ -50,8 +50,14 @@ class SeriesController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('series/Index', [
-            'series' => $this->clipperService->getSeriesCatalog(null, $request->input('search')),
-            'filters' => $request->only(['search'])
+            'series' => $this->clipperService->getSeriesCatalog(
+                $request->user(), 
+                null, 
+                $request->input('search'), 
+                $request->input('sortCol'), 
+                $request->input('sortDir')
+            ),
+            'filters' => $request->only(['search', 'sortCol', 'sortDir'])
         ]);
     }
 

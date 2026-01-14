@@ -26,7 +26,10 @@ const props = defineProps<{
 
 // Previews for UX: Initialize based on available clippers
 const getInitialPreviews = () => {
-    const maxNum = Math.max(4, ...props.series.clippers.map(c => c.series_number));
+    // If custom, only show existing clippers. If standard, show at least 4 slots.
+    const minSlots = props.series.custom ? 0 : 4;
+    const maxNum = Math.max(minSlots, ...props.series.clippers.map(c => c.series_number));
+    
     const previews: (string | null)[] = [];
     for (let i = 1; i <= maxNum; i++) {
         const clipper = props.series.clippers.find(c => c.series_number === i);
@@ -36,7 +39,9 @@ const getInitialPreviews = () => {
 };
 
 const getInitialClippers = () => {
-    const maxNum = Math.max(4, ...props.series.clippers.map(c => c.series_number));
+    const minSlots = props.series.custom ? 0 : 4;
+    const maxNum = Math.max(minSlots, ...props.series.clippers.map(c => c.series_number));
+    
     return Array.from({ length: maxNum }, (_, i) => {
         const slotNumber = i + 1;
         const clipper = props.series.clippers.find(c => c.series_number === slotNumber);

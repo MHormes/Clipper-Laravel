@@ -135,13 +135,21 @@ class ClipperService
         Storage::delete($path);
     }
 
-    public function getSeriesCatalog(?int $limit = null, ?string $search = null)
+    public function getSeriesCatalog(User $user, ?int $limit = null, ?string $search = null, ?string $sortCol ='created_at', ?string $sortDir ='desc')
     {
+        $column = filled($sortCol) ? $sortCol : 'created_at';
+        $direction = in_array(strtolower($sortDir ?? ''), ['asc', 'desc']) ? $sortDir : 'desc';
+
         $query = Series::withCount('clippers')
             ->with(['creator:id,name'])
-            ->latest();
+            ->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
+            $query->whereHas('collections', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }])
+            ->orderBy($column, $direction);
 
-        if ($search) {
+            if ($search) {
             $query->where('name', 'like', '%' . $search . '%');
         }
 
@@ -149,7 +157,7 @@ class ClipperService
             return $query->limit($limit)->get();
         }
 
-        return $query->paginate(12)->withQueryString();
+        return $query->paginate(15)->withQueryString();
     }
 
     public function getCollectedClippersForSeries(Series $series, ?User $user)
