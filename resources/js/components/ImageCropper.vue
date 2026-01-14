@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import { X, Check, RotateCcw, RotateCw } from 'lucide-vue-next';
@@ -20,6 +20,12 @@ const emit = defineEmits<{
 const cropperRef = ref<any>(null);
 const rotation = ref(0);
 const lastRotation = ref(0);
+
+watch(() => props.open, () => {
+    if (props.open) {
+        reset();
+    }
+})
 
 const handleCancel = () => {
     emit('update:open', false);

@@ -153,7 +153,7 @@ class ClipperService
             ->orderBy($column, $direction);
 
             if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'ilike', '%' . $search . '%');
         }
 
         if ($limit) {
