@@ -6,6 +6,7 @@ import { route } from 'ziggy-js';
 import { Plus, X } from 'lucide-vue-next';
 import { watch } from 'vue';
 import ImageCropper from '@/components/ImageCropper.vue';
+import { convertHeicToJpg } from '@/util/heicSupport';
 
 // Previews for UX
 const seriesPreview = ref<string | null>(null);
@@ -84,29 +85,41 @@ const removeSlot = (index: number) => {
     clipperPreviews.value.splice(index, 1);
 };
 
-const handleSeriesImage = (e: Event) => {
+const isProcessing = ref(false);
+
+const handleSeriesImage = async (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-        cropperSrc.value = URL.createObjectURL(file);
-        cropperTitle.value = 'Crop Series Main Image';
-        cropperAspectRatio.value = 4 / 3;
-        cropperTarget.value = { type: 'series' };
-        cropperOpen.value = true;
+        isProcessing.value = true;
+        try {
+            const processedFile = await convertHeicToJpg(file);
+            cropperSrc.value = URL.createObjectURL(processedFile as Blob);
+            cropperTitle.value = 'Crop Series Main Image';
+            cropperAspectRatio.value = 4 / 3;
+            cropperTarget.value = { type: 'series' };
+            cropperOpen.value = true;
+        } finally {
+            isProcessing.value = false;
+        }
     }
-    // Reset input so same file can be selected again
     (e.target as HTMLInputElement).value = '';
 };
 
-const handleClipperImage = (index: number, e: Event) => {
+const handleClipperImage = async (index: number, e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-        cropperSrc.value = URL.createObjectURL(file);
-        cropperTitle.value = `Crop Clipper #${index + 1}`;
-        cropperAspectRatio.value = 1 / 4;
-        cropperTarget.value = { type: 'clipper', index };
-        cropperOpen.value = true;
+        isProcessing.value = true;
+        try {
+            const processedFile = await convertHeicToJpg(file);
+            cropperSrc.value = URL.createObjectURL(processedFile as Blob);
+            cropperTitle.value = `Crop Clipper #${index + 1}`;
+            cropperAspectRatio.value = 1 / 4;
+            cropperTarget.value = { type: 'clipper', index };
+            cropperOpen.value = true;
+        } finally {
+            isProcessing.value = false;
+        }
     }
-    // Reset input
     (e.target as HTMLInputElement).value = '';
 };
 
@@ -285,6 +298,16 @@ const submit = () => {
             </form>
         </div>
     </AppLayout>
+
+    <div v-if="isProcessing" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl border border-sidebar-border shadow-2xl flex flex-col items-center gap-4">
+            <div class="animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent"></div>
+            <div class="text-center">
+                <p class="font-bold text-lg">Processing Image</p>
+                <p class="text-xs text-muted-foreground uppercase tracking-widest">Converting HEIC to JPEG...</p>
+            </div>
+        </div>
+    </div>
 
     <ImageCropper 
         v-model:open="cropperOpen"
