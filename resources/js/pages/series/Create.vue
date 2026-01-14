@@ -6,7 +6,7 @@ import { route } from 'ziggy-js';
 import { Plus, X } from 'lucide-vue-next';
 import { watch } from 'vue';
 import ImageCropper from '@/components/ImageCropper.vue';
-import { convertHeicToJpg } from '@/util/heicSupport';
+import { ensureJpg } from '@/util/heicSupport';
 
 // Previews for UX
 const seriesPreview = ref<string | null>(null);
@@ -92,7 +92,7 @@ const handleSeriesImage = async (e: Event) => {
     if (file) {
         isProcessing.value = true;
         try {
-            const processedFile = await convertHeicToJpg(file);
+            const processedFile = await ensureJpg(file);
             cropperSrc.value = URL.createObjectURL(processedFile as Blob);
             cropperTitle.value = 'Crop Series Main Image';
             cropperAspectRatio.value = 4 / 3;
@@ -110,7 +110,7 @@ const handleClipperImage = async (index: number, e: Event) => {
     if (file) {
         isProcessing.value = true;
         try {
-            const processedFile = await convertHeicToJpg(file);
+            const processedFile = await ensureJpg(file);
             cropperSrc.value = URL.createObjectURL(processedFile as Blob);
             cropperTitle.value = `Crop Clipper #${index + 1}`;
             cropperAspectRatio.value = 1 / 4;

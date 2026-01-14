@@ -93,13 +93,22 @@ const toggleCollection = (clipperId: number) => {
 
                 <!-- Pagination -->
                 <div v-if="clippers.links.length > 3 && clippers.data.length > 0" class="mt-12 mb-6 flex justify-center gap-2">
-                    <Link v-for="(link, k) in clippers.links" :key="k" :href="link.url" v-html="link.label"
-                        class="px-5 py-2.5 rounded-xl text-sm border font-bold transition-all shadow-sm"
-                        :class="{ 
-                            'bg-orange-600 text-white border-orange-600 shadow-orange-900/10': link.active, 
-                            'bg-white dark:bg-black border-sidebar-border hover:border-orange-500/50': !link.active,
-                            'opacity-50 cursor-not-allowed': !link.url
-                        }" />
+                    <template v-for="(link, k) in clippers.links" :key="k">
+                        <span v-if="link.url === null" 
+                            v-html="link.label" 
+                            class="px-5 py-2.5 rounded-xl text-sm border font-bold opacity-50 cursor-not-allowed bg-white dark:bg-black border-sidebar-border"
+                        />
+                        
+                        <Link v-else 
+                            :href="link.url" 
+                            v-html="link.label"
+                            class="px-5 py-2.5 rounded-xl text-sm border font-bold transition-all shadow-sm"
+                            :class="{ 
+                                'bg-orange-600 text-white border-orange-600 shadow-orange-900/10': link.active, 
+                                'bg-white dark:bg-black border-sidebar-border hover:border-orange-500/50': !link.active 
+                            }" 
+                        />
+                    </template>
                 </div>
             </div>
         </div>

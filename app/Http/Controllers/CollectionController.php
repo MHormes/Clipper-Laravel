@@ -14,11 +14,27 @@ class CollectionController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $search = $request->input('search');
+        $sortCol = $request->input('sortCol');
+        $sortDir = $request->input('sortDir');
 
-        $series = Series::whereHas('clippers.collections', function ($query) use ($user) {
+        $query = Series::whereHas('clippers.collections', function ($query) use ($user) {
             $query->where('user_id', $user->id);
-        })
-        ->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
+        });
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($sortCol === 'name') {
+            $query->orderBy('name', $sortDir === 'asc' ? 'asc' : 'desc');
+        } elseif ($sortCol === 'created_at') {
+            $query->orderBy('created_at', $sortDir === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $series = $query->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
             $query->whereHas('collections', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             });
@@ -38,6 +54,7 @@ class CollectionController extends Controller
 
         return Inertia::render('Collection/Index', [
             'series' => $series,
+            'filters' => $request->only(['search', 'sortCol', 'sortDir']),
         ]);
     }
 
@@ -93,7 +110,7 @@ class CollectionController extends Controller
         $clippers = $user->myCollection()
             ->with(['clipper.series']) // Eager load clipper and its series
             ->latest('date_added')
-            ->paginate(50) 
+            ->paginate(20) 
             ->through(function ($collectionItem) {
                 $clipper = $collectionItem->clipper;
                 return [
