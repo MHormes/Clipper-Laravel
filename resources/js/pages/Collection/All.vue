@@ -59,7 +59,7 @@ const toggleCollection = (clipperId: number) => {
                                 <img :src="clipper.image_data" class="w-full h-full object-cover" />
                             </div>
 
-                            <Link :href="route('collection.show', clipper.series.id)" class="absolute inset-0 z-0" aria-label="View Series">
+                            <Link :href="route('series.show', clipper.series.id)" class="absolute inset-0 z-0" aria-label="View Series">
                                 <span class="sr-only">View Series</span>
                             </Link>
                         </div>

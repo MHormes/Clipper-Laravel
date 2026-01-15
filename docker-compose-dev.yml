@@ -6,30 +6,40 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_DATABASE:-clipper_db}
+      POSTGRES_DB: ${DB_DATABASE:-clipper-postgres}
     ports:
       - "${FORWARD_DB_PORT:-5432}:5432"
     volumes:
       - ./docker/db_data:/var/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  s3:
+s3:
     image: minio/minio
     container_name: clipper_storage
+    # Explicitly kill the default entrypoint
+    entrypoint: ["/bin/sh", "-c"]
     ports:
-      - "9000:9000"    # API Port
-      - "9001:9001"    # Web Console Port
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
     volumes:
       - ./docker/minio_data:/data
-    command: server /data --console-address ":9001"
     restart: always
+    # The command now starts directly with the logic
+    command: >
+      "minio server /data --console-address ':9001' &
+      sleep 5;
+      mc alias set local http://localhost:9000 admin password;
+      mc mb --ignore-existing local/clipper-ms;
+      mc anonymous set download local/clipper-ms;
+      wait"
+
 
 # public config for bucket
 # docker exec clipper_storage //bin/sh -c "mc alias set temp http://localhost:9000 admin password && mc anonymous set download temp/clipper-ms"
