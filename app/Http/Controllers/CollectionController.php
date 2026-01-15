@@ -28,6 +28,15 @@ class CollectionController extends Controller
     }
 
     /**
+     * Display a map with all collected clippers
+     */
+    public function mapview(Request $request)
+    {
+        return Inertia::render('collection/map/Index', [
+        ]);
+    }
+
+    /**
      * Show ALL clippers owned by the user (Board View).
      */
     public function clippers(Request $request)

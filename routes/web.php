@@ -20,6 +20,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
 
+    //Map view
+    Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
+
     // Collection
     Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
     Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');

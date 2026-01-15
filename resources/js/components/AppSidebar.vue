@@ -15,7 +15,7 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Users } from 'lucide-vue-next';
+import { LayoutGrid, Map, Users } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { AppPageProps } from '@/types';
 
@@ -27,6 +27,11 @@ const mainNavItems = computed<NavItem[]>(() => {
             title: 'Dashboard',
             href: dashboard(),
             icon: LayoutGrid,
+        },
+        {
+            title: 'Map View',
+            href: '/mapview',
+            icon: Map,
         },
     ];
 
