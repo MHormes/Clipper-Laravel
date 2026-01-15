@@ -28,26 +28,6 @@ class CollectionController extends Controller
     }
 
     /**
-     * Display the specified series with the user's collected clippers.
-     */
-   public function show(Request $request, Series $series)
-    {
-        $user = $request->user();
-
-        // Load only clippers the user actually owns for this series
-        $series->load(['clippers' => function ($query) use ($user) {
-            $query->whereHas('collections', fn($q) => $q->where('user_id', $user->id))
-                  ->with(['collections' => fn($q) => $q->where('user_id', $user->id)]);
-        }]);
-
-        return Inertia::render('collection/Show', [
-            'series' => $series, 
-            'userCollection' => $series->clippers->pluck('id')->toArray(),
-        ]);
-    }
-
-
-    /**
      * Show ALL clippers owned by the user (Board View).
      */
     public function clippers(Request $request)

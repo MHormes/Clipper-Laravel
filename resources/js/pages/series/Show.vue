@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import NoteModal from '@/components/modal/noteModal.vue'; // Ensure path is correct
+import NoteModal from '@/components/modal/NoteModal.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import { AppPageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';

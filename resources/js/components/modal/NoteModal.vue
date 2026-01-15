@@ -7,8 +7,8 @@ import { MapPin, Search, Loader2, Check, ExternalLink } from 'lucide-vue-next';
 const props = defineProps<{
     show: boolean;
     clipper: any;
-    initialNotes: string | null;
-    initialLocation: string | null;
+    initialNotes: string | null | undefined;
+    initialLocation: string | null | undefined;
 }>();
 
 const emit = defineEmits(['close']);

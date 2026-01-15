@@ -55,16 +55,6 @@ const toggleCollection = (clipperId: number) => {
                     <div v-for="clipper in clippers.data" :key="clipper.id" class="group relative">
                         <div class="bg-white dark:bg-[#161615] rounded-2xl border-2 border-sidebar-border shadow-sm transition-all hover:border-orange-500 hover:shadow-lg">
                             
-                            <!-- <div class="flex justify-between items-center mb-4">
-                                <span class="text-[10px] font-black text-gray-400 uppercase truncate max-w-[80px]" :title="clipper.series.name">
-                                    {{ clipper.series.name }}
-                                </span>
-                                <button @click="toggleCollection(clipper.id)"
-                                    class="p-1.5 rounded-full transition-all text-red-500 bg-red-50 dark:bg-red-500/10 hover:bg-red-100">
-                                    <Heart class="w-4 h-4 fill-current" />
-                                </button>
-                            </div> -->
-                            
                             <div class="aspect-[1/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-900 bg-white dark:bg-black relative group-hover:scale-[1.02] transition-transform duration-300">
                                 <img :src="clipper.image_data" class="w-full h-full object-cover" />
                             </div>

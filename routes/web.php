@@ -23,7 +23,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Collection
     Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
     Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
-    Route::get('/collection/{series}', [CollectionController::class, 'show'])->name('collection.show');
 
     // Series Management - Write (Admin only)
     Route::middleware(['admin'])->group(function () {
