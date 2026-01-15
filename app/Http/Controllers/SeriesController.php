@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use App\Models\Series;
 use App\Http\Requests\StoreSeriesRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 
 class SeriesController extends Controller
 {
@@ -81,6 +82,8 @@ class SeriesController extends Controller
      */
     public function update(StoreSeriesRequest $request, Series $series): RedirectResponse
     {
+        Log::info($request);
+        Log::info($series);
         $this->seriesService->updateSeries($series, $request->user(), $request->validated());
 
         return to_route('series.show', $series->id)

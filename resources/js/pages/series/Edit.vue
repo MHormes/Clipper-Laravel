@@ -7,22 +7,16 @@ import { route } from 'ziggy-js';
 const props = defineProps<{ series: any }>();
 
 const submit = (form: any) => {
-    // Explicitly ensure deleted_ids is included in the submission
-    form.transform((data: any) => {
-        const transformed = {
-            ...data,
-            _method: 'PUT',
-        };
-        
-        // Ensure deleted_ids array is properly included
-        if (!transformed.deleted_ids) {
-            transformed.deleted_ids = [];
-        }
-        
-        return transformed;
-    }).post(route('series.update', props.series.id), {
+    console.log(form)
+    form.transform((data: any) => ({
+        ...data,
+        _method: 'PUT',
+    })).post(route('series.update', props.series.id), {
         forceFormData: true,
         preserveScroll: true,
+        onError: (errors) => {
+            console.error("Server-side validation failed:", errors);
+        }
     });
 };
 </script>

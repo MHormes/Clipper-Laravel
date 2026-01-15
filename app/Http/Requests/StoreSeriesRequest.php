@@ -43,7 +43,7 @@ class StoreSeriesRequest extends FormRequest
             ],
             'clippers.*.image' => 'nullable|image|max:10240',
             'deleted_ids' => 'nullable|array',
-            'deleted_ids.*' => 'integer|exists:clippers,id'
+            'deleted_ids.*' => 'string|exists:clippers,id'
         ];
     }
 

@@ -49,7 +49,7 @@ class SeriesService
 
             // Handle Series Image Update
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-                $this->imageService->deleteImage($series->image_data);
+                $this->imageService->deleteImage($series->getRawOriginal('image_data'));
                 $series->image_data = $this->imageService->uploadImage($data['image'], 'series');
                 $series->accepted_by = $user->id;
             }

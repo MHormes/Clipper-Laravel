@@ -41,7 +41,7 @@ const form = useForm({
     custom: props.initialData?.custom || false,
     image: null as File | null,
     clippers: [] as any[], 
-    deleted_ids: [] as number[],
+    deleted_ids: [] as string[],
 });
 
 onMounted(() => {
