@@ -5,55 +5,24 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Series;
+use App\Models\Clipper;
+use App\Services\CollectionService;
+use Illuminate\Http\RedirectResponse;
 
 class CollectionController extends Controller
 {
+   public function __construct(protected CollectionService $collectionService) {}
+
     /**
      * Display a listing of the series the user has started collecting.
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-        $search = $request->input('search');
-        $sortCol = $request->input('sortCol');
-        $sortDir = $request->input('sortDir');
-
-        $query = Series::whereHas('clippers.collections', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        });
-
-        if ($search) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        if ($sortCol === 'name') {
-            $query->orderBy('name', $sortDir === 'asc' ? 'asc' : 'desc');
-        } elseif ($sortCol === 'created_at') {
-            $query->orderBy('created_at', $sortDir === 'asc' ? 'asc' : 'desc');
-        } else {
-            $query->latest();
-        }
-
-        $series = $query->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
-            $query->whereHas('collections', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
-        }])
-        ->withCount('clippers') // Total clippers in the series
-        ->paginate(12)
-        ->through(function ($series) {
-            return [
-                'id' => $series->id,
-                'name' => $series->name,
-                'image_data' => $series->image_data, // Using accessors if available, or direct mapping
-                'custom' => $series->custom,
-                'collected_count' => $series->collected_clippers_count,
-                'total_count' => $series->clippers_count,
-            ];
-        });
-
-        return Inertia::render('Collection/Index', [
-            'series' => $series,
+        return Inertia::render('collection/Index', [
+            'series' => $this->collectionService->getCollectedSeries(
+                $request->user(), 
+                $request->only(['search', 'sortCol', 'sortDir'])
+            ),
             'filters' => $request->only(['search', 'sortCol', 'sortDir']),
         ]);
     }
@@ -61,72 +30,66 @@ class CollectionController extends Controller
     /**
      * Display the specified series with the user's collected clippers.
      */
-    public function show(Request $request, Series $series)
+   public function show(Request $request, Series $series)
     {
         $user = $request->user();
 
-        // Ensure the user actually has something from this series? 
-        // Or just show it regardless? Let's show it, filtering clippers.
-        
+        // Load only clippers the user actually owns for this series
         $series->load(['clippers' => function ($query) use ($user) {
-            $query->whereHas('collections', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
+            $query->whereHas('collections', fn($q) => $q->where('user_id', $user->id))
+                  ->with(['collections' => fn($q) => $q->where('user_id', $user->id)]);
         }]);
 
-        // Transform clippers for the view
-        $clippers = $series->clippers->map(function ($clipper) {
-            return [
-                'id' => $clipper->id,
-                'series_number' => $clipper->series_number,
-                'image_data' => $clipper->image_data,
-            ];
-        });
-
-        return Inertia::render('Collection/Show', [
-            'series' => [
-                'id' => $series->id,
-                'name' => $series->name,
-                'image_data' => $series->image_data,
-                'custom' => $series->custom,
-                'clippers' => $clippers,
-            ],
-            // We can reuse the same toggle logic if we want, or add specific collection routes.
-            // For now, we will use the existing toggle routes on the frontend, 
-            // but we need to know the User's collection IDs for the "heart" state.
-            // Actually, in this view, ALL displayed items are in the collection.
-            // So we just need the IDs to confirm or toggle them off.
-            'userCollection' => $clippers->pluck('series_number')->toArray(),
+        return Inertia::render('collection/Show', [
+            'series' => $series, 
+            'userCollection' => $series->clippers->pluck('id')->toArray(),
         ]);
     }
+
 
     /**
      * Show ALL clippers owned by the user (Board View).
      */
     public function clippers(Request $request)
     {
-        $user = $request->user();
-
-        $clippers = $user->myCollection()
-            ->with(['clipper.series']) // Eager load clipper and its series
-            ->latest('date_added')
-            ->paginate(20) 
-            ->through(function ($collectionItem) {
-                $clipper = $collectionItem->clipper;
-                return [
-                    'id' => $clipper->id,
-                    'series_number' => $clipper->series_number,
-                    'image_data' => $clipper->image_data,
-                    'series' => [
-                        'id' => $clipper->series->id,
-                        'name' => $clipper->series->name,
-                    ],
-                    'date_added' => $collectionItem->date_added,
-                ];
-            });
-
         return Inertia::render('Collection/All', [
-            'clippers' => $clippers,
+            'clippers' => $this->collectionService->getAllOwnedClippers($request->user()),
         ]);
+    }
+    
+    public function update(Request $request, Clipper $clipper)
+    {
+        $validated = $request->validate([
+            'notes' => 'nullable|string|max:2000',
+            'location_bought' => 'nullable|string|max:255',
+        ]);
+
+        // Call the service
+        $this->collectionService->updateCollectionDetails(
+            $request->user(),
+            $clipper,
+            $validated
+        );
+
+        return back();
+    }
+
+    /**
+     * Toggle the collection status of an entire series.
+     */
+    public function toggleCollection(Request $request, Series $series): RedirectResponse
+    {
+        $this->collectionService->toggleEntireSeries($request->user(), $series);
+        return back();
+    }
+
+    /**
+     * Toggle a clipper in the user's personal collection.
+     */
+    public function toggle(Request $request, Clipper $clipper): RedirectResponse
+    {
+        $this->collectionService->toggleSingleClipper($request->user(), $clipper);
+
+        return back();
     }
 }

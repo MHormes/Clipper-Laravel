@@ -41,6 +41,7 @@ class Series extends Model
     {
         return Attribute::make(
             get: fn ($value) => $value ? Storage::url($value) : null,
+            set: fn ($value) => $value
         );
     }
 }

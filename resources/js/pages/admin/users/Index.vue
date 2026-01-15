@@ -5,7 +5,7 @@ import { route } from 'ziggy-js';
 import { ref, computed, reactive } from 'vue';
 import { Users, ShieldCheck, Mail, Calendar, Trash2, Ban, CheckCircle, Search } from 'lucide-vue-next';
 import { AppPageProps } from '@/types';
-import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 
 const page = usePage<AppPageProps>();
 

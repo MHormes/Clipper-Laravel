@@ -6,7 +6,7 @@ import { route } from 'ziggy-js';
 import { Plus, X } from 'lucide-vue-next';
 import { watch } from 'vue';
 import ImageCropper from '@/components/ImageCropper.vue';
-import { ensureJpg } from '@/util/heicSupport';
+import { ensureJpg } from '@/util/imageSupport';
 
 // Previews for UX
 const seriesPreview = ref<string | null>(null);

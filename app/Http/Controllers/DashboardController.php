@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\ClipperService;
+use App\Services\SeriesService;
 use App\Models\Series;
 use App\Models\Clipper;
 
@@ -12,7 +13,8 @@ class DashboardController extends Controller
 {
 
     public function __construct(
-        protected ClipperService $clipperService
+        protected ClipperService $clipperService,
+        protected SeriesService $seriesService
     ) {}
     
     
@@ -28,13 +30,13 @@ class DashboardController extends Controller
         })->count();
 
         return Inertia::render('Dashboard', [
-            'recentSeries' => $this->clipperService->getSeriesCatalog($user, 8),
+            'recentSeries' => $this->seriesService->getSeriesCatalog($user, 8),
             'stats' => [
                 ['label' => 'Total Series', 'value' => (string) Series::count()],
                 ['label' => 'Total Clippers', 'value' => (string) Clipper::count()],
                 ['label' => 'My Series', 'value' => (string) $mySeriesCount],
                 ['label' => 'My Clippers', 'value' => (string) $request->user()->myCollection()->count()],
-                ['label' => 'Completed Series', 'value' => (string) $this->clipperService->countCompletedSeries($request->user())],
+                ['label' => 'Completed Series', 'value' => (string) $this->seriesService->countCompletedSeries($request->user())],
             ]
         ]);
     }

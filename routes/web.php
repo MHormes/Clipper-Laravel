@@ -5,8 +5,8 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ClipperController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -41,14 +41,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
 
     //Clipper Management
-    Route::post('/clippers/{clipper}/toggle', [ClipperController::class, 'toggle'])->name('clippers.toggle');
-    Route::post('/series/{series}/toggle-collection', [SeriesController::class, 'toggleCollection'])->name('series.toggle-collection');
+    Route::post('/clippers/{clipper}/toggle', [CollectionController::class, 'toggle'])->name('clippers.toggle');
+    Route::post('/series/{series}/toggle-collection', [CollectionController::class, 'toggleCollection'])->name('series.toggle-collection');
+
+    Route::patch('/collection/{clipper}', [CollectionController::class, 'update'])
+    ->name('collection.update')
+    ->middleware('auth');
 
     // Admin Routes
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
-        Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
-        Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
 });

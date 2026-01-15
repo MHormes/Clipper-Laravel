@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Services\ClipperService;
+use App\Services\SeriesService;
+use App\Services\CollectionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Series;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\StoreSeriesRequest;
 use Illuminate\Http\RedirectResponse;
 
 class SeriesController extends Controller
 {
-    public function __construct(protected ClipperService $clipperService) {}
+    public function __construct(protected ClipperService $clipperService, protected SeriesService $seriesService, protected CollectionService $collectionService) {}
 
     /**
     * Show the form for creating a new series.
@@ -43,14 +45,14 @@ class SeriesController extends Controller
 
         return Inertia::render('series/Show', [
             'series' => $series,
-            'userCollection' => $this->clipperService->getCollectedClippersForSeries($series, $user),
+            'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
         ]);
     }
 
     public function index(Request $request)
     {
         return Inertia::render('series/Index', [
-            'series' => $this->clipperService->getSeriesCatalog(
+            'series' => $this->seriesService->getSeriesCatalog(
                 $request->user(), 
                 null, 
                 $request->input('search'), 
@@ -61,45 +63,14 @@ class SeriesController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created series.
+   /**
+     * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSeriesRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|unique:series,name|max:255',
-            'custom' => 'required',
-            'image' => 'required|image|max:10240',
-            'clippers' => [
-                'array',
-                $request->boolean('custom') ? 'max:100' : 'max:4',
-                function ($attribute, $value, $fail) use ($request) {
-                    $isCustom = $request->boolean('custom');
-                    $clippers = collect($value);
-
-                    if ($isCustom) {
-                        if ($clippers->isEmpty()) {
-                            $fail('Custom series must have at least one clipper.');
-                            return;
-                        }
-                        $allFilled = $clippers->every(fn($slot) => isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile);
-                        if (!$allFilled) {
-                            $fail('For custom series, you must provide an image for every slot you have added.');
-                        }
-                    } else {
-                        $hasAtLeastOne = $clippers->contains(fn($slot) => isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile);
-                        if (!$hasAtLeastOne) {
-                            $fail('Please upload at least one clipper image.');
-                        }
-                    }
-                },
-            ],
-            'clippers.*.image' => 'nullable|image|max:10240',
-        ]);
-
-        $series = $this->clipperService->createSeriesWithClippers(
+        $series = $this->seriesService->createSeriesWithClippers(
             $request->user(), 
-            $request->all() 
+            $request->validated() 
         );
 
         return to_route('series.show', $series->id);
@@ -108,46 +79,9 @@ class SeriesController extends Controller
     /**
      * Update the specified series.
      */
-   public function update(Request $request, Series $series)
+    public function update(StoreSeriesRequest $request, Series $series): RedirectResponse
     {
-        $request->validate([
-            // Rule::unique ignores the current series ID so you can save without changing the name
-            'name' => ['required', 'string', 'max:255', Rule::unique('series')->ignore($series->id)],
-            'custom' => 'nullable',
-            'image' => 'nullable|image|max:10240',
-            'clippers' => [
-                'array',
-                $request->boolean('custom') ? 'max:100' : 'max:4',
-                function ($attribute, $value, $fail) use ($request, $series) {
-                    $isCustom = $request->boolean('custom');
-                    $clippersArray = collect($value);
-
-                    if ($isCustom) {
-                        if ($clippersArray->isEmpty()) {
-                            $fail('Custom series must have at least one clipper.');
-                            return;
-                        }
-
-                        // Ensure every slot has either an existing ID or a newly uploaded image
-                        $allValid = $clippersArray->every(function ($slot) {
-                            $hasId = isset($slot['id']) && !empty($slot['id']);
-                            $hasNewImage = isset($slot['image']) && $slot['image'] instanceof \Illuminate\Http\UploadedFile;
-                            return $hasId || $hasNewImage;
-                        });
-
-                        if (!$allValid) {
-                            $fail('All clipper slots in a custom series must have an image.');
-                        }
-                    } else {
-                        // For standard series, we don't strictly enforce all 4 have images
-                    }
-                },
-            ],
-            'clippers.*.image' => 'nullable|image|max:10240',
-        ]);
-
-        // Pass the series object, the current user, and the data to the service
-        $this->clipperService->updateSeries($series, $request->user(), $request->all());
+        $this->seriesService->updateSeries($series, $request->user(), $request->validated());
 
         return to_route('series.show', $series->id)
             ->with('success', 'Series updated successfully!');
@@ -156,52 +90,12 @@ class SeriesController extends Controller
     /**
      * Remove the specified series.
     */
-   public function destroy(Request $request, Series $series)
+    public function destroy(Request $request, Series $series)
     {
 
-        $user = $request->user();
-        // Safety check for role
-        if ($user->role !== 'admin') {
-            abort(403);
-        }
+        $this->seriesService->deleteSeries($series);
 
-        $this->clipperService->deleteSeries($series);
-
-        return to_route('series.index')->with('success', 'Series and all associated images deleted.');
-    }
-
-    /**
-     * Toggle all clippers in a series for the current user.
-     */
-    public function toggleCollection(Request $request, Series $series): RedirectResponse
-    {
-        $user = $request->user();
-        $clipperIds = $series->clippers()->pluck('id');
-        
-        // Find how many of these clippers are already in the user's collection
-        $collectedCount = $user->myCollection()
-            ->whereIn('clipper_id', $clipperIds)
-            ->count();
-
-        if ($collectedCount === $clipperIds->count()) {
-            // Uncollect all if all are already collected
-            $user->myCollection()->whereIn('clipper_id', $clipperIds)->delete();
-        } else {
-            // Collect all missing clippers
-            $existingIds = $user->myCollection()
-                ->whereIn('clipper_id', $clipperIds)
-                ->pluck('clipper_id');
-
-            $missingIds = $clipperIds->diff($existingIds);
-
-            foreach ($missingIds as $id) {
-                $user->myCollection()->create([
-                    'clipper_id' => $id,
-                    'date_added' => now(),
-                ]);
-            }
-        }
-
-        return back();
+        return to_route('series.index')
+            ->with('success', 'Series and all associated images deleted.');
     }
 }

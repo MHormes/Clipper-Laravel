@@ -4,203 +4,131 @@ namespace App\Services;
 
 use App\Models\Series;
 use App\Models\Clipper;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class ClipperService
 {
-   /**
-     * Create a brand new series and its clippers.
-     */
-    public function createSeriesWithClippers($user, array $data)
-    {
-        $seriesPath = $this->uploadImage($data['image'], 'series');
-
-        $series = Series::create([
-            'name'         => $data['name'],
-            'custom'       => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
-            'image_data'   => $seriesPath,
-            'requested_by' => $user->id,
-            'accepted_by'  => $user->id,
-        ]);
-
-        foreach ($data['clippers'] as $index => $clipperData) {
-            if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                $path = $this->uploadImage($clipperData['image'], 'clippers');
-
-                $series->clippers()->create([
-                    'series_number' => $index + 1,
-                    'image_data'    => $path,
-                    'requested_by'  => $user->id,
-                    'accepted_by'   => $user->id,
-                ]);
-            }
-        }
-
-        return $series;
-    }
+    public function __construct(protected ImageService $imageService) {}
 
     /**
-     * Update an existing series and manage clipper slots.
+     * Entry point for updating clippers within a series.
      */
-    public function updateSeries(Series $series, $user, array $data)
+    public function syncClippers(Series $series, array $data, $userId): void
     {
-        $series->name = $data['name'];
-        $series->custom = filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN);
-
-        // 1. Delete explicitly requested clippers
+        // 1. Delete requested clippers
         if (!empty($data['deleted_ids'])) {
-            $clippersToDelete = Clipper::whereIn('id', $data['deleted_ids'])->get();
-            foreach ($clippersToDelete as $clipper) {
-                $clipper->collections()->delete();
-                // Use getRawOriginal to get "clippers/file.jpg" instead of "https://..."
-                $this->deleteImage($clipper->getRawOriginal('image_data'));
-                $clipper->delete();
-            }
+            $this->deleteClippersById($data['deleted_ids']);
         }
 
-        // 2. Main Image Update
-        if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-            $this->deleteImage($series->getRawOriginal('image_data'));
-            $series->image_data = $this->uploadImage($data['image'], 'series');
-        }
-        
-        $series->accepted_by = $user->id;
-        $series->save();
-
-        // 3. Clipper Slots Update/Create
+        // 2. Process the clippers array (Create or Update)
         if (isset($data['clippers']) && is_array($data['clippers'])) {
             foreach ($data['clippers'] as $index => $clipperData) {
-                $slotNumber = $index + 1;
-
-                if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                    $clipper = $series->clippers()->where('series_number', $slotNumber)->first();
-
-                    if ($clipper) {
-                        $this->deleteImage($clipper->getRawOriginal('image_data'));
-                        $clipper->update([
-                            'image_data'  => $this->uploadImage($clipperData['image'], 'clippers'),
-                            'accepted_by' => $user->id,
-                        ]);
-                    } else {
-                        $series->clippers()->create([
-                            'series_number' => $slotNumber,
-                            'image_data'    => $this->uploadImage($clipperData['image'], 'clippers'),
-                            'requested_by'  => $user->id,
-                            'accepted_by'   => $user->id,
-                        ]);
-                    }
-                }
+                $this->syncClipperSlot($series, $clipperData, $index + 1, $userId);
             }
         }
 
-        // 4. Re-index custom series
+        // 3. Sequential re-indexing for custom sets
         if ($series->custom) {
-            $series->clippers()->orderBy('series_number')->get()->each(function ($clipper, $index) {
-                $clipper->update(['series_number' => $index + 1]);
-            });
+            $this->reindexSeries($series);
         }
-        
-        return $series;
-    }
-
-    public function deleteSeries(Series $series)
-    {
-        foreach ($series->clippers as $clipper) {
-            $clipper->collections()->delete();
-            $this->deleteImage($clipper->getRawOriginal('image_data'));
-            $clipper->delete();
-        }
-
-        $this->deleteImage($series->getRawOriginal('image_data'));
-        return $series->delete();
     }
 
     /**
-     * Environment dependent upload
+     * Determines if a slot needs a new Clipper or an Update to an existing one.
      */
-    private function uploadImage(UploadedFile $file, string $folder): string
+    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId): void
     {
-        return $file->store($folder);
+        // If no new image is provided, we don't need to do anything for this slot
+        if (!isset($clipperData['image']) || !($clipperData['image'] instanceof UploadedFile)) {
+            return;
+        }
+
+        $existingClipper = $series->clippers()->where('series_number', $slotNumber)->first();
+
+        if ($existingClipper) {
+            $this->updateClipper($existingClipper, $clipperData['image'], $userId);
+        } else {
+            $this->createClipper($series, $clipperData['image'], $slotNumber, $userId);
+        }
     }
 
     /**
-     * Environment dependent delete
+     * Create a single Clipper.
      */
-    private function deleteImage(?string $path)
+    public function createClipper(Series $series, UploadedFile $image, int $slotNumber, $userId): Clipper
     {
-        if (!$path) return;
+        $path = $this->imageService->uploadImage($image, 'clippers');
 
-        // If using Cloudinary, it needs the path without the extension sometimes.
-        // But Laravel's Storage::delete() usually handles this if the disk is set correctly.
-        Storage::delete($path);
+        return $series->clippers()->create([
+            'series_number' => $slotNumber,
+            'image_data'    => $path,
+            'requested_by'  => $userId,
+            'accepted_by'   => $userId,
+        ]);
     }
 
-    public function getSeriesCatalog(User $user, ?int $limit = null, ?string $search = null, ?string $sortCol ='created_at', ?string $sortDir ='desc')
+    /**
+     * Update a single Clipper and swap images.
+     */
+    public function updateClipper(Clipper $clipper, UploadedFile $image, $userId): bool
     {
-        $column = filled($sortCol) ? $sortCol : 'created_at';
-        $direction = in_array(strtolower($sortDir ?? ''), ['asc', 'desc']) ? $sortDir : 'desc';
+        // Delete old physical file
+        $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
 
-        $query = Series::withCount('clippers')
-            ->with(['requester:id,name'])
-            ->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
-            $query->whereHas('collections', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
-        }])
-            ->orderBy($column, $direction);
+        $newPath = $this->imageService->uploadImage($image, 'clippers');
 
-            if ($search) {
-            $query->where('name', 'ilike', '%' . $search . '%');
-        }
-
-        if ($limit) {
-            return $query->limit($limit)->get();
-        }
-
-        return $query->paginate(15)->withQueryString();
+        return $clipper->update([
+            'image_data'  => $newPath,
+            'accepted_by' => $userId,
+        ]);
     }
 
-    public function getCollectedClippersForSeries(Series $series, ?User $user)
+    /**
+     * Delete multiple clippers by ID.
+     */
+    public function deleteClippersById(array $ids): void
     {
-        if (!$user) {
-            return collect();
+        $clippers = Clipper::whereIn('id', $ids)->get();
+        foreach ($clippers as $clipper) {
+            $this->deleteClipper($clipper);
         }
-
-        return Clipper::whereIn('id', function ($query) use ($user, $series) {
-            $query->select('clipper_id')
-                ->from('collected_clippers')
-                ->where('user_id', $user->id)
-                ->whereIn('clipper_id', function ($subQuery) use ($series) {
-                    $subQuery->select('id')
-                        ->from('clippers')
-                        ->where('series_id', $series->id);
-                });
-        })->pluck('series_number')->toArray();
     }
 
-    public function countCompletedSeries(User $user): int
+    /**
+     * Delete a single Clipper and its assets.
+     */
+    public function deleteClipper(Clipper $clipper): void
     {
-        // 1. Fetch series with:
-        //    - clippers_count: Total clippers in the series
-        //    - collected_count: How many distinct clippers of this series the user owns
-        $seriesStats = Series::withCount(['clippers', 'clippers as collected_count' => function ($query) use ($user) {
-            $query->whereHas('collections', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
-        }])->get();
+        // 1. Clean up pivot table (User collections)
+        $clipper->collections()->delete();
 
-        // 2. Filter in memory
-        return $seriesStats->filter(function ($series) {
-            if ($series->custom) {
-                // Custom: User has all existing clippers in DB
-                return $series->clippers_count > 0 && $series->collected_count >= $series->clippers_count;
-            } else {
-                // Non-custom: User has all 4
-                return $series->collected_count >= 4;
+        // 2. Clean up physical image 
+        // We use getRawOriginal to ensure we get the path 'clippers/xxx.jpg' not the full URL
+        $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
+
+        // 3. Delete DB record
+        $clipper->delete();
+    }
+
+    /**
+     * Batch create helper (for the initial Series creation).
+     */
+    public function createClippersInBatch(Series $series, array $clippersData, $userId): void
+    {
+        foreach ($clippersData as $index => $clipperData) {
+            if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
+                $this->createClipper($series, $clipperData['image'], $index + 1, $userId);
             }
-        })->count();
+        }
+    }
+
+    /**
+     * Re-index series numbers.
+     */
+    protected function reindexSeries(Series $series): void
+    {
+        $series->clippers()->orderBy('series_number')->get()->each(function ($clipper, $index) {
+            $clipper->update(['series_number' => $index + 1]);
+        });
     }
 }
