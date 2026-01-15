@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17
+    container_name: clipper_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_DATABASE:-clipper_db}
+    ports:
+      - "${FORWARD_DB_PORT:-5432}:5432"
+    volumes:
+      - ./docker/db_data:/var/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  s3:
+    image: minio/minio
+    container_name: clipper_storage
+    ports:
+      - "9000:9000"    # API Port
+      - "9001:9001"    # Web Console Port
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    volumes:
+      - ./docker/minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: always
+
+# public config for bucket
+# docker exec clipper_storage //bin/sh -c "mc alias set temp http://localhost:9000 admin password && mc anonymous set download temp/clipper-ms"
