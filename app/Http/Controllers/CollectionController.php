@@ -52,7 +52,7 @@ class CollectionController extends Controller
      */
     public function clippers(Request $request)
     {
-        return Inertia::render('Collection/All', [
+        return Inertia::render('collection/All', [
             'clippers' => $this->collectionService->getAllOwnedClippers($request->user()),
         ]);
     }

@@ -65,6 +65,24 @@ class CollectionService
     }
 
     /**
+     * Get a map of collected clipper details for a specific series.
+     * Returns: { [clipper_id]: { notes: string, location_bought: string, ... } }
+     */
+    public function getCollectedClippersForSeries(Series $series, User $user): array
+    {
+        return $user->myCollection()
+            ->whereIn('clipper_id', $series->clippers->pluck('id'))
+            ->get()
+            ->keyBy('clipper_id') // This turns the collection into an object keyed by clipper_id
+            ->map(fn($item) => [
+                'notes' => $item->notes,
+                'location_bought' => $item->location_bought,
+                'collected_at' => $item->created_at->format('Y-m-d'),
+            ])
+            ->toArray();
+    }
+    
+    /**
      * Toggle a single clipper for a user.
      */
     public function toggleSingleClipper(User $user, Clipper $clipper): void
