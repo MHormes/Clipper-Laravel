@@ -30,3 +30,5 @@ yarn-error.log
 /docker
 docker/minio_data/.minio.sys/buckets/.bloomcycle.bin/xl.meta
 docker/minio_data/.minio.sys/buckets/.usage.json/xl.meta
+/backups
+/database/data

@@ -55,12 +55,28 @@ class CsvDataSeeder extends Seeder
         })
         ->chunk(250)
         ->each(function ($chunk) use ($table) {
+            // 1. Check if the collection actually has any items
+            if ($chunk->isEmpty()) {
+                return; 
+            }
+
             $preparedData = $chunk->map(function ($item) {
-                // Convert empty CSV strings to actual NULLs for Postgres
                 return array_map(fn($value) => $value === '' ? null : $value, $item);
             })->toArray();
 
-            DB::table($table)->insertOrIgnore($preparedData);
+            // 2. Double-check the array isn't empty after mapping
+            if (empty($preparedData)) {
+                return;
+            }
+
+            // 3. Get keys from the first actual data row
+            $columns = array_keys(reset($preparedData));
+
+            DB::table($table)->upsert(
+                $preparedData, 
+                ['id'],          
+                $columns         
+            );
         });
     }
 }

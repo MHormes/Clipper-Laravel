@@ -3,6 +3,9 @@
 # Default to 'docker' profile if no argument is provided
 PROFILE=${1:-local}
 
+echo "Stopping & removing containers..."
+docker compose down
+
 echo "🌟 Using Profile: .env.$PROFILE"
 
 # 1. Create Volumes

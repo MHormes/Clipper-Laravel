@@ -9,7 +9,7 @@ services:
       - "8000:80"
     # This is the "Spring Profile" logic:
     env_file:
-      - .env.${APP_PROFILE:-docker} 
+      - .env.${APP_PROFILE:-local} 
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor
@@ -32,13 +32,13 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_DATABASE:clipper-ms}
+      POSTGRES_DB: ${DB_DATABASE:-clipper_ms}
     ports:
       - "${FORWARD_DB_PORT:-5432}:5432"
     volumes:
       - clipper_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper-ms}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper_ms}"]
       interval: 5s
       timeout: 5s
       retries: 5
