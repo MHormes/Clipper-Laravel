@@ -32,7 +32,7 @@ class CollectionService
             ->withCount(['clippers as collected_clippers_count' => function ($q) use ($user) {
                 $q->whereHas('collections', fn($sq) => $sq->where('user_id', $user->id));
             }])
-            ->paginate(12)
+            ->paginate(20)
             ->through(fn($series) => [
                 'id' => $series->id,
                 'name' => $series->name,
@@ -50,8 +50,8 @@ class CollectionService
     {
         return $user->myCollection()
             ->with(['clipper.series'])
-            ->latest()
-            ->paginate(16)
+            ->paginate(64)
+            // ->orderBy('series_id', 'asc')
             ->through(fn($item) => [
                 'id' => $item->clipper->id,
                 'series_number' => $item->clipper->series_number,
