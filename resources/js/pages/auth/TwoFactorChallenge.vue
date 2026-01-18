@@ -23,16 +23,16 @@ const authConfigContent = computed<AuthConfigContent>(() => {
         return {
             title: 'Recovery Code',
             description:
-                'Please confirm access to your account by entering one of your emergency recovery codes.',
-            toggleText: 'login using an authentication code',
+                'Confirm access to your account by entering one of your emergency recovery codes.',
+            toggleText: 'Use authentication code',
         };
     }
 
     return {
-        title: 'Authentication Code',
+        title: 'Two-Factor Auth',
         description:
-            'Enter the authentication code provided by your authenticator application.',
-        toggleText: 'login using a recovery code',
+            'Enter the 6-digit code provided by your authenticator app.',
+        toggleText: 'Use a recovery code',
     };
 });
 
@@ -58,15 +58,14 @@ const code = ref<string>('');
             <template v-if="!showRecoveryInput">
                 <Form
                     v-bind="store.form()"
-                    class="space-y-4"
+                    class="space-y-6"
                     reset-on-error
                     @error="code = ''"
                     #default="{ errors, processing, clearErrors }"
                 >
                     <input type="hidden" name="code" :value="code" />
-                    <div
-                        class="flex flex-col items-center justify-center space-y-3 text-center"
-                    >
+                    
+                    <div class="flex flex-col items-center justify-center space-y-4">
                         <div class="flex w-full items-center justify-center">
                             <InputOTP
                                 id="otp"
@@ -75,25 +74,32 @@ const code = ref<string>('');
                                 :disabled="processing"
                                 autofocus
                             >
-                                <InputOTPGroup>
+                                <InputOTPGroup class="gap-2">
                                     <InputOTPSlot
                                         v-for="index in 6"
                                         :key="index"
                                         :index="index - 1"
+                                        class="h-12 w-10 rounded-xl border-gray-200 text-lg font-bold focus:ring-2 focus:ring-[#f53003] dark:border-white/10 dark:bg-[#161615]"
                                     />
                                 </InputOTPGroup>
                             </InputOTP>
                         </div>
                         <InputError :message="errors.code" />
                     </div>
-                    <Button type="submit" class="w-full" :disabled="processing"
-                        >Continue</Button
+
+                    <Button 
+                        type="submit" 
+                        class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]" 
+                        :disabled="processing || code.length < 6"
                     >
-                    <div class="text-center text-sm text-muted-foreground">
-                        <span>or you can </span>
+                        <Spinner v-if="processing" class="mr-2" />
+                        Verify Code
+                    </Button>
+
+                    <div class="text-center text-sm">
                         <button
                             type="button"
-                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                            class="font-bold text-[#f53003] hover:text-[#ff4433] transition-colors"
                             @click="() => toggleRecoveryMode(clearErrors)"
                         >
                             {{ authConfigContent.toggleText }}
@@ -105,27 +111,35 @@ const code = ref<string>('');
             <template v-else>
                 <Form
                     v-bind="store.form()"
-                    class="space-y-4"
+                    class="space-y-6"
                     reset-on-error
                     #default="{ errors, processing, clearErrors }"
                 >
-                    <Input
-                        name="recovery_code"
-                        type="text"
-                        placeholder="Enter recovery code"
-                        :autofocus="showRecoveryInput"
-                        required
-                    />
-                    <InputError :message="errors.recovery_code" />
-                    <Button type="submit" class="w-full" :disabled="processing"
-                        >Continue</Button
-                    >
+                    <div class="grid gap-2">
+                        <Input
+                            name="recovery_code"
+                            type="text"
+                            placeholder="Enter 8-character recovery code"
+                            class="rounded-xl border-gray-200 py-6 text-center font-mono uppercase tracking-widest focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                            :autofocus="showRecoveryInput"
+                            required
+                        />
+                        <InputError :message="errors.recovery_code" />
+                    </div>
 
-                    <div class="text-center text-sm text-muted-foreground">
-                        <span>or you can </span>
+                    <Button 
+                        type="submit" 
+                        class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all" 
+                        :disabled="processing"
+                    >
+                        <Spinner v-if="processing" class="mr-2" />
+                        Continue
+                    </Button>
+
+                    <div class="text-center text-sm">
                         <button
                             type="button"
-                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                            class="font-bold text-[#f53003] hover:text-[#ff4433] transition-colors"
                             @click="() => toggleRecoveryMode(clearErrors)"
                         >
                             {{ authConfigContent.toggleText }}

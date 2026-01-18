@@ -14,6 +14,14 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/privacy', function(){
+    return Inertia::render('Privacy');
+})->name('privacy');
+
+Route::get('/terms', function(){
+    return Inertia::render('Terms');
+})->name('terms');
+
 // Protected Routes (Require Login)
 Route::middleware(['auth', 'verified'])->group(function () {
 

@@ -14,36 +14,41 @@ defineProps<{
 
 <template>
     <AuthLayout
-        title="Verify email"
-        description="Please verify your email address by clicking on the link we just emailed to you."
+        title="Check your inbox"
+        description="We've sent a verification link to your email. Please click it to activate your collection."
     >
         <Head title="Email verification" />
 
         <div
             v-if="status === 'verification-link-sent'"
-            class="mb-4 text-center text-sm font-medium text-green-600"
+            class="mb-6 rounded-xl bg-green-50 p-4 text-center text-sm font-semibold text-green-700 dark:bg-green-900/10 dark:text-green-400"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            A fresh verification link has been sent to your email address.
         </div>
 
         <Form
             v-bind="send.form()"
-            class="space-y-6 text-center"
+            class="flex flex-col gap-6"
             v-slot="{ processing }"
         >
-            <Button :disabled="processing" variant="secondary">
-                <Spinner v-if="processing" />
-                Resend verification email
+            <Button 
+                type="submit"
+                :disabled="processing" 
+                class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
+            >
+                <Spinner v-if="processing" class="mr-2" />
+                Resend Verification Email
             </Button>
 
-            <TextLink
-                :href="logout()"
-                as="button"
-                class="mx-auto block text-sm"
-            >
-                Log out
-            </TextLink>
+            <div class="text-center">
+                <TextLink
+                    :href="logout()"
+                    as="button"
+                    class="text-sm font-bold text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white transition-colors"
+                >
+                    Log out of this account
+                </TextLink>
+            </div>
         </Form>
     </AuthLayout>
 </template>

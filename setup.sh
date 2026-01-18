@@ -16,7 +16,7 @@ docker volume create clipper_minio_data > /dev/null
 # 2. Start Containers with the specific profile
 # Passing APP_PROFILE to the shell makes it available to docker-compose.yml
 echo "🚀 Starting containers..."
-APP_PROFILE=$PROFILE docker compose up -d --build
+APP_PROFILE=$PROFILE docker compose -f docker-compose-$PROFILE.yml up -d --build
 
 # 3. Wait for MinIO
 echo "⏳ Waiting for MinIO (10s)..."

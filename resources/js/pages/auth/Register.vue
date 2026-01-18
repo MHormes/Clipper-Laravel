@@ -9,12 +9,13 @@ import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 import { Form, Head } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 </script>
 
 <template>
     <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
+        title="Start your collection"
+        description="Join Clipper MS to track and catalog your series"
     >
         <Head title="Register" />
 
@@ -24,9 +25,9 @@ import { Form, Head } from '@inertiajs/vue3';
             v-slot="{ errors, processing }"
             class="flex flex-col gap-6"
         >
-            <div class="grid gap-6">
+            <div class="grid gap-5">
                 <div class="grid gap-2">
-                    <Label for="name">Name</Label>
+                    <Label for="name" class="text-sm font-bold tracking-tight">Full Name</Label>
                     <Input
                         id="name"
                         type="text"
@@ -35,13 +36,14 @@ import { Form, Head } from '@inertiajs/vue3';
                         :tabindex="1"
                         autocomplete="name"
                         name="name"
-                        placeholder="Full name"
+                        placeholder="e.g. Jasper van den Berg"
+                        class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
                     />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email" class="text-sm font-bold tracking-tight">Email address</Label>
                     <Input
                         id="email"
                         type="email"
@@ -49,59 +51,72 @@ import { Form, Head } from '@inertiajs/vue3';
                         :tabindex="2"
                         autocomplete="email"
                         name="email"
-                        placeholder="email@example.com"
+                        placeholder="name@example.com"
+                        class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="3"
-                        autocomplete="new-password"
-                        name="password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="errors.password" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid gap-2">
+                        <Label for="password" class="text-sm font-bold tracking-tight">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            required
+                            :tabindex="3"
+                            autocomplete="new-password"
+                            name="password"
+                            placeholder="••••••••"
+                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                        />
+                    </div>
+                    <div class="grid gap-2">
+                        <Label for="password_confirmation" class="text-sm font-bold tracking-tight">Confirm</Label>
+                        <Input
+                            id="password_confirmation"
+                            type="password"
+                            required
+                            :tabindex="4"
+                            autocomplete="new-password"
+                            name="password_confirmation"
+                            placeholder="••••••••"
+                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                        />
+                    </div>
                 </div>
-
-                <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
-                    <Input
-                        id="password_confirmation"
-                        type="password"
-                        required
-                        :tabindex="4"
-                        autocomplete="new-password"
-                        name="password_confirmation"
-                        placeholder="Confirm password"
-                    />
+                <div class="col-span-full">
+                    <InputError :message="errors.password" />
                     <InputError :message="errors.password_confirmation" />
                 </div>
 
+                <p class="text-[11px] text-[#706f6c] dark:text-[#A1A09A] leading-tight">
+                    By registering, you agree to our 
+                    <TextLink :href="route('terms')" class="text-[#f53003] hover:underline">Terms</TextLink> and acknowledge our 
+                    <TextLink :href="route('privacy')" class="text-[#f53003] hover:underline">Privacy Policy</TextLink>.
+                </p>
+
                 <Button
                     type="submit"
-                    class="mt-2 w-full"
+                    class="mt-2 w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
                     tabindex="5"
                     :disabled="processing"
                     data-test="register-user-button"
                 >
-                    <Spinner v-if="processing" />
+                    <Spinner v-if="processing" class="mr-2 h-4 w-4" />
                     Create account
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
+            <div class="text-center text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
                 Already have an account?
                 <TextLink
                     :href="login()"
-                    class="underline underline-offset-4"
+                    class="text-[#1b1b18] dark:text-[#EDEDEC] font-bold hover:text-[#f53003] transition-colors"
                     :tabindex="6"
-                    >Log in</TextLink
                 >
+                    Log in
+                </TextLink>
             </div>
         </Form>
     </AuthBase>

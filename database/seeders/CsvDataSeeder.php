@@ -11,11 +11,16 @@ class CsvDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Handle Postgres Constraints
-        // This allows us to insert data even if the order isn't perfect, 
-        // checking constraints only at the end of the transaction.
+        $driver = DB::getDriverName();
+
+        // 1. Handle Constraints based on Database Driver
+        if ($driver === 'pgsql') {
+            DB::statement('SET CONSTRAINTS ALL DEFERRED');
+        } elseif ($driver === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = OFF');
+        }
+
         DB::beginTransaction();
-        DB::statement('SET CONSTRAINTS ALL DEFERRED');
 
         $tables = [
             'users' => 'users.csv',
@@ -36,6 +41,12 @@ class CsvDataSeeder extends Seeder
         }
 
         DB::commit();
+
+        // Re-enable for SQLite (Postgres transaction commit handles it automatically)
+        if ($driver === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = ON');
+        }
+
         $this->command->info('Full data import completed successfully.');
     }
 
@@ -55,23 +66,24 @@ class CsvDataSeeder extends Seeder
         })
         ->chunk(250)
         ->each(function ($chunk) use ($table) {
-            // 1. Check if the collection actually has any items
             if ($chunk->isEmpty()) {
                 return; 
             }
 
             $preparedData = $chunk->map(function ($item) {
+                // Convert empty strings to null for better database integrity
                 return array_map(fn($value) => $value === '' ? null : $value, $item);
             })->toArray();
 
-            // 2. Double-check the array isn't empty after mapping
             if (empty($preparedData)) {
                 return;
             }
 
-            // 3. Get keys from the first actual data row
+            // Get columns for the upsert update list
             $columns = array_keys(reset($preparedData));
 
+            // SQLite upsert requires a unique index to work. 
+            // 'id' is perfect since it's our primary key.
             DB::table($table)->upsert(
                 $preparedData, 
                 ['id'],          

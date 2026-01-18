@@ -5,11 +5,9 @@ services:
       dockerfile: Dockerfile
     container_name: clipper_app
     restart: unless-stopped
-    ports:
-      - "8000:80"
     # This is the "Spring Profile" logic:
     env_file:
-      - .env.${APP_PROFILE:-local} 
+      - .env.${APP_PROFILE:-local}
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor
@@ -23,7 +21,15 @@ services:
       resources:
         limits:
           memory: 1024M
-    entrypoint: ["/bin/sh", "/var/www/html/start.sh"]
+    entrypoint: [ "/bin/sh", "/var/www/html/start.sh" ]
+
+  clipper_tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: clipper_tunnel
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
 
   clipper_postgres:
     image: postgres:17-alpine
@@ -33,12 +39,10 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_DB: ${DB_DATABASE:-clipper_ms}
-    ports:
-      - "${FORWARD_DB_PORT:-5432}:5432"
     volumes:
       - clipper_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper_ms}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-clipper_ms}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -52,15 +56,14 @@ services:
     image: minio/minio
     container_name: clipper_storage
     restart: always
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
+      MINIO_BROWSER: "off"
+      MINIO_BROWSER_REDIRECT: "false"
     volumes:
       - clipper_minio_data:/data
-    command: server /data --console-address ":9001"
+    command: server /data
     deploy:
       resources:
         limits:

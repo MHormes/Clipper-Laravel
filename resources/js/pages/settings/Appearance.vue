@@ -11,7 +11,7 @@ import { edit } from '@/routes/appearance';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Appearance settings',
+        title: 'Appearance',
         href: edit().url,
     },
 ];
@@ -19,17 +19,39 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Appearance settings" />
+        <Head title="Appearance Settings" />
 
         <h1 class="sr-only">Appearance Settings</h1>
 
         <SettingsLayout>
-            <div class="space-y-6">
-                <HeadingSmall
-                    title="Appearance settings"
-                    description="Update your account's appearance settings"
-                />
-                <AppearanceTabs />
+            <div class="space-y-8 p-1">
+                <div class="space-y-1">
+                    <HeadingSmall
+                        title="Appearance"
+                        description="Customize how Clipper MS looks on your device"
+                        class="text-xl font-black tracking-tight"
+                    />
+                    <div class="h-1 w-12 bg-[#f53003] rounded-full mt-2"></div>
+                </div>
+
+                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#161615]">
+                    <div class="max-w-xl">
+                        <p class="mb-6 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                            Switch between light and dark modes, or let the app follow your system preference.
+                        </p>
+                        
+                        <AppearanceTabs />
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 rounded-xl bg-orange-50/50 p-4 border border-orange-100 dark:bg-orange-950/10 dark:border-orange-900/20">
+                    <div class="text-[#f53003] mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    </div>
+                    <p class="text-xs leading-relaxed text-orange-900/80 dark:text-orange-300/80">
+                        <strong>GDPR Note:</strong> Your appearance preference is stored locally to ensure a consistent experience without unnecessary tracking.
+                    </p>
+                </div>
             </div>
         </SettingsLayout>
     </AppLayout>
