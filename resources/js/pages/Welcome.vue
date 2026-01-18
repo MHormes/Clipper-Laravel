@@ -96,6 +96,7 @@ const stats = [
                     <Link :href="route('privacy')" class="hover:text-[#f53003] transition">
                         Privacy Policy
                     </Link>
+                    <a href="https://buymeacoffee.com/mhormes" class="hover:text-[#f53003] transition">Buy me a Coffee</a>
                     <a href="https://github.com/mhormes" class="hover:text-[#f53003] transition">Support</a>
                 </div>
             </div>
