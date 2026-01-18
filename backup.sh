@@ -1,11 +1,22 @@
 #!/bin/bash
 
+ENV_FILE=".env.production"
+
+if [ -f "$ENV_FILE" ]; then
+    echo "reading configuration from $ENV_FILE..."
+    # Export variables, ignoring comments and empty lines
+    export $(grep -v '^#' "$ENV_FILE" | xargs)
+else
+    echo "❌ Error: $ENV_FILE not found!"
+    exit 1
+fi
+
 # Configuration
 BACKUP_DIR="./backups/$(date +%Y-%m-%d_%H-%M-%S)"
-DB_CONTAINER="clipper_postgres"
-S3_CONTAINER="clipper_storage"
-DB_NAME="clipper_ms"
-DB_USER="postgres"
+DB_CONTAINER="clipper_postgres_prod"
+S3_CONTAINER="clipper_storage_prod"
+DB_NAME="${DB_DATABASE}"
+DB_USER="${DB_USERNAME}"
 
 mkdir -p "$BACKUP_DIR/csv"
 mkdir -p "$BACKUP_DIR/storage"
@@ -25,7 +36,7 @@ done
 # --- 2. Download MinIO Bucket ---
 echo "📦 Downloading MinIO bucket (clipper-ms)..."
 # We use 'mc mirror' to sync the container's bucket to our local backup folder
-docker exec $S3_CONTAINER sh -c "mc alias set local http://localhost:9000 admin password > /dev/null && mc mirror local/clipper-ms /tmp/backup_mirror"
+docker exec $S3_CONTAINER sh -c "mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} > /dev/null && mc mirror local/clipper-ms /tmp/backup_mirror"
 # Copy from container to host
 docker cp $S3_CONTAINER:/tmp/backup_mirror/. "$BACKUP_DIR/storage/"
 # Clean up temp files in container

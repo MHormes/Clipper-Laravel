@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-echo "Waiting for database (clipper_postgres)..."
-until php -r "try { \$p = new PDO('pgsql:host=clipper_postgres;port=5432;dbname=${DB_DATABASE}', '${DB_USERNAME}', '${DB_PASSWORD}'); exit(0); } catch (Exception \$e) { exit(1); }"; do
+echo "Waiting for database (${DB_HOST})..."
+until php -r "try { \$p = new PDO('pgsql:host=${DB_HOST};port=5432;dbname=${DB_DATABASE}', '${DB_USERNAME}', '${DB_PASSWORD}'); exit(0); } catch (Exception \$e) { exit(1); }"; do
   sleep 1
 done
 
@@ -16,7 +16,7 @@ php artisan migrate --force
 
 # SMART SEEDING LOGIC
 # We check if there are any users. If count is 0, we run the seeder.
-USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();")
+USER_COUNT=$(php artisan tinker --execute="echo \App\Models\Clipper::count();")
 
 if [ "$USER_COUNT" -eq "0" ]; then
     echo "🌱 First run detected. Seeding data from CSVs..."
