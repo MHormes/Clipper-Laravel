@@ -28,7 +28,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                 <div class="space-y-1">
                     <HeadingSmall
                         title="Appearance"
-                        description="Customize how Clipper MS looks on your device"
+                        description="Customize how Clipper-MS looks on your device"
                         class="text-xl font-black tracking-tight"
                     />
                     <div class="h-1 w-12 bg-[#f53003] rounded-full mt-2"></div>

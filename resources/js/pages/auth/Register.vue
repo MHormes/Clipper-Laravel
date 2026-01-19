@@ -15,7 +15,7 @@ import { route } from 'ziggy-js';
 <template>
     <AuthBase
         title="Start your collection"
-        description="Join Clipper MS to track and catalog your series"
+        description="Join Clipper-MS to track and catalog your series"
     >
         <Head title="Register" />
 

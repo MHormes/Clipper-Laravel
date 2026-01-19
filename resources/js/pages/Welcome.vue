@@ -15,7 +15,7 @@ const stats = [
 </script>
 
 <template>
-    <Head title="Welcome to Clipper MS" />
+    <Head title="Welcome to Clipper-MS" />
 
     <div class="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] selection:bg-orange-500 selection:text-white">
         
@@ -56,9 +56,9 @@ const stats = [
                 <div class="mt-16 flex-1 lg:mt-0 relative">
                     <div class="grid grid-cols-2 gap-4">
                         <img src="/images/hero.png" 
-                             class="rounded-3xl shadow-xl transform lg:-rotate-3 hover:rotate-0 transition duration-500" alt="Clipper 1" />
+                             class="transform lg:-rotate-3 hover:rotate-0 transition duration-500" alt="Clipper 1" />
                         <img src="/images/hero_2.png" 
-                             class="mt-12 rounded-3xl shadow-xl transform lg:rotate-3 hover:rotate-0 transition duration-500" alt="Clipper 2" />
+                             class="mt-12 transform lg:rotate-3 hover:rotate-0 transition duration-500" alt="Clipper 2" />
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@ const stats = [
             <div class="mx-auto max-w-4xl px-6 text-center">
                 <div class="rounded-[3rem] bg-[#1b1b18] p-12 text-white dark:bg-[#1D0002]">
                     <h2 class="text-4xl font-bold">Ready to finish that set?</h2>
-                    <p class="mt-4 text-gray-400">Join other collectors and get your database organized today.</p>
+                    <p class="mt-4 text-gray-400">Join other collectors and get your collection organized today.</p>
                     <Link v-if="canRegister" :href="register()"
                         class="mt-8 inline-block rounded-full bg-white px-10 py-4 font-bold text-black transition hover:bg-gray-200">
                         Create Free Account
@@ -90,7 +90,7 @@ const stats = [
 
         <footer class="border-t border-gray-100 py-12 dark:border-white/5">
             <div class="mx-auto max-w-7xl px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                <p class="text-sm text-[#706f6c]">© 2024 Clipper MS. All rights reserved.</p>
+                <p class="text-sm text-[#706f6c]">© 2024 Clipper-MS. All rights reserved.</p>
                 <div class="flex gap-8 text-sm font-medium">
                     <Link :href="route('terms')" class="hover:text-[#f53003] transition">Terms of Use</Link>
                     <Link :href="route('privacy')" class="hover:text-[#f53003] transition">

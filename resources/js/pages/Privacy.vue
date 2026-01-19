@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <Head title="Privacy Policy - Clipper MS" />
+    <Head title="Privacy Policy - Clipper-MS" />
 
     <div class="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
         <nav class="border-b border-gray-100 dark:border-white/10">
@@ -18,7 +18,7 @@ import { Head, Link } from '@inertiajs/vue3';
         <main class="mx-auto max-w-3xl px-6 py-16 lg:py-24">
             <h1 class="text-4xl font-black tracking-tighter lg:text-5xl">Privacy Policy</h1>
             <p class="mt-4 text-[#706f6c] dark:text-[#A1A09A]">
-                Last updated: January 2026 • Clipper MS (Netherlands)
+                Last updated: January 2026 • Clipper-MS (Netherlands)
             </p>
 
             <div class="mt-12 space-y-12 prose prose-orange dark:prose-invert">
@@ -74,7 +74,7 @@ import { Head, Link } from '@inertiajs/vue3';
         </main>
 
         <footer class="mt-20 py-12 text-center border-t border-gray-100 dark:border-white/10">
-            <p class="text-xs text-[#706f6c]">Clipper MS operates under the jurisdiction of the Netherlands.</p>
+            <p class="text-xs text-[#706f6c]">Clipper-MS operates under the jurisdiction of the Netherlands.</p>
         </footer>
     </div>
 </template>

@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <Head title="Terms of Use - Clipper MS" />
+    <Head title="Terms of Use - Clipper-MS" />
 
     <div class="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
         <nav class="border-b border-gray-100 dark:border-white/10">
@@ -23,7 +23,7 @@ import { Head, Link } from '@inertiajs/vue3';
                 <section>
                     <h2 class="text-xl font-bold border-b border-gray-100 pb-2 dark:border-white/10">1. Account Security</h2>
                     <p class="mt-4 leading-relaxed text-[#706f6c] dark:text-[#A1A09A]">
-                        To use Clipper MS, you must create an account. You are responsible for maintaining the confidentiality of your password. We are not liable for any loss resulting from unauthorized access to your account.
+                        To use Clipper-MS, you must create an account. You are responsible for maintaining the confidentiality of your password. We are not liable for any loss resulting from unauthorized access to your account.
                     </p>
                 </section>
 
@@ -43,7 +43,7 @@ import { Head, Link } from '@inertiajs/vue3';
                 <section>
                     <h2 class="text-xl font-bold border-b border-gray-100 pb-2 dark:border-white/10">3. "As-Is" Service</h2>
                     <p class="mt-4 leading-relaxed text-[#706f6c] dark:text-[#A1A09A]">
-                        Clipper MS is provided "as is." While we strive for 100% uptime and data integrity, we do not guarantee that the service will be error-free or that your collection data will be permanently available. We recommend keeping personal backups of important collection data.
+                        Clipper-MS is provided "as is." While we strive for 100% uptime and data integrity, we do not guarantee that the service will be error-free or that your collection data will be permanently available. We recommend keeping personal backups of important collection data.
                     </p>
                 </section>
 
@@ -64,7 +64,7 @@ import { Head, Link } from '@inertiajs/vue3';
         </main>
 
         <footer class="mt-20 py-12 text-center border-t border-gray-100 dark:border-white/10">
-            <p class="text-xs text-[#706f6c]">Clipper MS — Built for collectors, by collectors.</p>
-        </footer>
+            <p class="text-xs text-[#706f6c]">Clipper-MS — Built for collectors, by collectors.</p>
+        </footer>   
     </div>
 </template>

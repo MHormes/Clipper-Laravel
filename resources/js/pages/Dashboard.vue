@@ -53,7 +53,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
 
-    <Head title="Clipper MS | Dashboard" />
+    <Head title="Clipper-MS | Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-8 p-8 max-w-7xl mx-auto w-full">
