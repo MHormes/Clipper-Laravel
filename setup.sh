@@ -46,8 +46,7 @@ else
 fi
 
 # 6. Start Containers
-echo "🏗️  Bouwen (zonder cache) en opstarten..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build --no-cache
+echo "🚀 Bouwen en opstarten..."
 APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
 
 # 3. Permissies Fixen (Essentieel na 'up')
