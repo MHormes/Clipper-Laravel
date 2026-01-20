@@ -1,59 +1,69 @@
 #!/bin/bash
 
-# Default to 'docker' profile if no argument is provided
+# 1. Bepaal het profiel (standaard 'local')
 PROFILE=${1:-local}
+ENV_SOURCE=".env.$PROFILE"
+COMPOSE_SOURCE="docker-compose-$PROFILE.yml"
 
-ENV_FILE=".env.$PROFILE"
+echo "🌟 Gebruik profiel: $PROFILE"
 
-if [ -f "$ENV_FILE" ]; then
-    echo "reading configuration from $ENV_FILE..."
-    # Export variables, ignoring comments and empty lines
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
-else
-    echo "❌ Error: $ENV_FILE not found!"
+# 2. Validatie: Bestaat het bronbestand?
+if [ ! -f "$ENV_SOURCE" ]; then
+    echo "❌ Fout: $ENV_SOURCE niet gevonden!"
     exit 1
 fi
 
-echo "Stopping & removing containers..."
-docker compose -f docker-compose-$PROFILE.yml down
-
-echo "🌟 Using Profile: .env.$PROFILE"
-
-# 1. Create Volumes
-echo "📦 Ensuring volumes exist..."
-
-if [ $PROFILE = "local" ]; then
-  docker volume create clipper_db_data > /dev/null
-docker volume create clipper_minio_data > /dev/null
+# 3. Bestanden klaarmaken (ALLEEN voor productie/server)
+# Als het profile NIET local is, overschrijven we .env en docker-compose.yml voor Dockge
+if [ "$PROFILE" != "local" ]; then
+    echo "📝 Server modus: Bestanden synchroniseren naar .env en docker-compose.yml voor Dockge..."
+    cp "$ENV_SOURCE" .env
+    cp "$COMPOSE_SOURCE" docker-compose.yml
+    
+    COMPOSE_FILE="docker-compose.yml"
+    ENV_FILE=".env"
 else
-  docker volume create clipper_db_data_prod > /dev/null
-docker volume create clipper_minio_data_prod > /dev/null
+    echo "🏠 Lokale modus: Ik raak je standaard .env en docker-compose.yml NIET aan."
+    # We gebruiken de bronbestanden direct zonder te kopiëren
+    COMPOSE_FILE="$COMPOSE_SOURCE"
+    ENV_FILE="$ENV_SOURCE"
 fi
 
-# 2. Start Containers with the specific profile
-# Passing APP_PROFILE to the shell makes it available to docker-compose.yml
-echo "🚀 Starting containers..."
-APP_PROFILE=$PROFILE docker compose -f docker-compose-$PROFILE.yml --env-file .env.$PROFILE up -d --build
+# 4. Omgevingsvariabelen laden (nodig voor de volumes en MinIO checks in dit script)
+export $(grep -v '^#' "$ENV_FILE" | xargs)
 
+echo "Stopping & removing containers..."
+docker compose -f "$COMPOSE_FILE" down
 
-# 3. Wait for MinIO
-echo "⏳ Waiting for MinIO (10s)..."
+# 5. Volumes aanmaken
+echo "📦 Volumes controleren..."
+if [ "$PROFILE" = "local" ]; then
+    docker volume create clipper_db_data > /dev/null
+    docker volume create clipper_minio_data > /dev/null
+else
+    docker volume create clipper_db_data_prod > /dev/null
+    docker volume create clipper_minio_data_prod > /dev/null
+fi
+
+# 6. Start Containers
+echo "🚀 Containers opstarten met $COMPOSE_FILE..."
+APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
+
+# 7. Wachten op MinIO
+echo "⏳ Wachten op MinIO (10s)..."
 sleep 10
 
-# 4. Configure Bucket
-echo "🪣 Configuring MinIO bucket..."
-
-
-if [ $PROFILE = "local" ]; then
-  docker exec clipper_storage sh -c "
-    mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} && \
-    mc mb local/clipper-ms || echo 'Bucket already exists' && \
-    mc anonymous set download local/clipper-ms"
+# 8. Configure Bucket
+echo "🪣 MinIO bucket configureren..."
+if [ "$PROFILE" = "local" ]; then
+    CONTAINER_NAME="clipper_storage"
 else
-  docker exec clipper_storage_prod sh -c "
-    mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} && \
-    mc mb local/clipper-ms || echo 'Bucket already exists' && \
-    mc anonymous set download local/clipper-ms"
+    CONTAINER_NAME="clipper_storage_prod"
 fi
 
-echo "✅ System is up on profile: $PROFILE"
+docker exec $CONTAINER_NAME sh -c "
+    mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} && \
+    mc mb local/clipper-ms || echo 'Bucket bestaat al' && \
+    mc anonymous set download local/clipper-ms"
+
+echo "✅ Systeem is up op profiel: $PROFILE"
