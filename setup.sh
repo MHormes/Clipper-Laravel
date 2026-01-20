@@ -32,7 +32,7 @@ fi
 # 4. Omgevingsvariabelen laden (nodig voor de volumes en MinIO checks in dit script)
 export $(grep -v '^#' "$ENV_FILE" | xargs)
 
-echo "Stopping & removing containers..."
+echo "Stop & verwijder containers..."
 docker compose -f "$COMPOSE_FILE" down
 
 # 5. Volumes aanmaken
