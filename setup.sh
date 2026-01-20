@@ -32,7 +32,7 @@ fi
 # 4. Omgevingsvariabelen laden (nodig voor de volumes en MinIO checks in dit script)
 export $(grep -v '^#' "$ENV_FILE" | xargs)
 
-echo "Stop & verwijder containers..."
+echo "🛑 Stop & verwijder containers..."
 docker compose -f "$COMPOSE_FILE" down
 
 # 5. Volumes aanmaken
@@ -57,6 +57,7 @@ CONTAINER_APP=$(docker ps --format "{{.Names}}" | grep "_app")
 if [ ! -z "$CONTAINER_APP" ]; then
     docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
     docker exec -u root "$CONTAINER_APP" chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/public/build
     echo "✅ Rechten gefixt in $CONTAINER_APP"
 else
     echo "⚠️ Waarschuwing: App container niet gevonden voor permissie-fix."
