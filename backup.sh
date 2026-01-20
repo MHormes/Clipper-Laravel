@@ -1,18 +1,20 @@
 #!/bin/bash
 
+# 1. Configuratie laden
 ENV_FILE=".env.production"
 
 if [ -f "$ENV_FILE" ]; then
-    echo "reading configuration from $ENV_FILE..."
-    # Export variables, ignoring comments and empty lines
+    echo "📖 Configuratie lezen uit $ENV_FILE..."
     export $(grep -v '^#' "$ENV_FILE" | xargs)
 else
-    echo "❌ Error: $ENV_FILE not found!"
+    echo "❌ Fout: $ENV_FILE niet gevonden!"
     exit 1
 fi
 
-# Configuration
-BACKUP_DIR="./backups/$(date +%Y-%m-%d_%H-%M-%S)"
+# 2. Instellingen
+BACKUP_BASE_DIR="/home/clipper/clipper-ms/Clipper-Laravel/backups"
+TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+BACKUP_DIR="$BACKUP_BASE_DIR/$TIMESTAMP"
 DB_CONTAINER="clipper_postgres_prod"
 S3_CONTAINER="clipper_storage_prod"
 DB_NAME="${DB_DATABASE}"
@@ -21,27 +23,38 @@ DB_USER="${DB_USERNAME}"
 mkdir -p "$BACKUP_DIR/csv"
 mkdir -p "$BACKUP_DIR/storage"
 
-echo "📂 Starting backup to $BACKUP_DIR..."
+echo "📂 Starten van backup naar $BACKUP_DIR..."
 
-# --- 1. Export Postgres Tables to CSV ---
-echo "🐘 Exporting Database tables to CSV..."
+# --- 1. Database naar CSV exporteren ---
+echo "🐘 Database tabellen exporteren naar CSV..."
 TABLES=$(docker exec $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -t -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name != 'migrations';")
 
 for TABLE in $TABLES; do
-    echo "   -> Exporting $TABLE..."
-    # We use psql's COPY command to output CSV format directly to stdout, then save to file
+    echo "   -> Exporteren van $TABLE..."
     docker exec $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "COPY $TABLE TO STDOUT WITH (FORMAT CSV, HEADER);" > "$BACKUP_DIR/csv/$TABLE.csv"
 done
 
-# --- 2. Download MinIO Bucket ---
-echo "📦 Downloading MinIO bucket (clipper-ms)..."
-# We use 'mc mirror' to sync the container's bucket to our local backup folder
+# --- 2. MinIO Bucket downloaden ---
+echo "📦 MinIO bucket downloaden (clipper-ms)..."
 docker exec $S3_CONTAINER sh -c "mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} > /dev/null && mc mirror local/clipper-ms /tmp/backup_mirror"
-# Copy from container to host
 docker cp $S3_CONTAINER:/tmp/backup_mirror/. "$BACKUP_DIR/storage/"
-# Clean up temp files in container
 docker exec $S3_CONTAINER rm -rf /tmp/backup_mirror
 
-echo "✅ Backup complete!"
-echo "📍 CSVs are in: $BACKUP_DIR/csv"
-echo "📍 Files are in: $BACKUP_DIR/storage"
+# --- 3. Controle en Opschonen ---
+# We controleren of de backup map inderdaad bestanden bevat
+if [ "$(ls -A $BACKUP_DIR)" ]; then
+    echo "✅ Backup voltooid op $(date)"
+    echo "📍 CSV's staan in: $BACKUP_DIR/csv"
+    echo "📍 Bestanden staan in: $BACKUP_DIR/storage"
+
+    # Navigeer naar de hoofdmap voor opschonen
+    cd "$BACKUP_BASE_DIR" || exit
+    
+    # Behoud alleen de 3 nieuwste mappen
+    echo "🧹 Controleren op oude backups (maximaal 3 behouden)..."
+    ls -dt */ | tail -n +4 | xargs -I {} rm -rf "{}"
+    echo "✨ Systeem is weer up-to-date."
+else
+    echo "❌ Backup mislukt! De backup map is leeg. Geen oude backups verwijderd."
+    exit 1
+fi
