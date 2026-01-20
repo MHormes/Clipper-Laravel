@@ -46,8 +46,22 @@ else
 fi
 
 # 6. Start Containers
-echo "🚀 Containers opstarten met $COMPOSE_FILE..."
-APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
+echo "🏗️  Bouwen (zonder cache) en opstarten..."
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build --no-cache
+APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+
+# 3. Permissies Fixen (Essentieel na 'up')
+echo "🔒 Rechten herstellen voor Laravel storage..."
+# We zoeken de container die op dat moment draait
+CONTAINER_APP=$(docker ps --format "{{.Names}}" | grep "_app")
+
+if [ ! -z "$CONTAINER_APP" ]; then
+    docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    docker exec -u root "$CONTAINER_APP" chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    echo "✅ Rechten gefixt in $CONTAINER_APP"
+else
+    echo "⚠️ Waarschuwing: App container niet gevonden voor permissie-fix."
+fi
 
 # 7. Wachten op MinIO
 echo "⏳ Wachten op MinIO (10s)..."
