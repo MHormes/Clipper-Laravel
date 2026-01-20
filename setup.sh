@@ -47,7 +47,7 @@ fi
 
 # 6. Start Containers
 echo "🚀 Bouwen en opstarten..."
-APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
 
 # 3. Permissies Fixen (Essentieel na 'up')
 echo "🔒 Rechten herstellen voor Laravel storage..."
