@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RequestController; // Added for request management
+use App\Http\Controllers\SitemapController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -22,6 +23,9 @@ Route::get('/privacy', function(){
 Route::get('/terms', function(){
     return Inertia::render('Terms');
 })->name('terms');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Protected Routes (Require Login)
 Route::middleware(['auth', 'verified'])->group(function () {

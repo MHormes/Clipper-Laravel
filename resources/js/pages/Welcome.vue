@@ -15,7 +15,15 @@ const stats = [
 </script>
 
 <template>
-    <Head title="Welcome to Clipper-MS" />
+    <Head>
+        <title>Clipper-MS | Track Your Clipper Lighter Collection</title>
+        <meta name="description" content="Manage your Clipper lighter collection with ease. Track series, discover new designs, and complete your sets with the ultimate Clipper collector's tool." />
+        <meta name="keywords" content="clipper, clipper lighter, clipper lighters, collections, collecting, clipper collection, lighter tracker, clipper series, clipper designs" />
+        
+        <meta property="og:title" content="Clipper-MS: Welcome" />
+        <meta property="og:description" content="Discover, catalog, and complete your collection of legendary Clipper series." />
+        <meta property="og:image" content="/images/homepage-og.png" />
+    </Head>
 
     <div class="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] selection:bg-orange-500 selection:text-white">
         

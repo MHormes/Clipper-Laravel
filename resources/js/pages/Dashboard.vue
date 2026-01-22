@@ -61,7 +61,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
 
-    <Head title="Clipper-MS | Dashboard" />
+    <Head>
+        <title>Clipper-MS | Dashboard</title>
+        <meta property="og:title" content="Clipper-MS: Dashboard" />
+        <meta property="og:description" content="View and manage your Clipper collection at a glance." />
+        <meta property="og:image" content="/images/dashboard-og.png" />
+    </Head>
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-8 p-8 max-w-7xl mx-auto w-full">

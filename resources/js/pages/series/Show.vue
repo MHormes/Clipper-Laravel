@@ -80,7 +80,12 @@ const confirmDelete = () => {
 </script>
 
 <template>
-    <Head :title="series.name" />
+    <Head>
+        <title>{{ series.name }} | Clipper-MS</title>
+        <meta property="og:title" :content="'Clipper-MS: View Series ' + series.name" />
+        <meta property="og:description" :content="'Check out the ' + series.name + ' series and track your progress.'" />
+        <meta property="og:image" :content="series.image_data" />
+    </Head>
 
     <AppLayout>
         <div class="max-w-7xl mx-auto p-6 space-y-8">

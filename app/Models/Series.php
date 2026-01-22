@@ -57,7 +57,7 @@ class Series extends Model
     protected function imageData(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $value ? Storage::url($value) : null,
+            get: fn ($value) => $value ? url(Storage::url($value)) : null,
             set: fn ($value) => $value
         );
     }
