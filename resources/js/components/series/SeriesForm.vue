@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { ref, watch, onMounted, computed } from 'vue';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { Plus, X, AlertCircle, ImageIcon, Loader2 } from 'lucide-vue-next';
 import ImageCropper from '@/components/ImageCropper.vue';
 import { ensureJpg } from '@/util/imageSupport';
@@ -11,9 +11,10 @@ const props = defineProps<{
         name: string;
         custom: boolean;
         image_data: string;
-        clippers: Array<{ id: number; series_number: number; image_data: string }>;
+        clippers: Array<{ id: string; series_number: number; image_data: string }>;
     };
     submitLabel: string;
+    mode?: 'create' | 'edit' | 'request' | 'clipper-request';
 }>();
 
 const emit = defineEmits(['submit']);
@@ -22,17 +23,39 @@ const seriesPreview = ref<string | null>(props.initialData?.image_data || null);
 const clipperPreviews = ref<(string | null)[]>([]);
 const isProcessing = ref(false);
 
+const page = usePage<any>();
+const isClipperRequest = computed(() => props.mode === 'clipper-request');
+const isRequest = computed(() => props.mode === 'request' || props.mode === 'clipper-request');
+const isAdmin = computed(() => page.props.auth.is_admin);
+
 const getInitialClippers = () => {
-    const minSlots = props.initialData?.custom ? 0 : 4;
-    const existingMax = props.initialData?.clippers?.length 
-        ? Math.max(...props.initialData.clippers.map(c => c.series_number)) 
+    const isCustom = props.initialData?.custom;
+    const existingClippers = props.initialData?.clippers || [];
+    
+    if (!isCustom) {
+        // Non-custom series ALWAYS have exactly 4 slots
+        return Array.from({ length: 4 }, (_, i) => {
+            const slotNum = i + 1;
+            const existing = existingClippers.find(c => c.series_number === slotNum);
+            return { id: existing?.id || null, image: null as File | null };
+        });
+    }
+
+    const maxExistingSlot = existingClippers.length > 0 
+        ? Math.max(...existingClippers.map(c => c.series_number)) 
         : 0;
-    const count = Math.max(minSlots, existingMax || (props.initialData ? 0 : 4));
+    
+    // Custom series have at least 1 slot if they have no clippers yet
+    const count = Math.max(1, maxExistingSlot);
     
     return Array.from({ length: count }, (_, i) => {
         const slotNum = i + 1;
-        const existing = props.initialData?.clippers.find(c => c.series_number === slotNum);
-        return { id: existing?.id || null, image: null as File | null };
+        const existing = existingClippers.find(c => c.series_number === slotNum);
+        return { 
+            id: existing?.id || null, 
+            image: null as File | null,
+            series_number: slotNum
+        };
     });
 };
 
@@ -47,7 +70,8 @@ const form = useForm({
 onMounted(() => {
     form.clippers = getInitialClippers();
     clipperPreviews.value = form.clippers.map(slot => {
-        const existing = props.initialData?.clippers.find(c => c.id === slot.id);
+        const slotNum = form.clippers.indexOf(slot) + 1;
+        const existing = props.initialData?.clippers?.find(c => c.series_number === slotNum);
         return existing ? existing.image_data : null;
     });
 });
@@ -56,11 +80,11 @@ onMounted(() => {
 watch(() => form.custom, (isCustom) => {
     if (isCustom) {
         const filled = form.clippers.filter((c, i) => c.id || c.image || clipperPreviews.value[i]);
-        form.clippers = filled.length > 0 ? filled : [{ id: null, image: null }];
+        form.clippers = filled.length > 0 ? filled : [{ id: null, image: null, series_number: 1 }];
         clipperPreviews.value = clipperPreviews.value.slice(0, form.clippers.length);
     } else {
         while (form.clippers.length < 4) {
-            form.clippers.push({ id: null, image: null });
+            form.clippers.push({ id: null, image: null, series_number: form.clippers.length + 1 });
             clipperPreviews.value.push(null);
         }
         form.clippers = form.clippers.slice(0, 4);
@@ -70,20 +94,46 @@ watch(() => form.custom, (isCustom) => {
 
 const handleRemoveAction = (index: number) => {
     const clipper = form.clippers[index];
-    if (clipper.id) form.deleted_ids.push(clipper.id);
+    
+    // Only push to deleted_ids if we are in admin edit mode.
+    // In request modes, users shouldn't be able to delete existing accepted clippers.
+    if (clipper.id && props.mode === 'edit' && isAdmin.value) {
+        form.deleted_ids.push(clipper.id.toString());
+    }
 
-    if (form.custom && form.clippers.length > 1) {
+    if (form.custom && form.clippers.length > 1 && !isClipperRequest.value) {
         form.clippers.splice(index, 1);
         clipperPreviews.value.splice(index, 1);
     } else {
-        clipper.id = null;
-        clipper.image = null;
-        clipperPreviews.value[index] = null;
+        // In clipper-request mode, we might want to revert to the original image 
+        // if we are "cancelling" a new upload for an existing slot.
+        const original = props.initialData?.clippers.find(c => c.series_number === clipper.series_number);
+        
+        if (isClipperRequest.value && (original || clipper.id)) {
+            // Immutable existing slots: clear image preview but keep it occupied
+            clipper.id = original?.id || clipper.id;
+            clipper.image = null;
+            clipperPreviews.value[index] = original?.image_data || null;
+        } else if (isClipperRequest.value && form.custom) {
+            // New slots in a clipper-request: allow removal of the slot itself
+            form.clippers.splice(index, 1);
+            clipperPreviews.value.splice(index, 1);
+            
+            // Re-index remaining slots to maintain sequence
+            form.clippers.forEach((c, i) => {
+                if (!c.id) c.series_number = i + 1;
+            });
+        } else {
+            // Full clear for new slots or create mode
+            clipper.id = null;
+            clipper.image = null;
+            clipperPreviews.value[index] = null;
+        }
     }
 };
 
 const addSlot = () => {
-    form.clippers.push({ id: null, image: null });
+    form.clippers.push({ id: null, image: null, series_number: form.clippers.length + 1 });
     clipperPreviews.value.push(null);
 };
 
@@ -120,29 +170,57 @@ const onCropDone = (blob: Blob) => {
         form.image = file;
         seriesPreview.value = url;
     } else if (cropperTarget.value?.index !== undefined) {
-        form.clippers[cropperTarget.value.index].image = file;
-        clipperPreviews.value[cropperTarget.value.index] = url;
+        const index = cropperTarget.value.index;
+        form.clippers[index].image = file;
+        // Explicitly set series_number to index + 1 if it doesn't have one
+        if (!form.clippers[index].series_number) {
+            form.clippers[index].series_number = index + 1;
+        }
+        clipperPreviews.value[index] = url;
     }
+};
+
+const getSlotError = (index: number) => {
+    const errorKeyPrefix = `clippers.${index}`;
+    return (form.errors as any)[`${errorKeyPrefix}.image`] || 
+           (form.errors as any)[`${errorKeyPrefix}.series_number`] ||
+           (form.errors as any)[errorKeyPrefix];
 };
 </script>
 
 <template>
     <form @submit.prevent="emit('submit', form)" class="space-y-12">
-        <div class="bg-white dark:bg-[#161615] p-8 rounded-2xl border border-sidebar-border shadow-sm">
+        <!-- Series Info Section - Hidden in clipper-request mode -->
+        <div v-if="!isClipperRequest" class="bg-white dark:bg-[#161615] p-8 rounded-2xl border border-sidebar-border shadow-sm">
             <h2 class="text-xl font-black uppercase tracking-widest mb-6 text-orange-600">Series Information</h2>
+            
+            <div v-if="props.mode === 'request'" class="mb-8 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-start gap-4">
+                <AlertCircle class="w-5 h-5 text-orange-600 mt-0.5" />
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-widest text-orange-600">Requesting a New Series</h4>
+                    <p class="text-xs text-muted-foreground font-bold mt-1 leading-relaxed">
+                        Your request will be reviewed by an administrator. Once approved, the series will appear in the catalog for everyone to see.
+                    </p>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <div class="space-y-8">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Display Name</label>
                         <input v-model="form.name" type="text" placeholder="e.g. Mandala 1" 
-                               class="w-full rounded-xl border-gray-200 dark:border-white/10 dark:bg-black p-4 text-lg font-bold outline-none focus:ring-2 focus:ring-orange-500 transition-all" />
+                               :disabled="isClipperRequest"
+                               class="w-full rounded-xl border-gray-200 dark:border-white/10 dark:bg-black p-4 text-lg font-bold outline-none focus:ring-2 focus:ring-orange-500 transition-all disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-white/5" />
                         <p v-if="form.errors.name" class="text-red-500 text-xs font-bold mt-2 flex items-center gap-1">
                             <AlertCircle class="w-3 h-3" /> {{ form.errors.name }}
                         </p>
                     </div>
                     <div class="flex items-center gap-4 p-5 bg-orange-500/5 dark:bg-white/5 rounded-2xl border border-orange-500/20">
-                        <input type="checkbox" v-model="form.custom" id="custom" class="h-6 w-6 accent-orange-600 rounded-lg" />
+                        <input type="checkbox" v-model="form.custom" id="custom" 
+                               :disabled="isClipperRequest"
+                               class="h-6 w-6 accent-orange-600 rounded-lg disabled:opacity-50" />
                         <label for="custom" class="text-sm font-bold cursor-pointer select-none">Community Created / Custom Series</label>
+                        <p v-if="form.errors.custom" class="text-red-500 text-[10px] font-bold mt-1">{{ form.errors.custom }}</p>
                     </div>
                 </div>
 
@@ -160,15 +238,29 @@ const onCropDone = (blob: Blob) => {
             </div>
         </div>
 
+        <!-- Clipper Request Instructions -->
+        <div v-if="isClipperRequest" class="bg-white dark:bg-[#161615] p-8 rounded-2xl border border-sidebar-border shadow-sm">
+            <h2 class="text-xl font-black uppercase tracking-widest mb-6 text-orange-600">Request Clippers</h2>
+            <div class="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-start gap-4">
+                <AlertCircle class="w-5 h-5 text-orange-600 mt-0.5" />
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-widest text-orange-600">Adding to Existing Series</h4>
+                    <p class="text-xs text-muted-foreground font-bold mt-1 leading-relaxed">
+                        Specify which slots you want to add or replace clippers for. Administrators will review each clipper before they are added to the system.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <div class="space-y-6">
             <div class="flex items-end justify-between">
                 <h3 class="text-xl font-black uppercase tracking-widest text-orange-600">The Collection</h3>
             </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                 <div v-for="(clipper, index) in form.clippers" :key="index" class="relative group/slot flex flex-col items-center">
                     
-                    <button v-if="(form.custom && (form.clippers.length > 1 || clipperPreviews[index])) || (!form.custom && clipperPreviews[index])" 
+                    <button v-if="((form.custom && (form.clippers.length > 1 || clipperPreviews[index])) || (!form.custom && clipperPreviews[index])) && (!isClipperRequest || (isClipperRequest && !clipper.id))" 
                             type="button" @click="handleRemoveAction(index)" 
                             class="absolute -top-2 -right-2 p-1.5 bg-red-600 text-white rounded-full opacity-0 group-hover/slot:opacity-100 z-20 shadow-xl transition-all hover:scale-110">
                         <X class="w-3.5 h-3.5" />
@@ -180,15 +272,15 @@ const onCropDone = (blob: Blob) => {
                             <Plus class="w-5 h-5 text-gray-300 mb-1" />
                             <span class="text-[8px] uppercase font-black text-gray-400">Add</span>
                         </div>
-                        <input type="file" @change="handleFile('clipper', index, $event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <input v-if="!clipperPreviews[index]" type="file" @change="handleFile('clipper', index, $event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                     </div>
 
                     <div class="mt-2 text-[10px] font-black text-muted-foreground uppercase tracking-tighter flex items-center gap-1">
                         Slot #{{ index + 1 }}
                     </div>
 
-                    <p v-if="form.errors[`clippers.${index}.image`]" class="text-[9px] text-red-500 font-bold mt-1 text-center leading-tight">
-                        Invalid Image
+                    <p v-if="getSlotError(index)" class="text-[9px] text-red-500 font-bold mt-1 text-center leading-tight">
+                        {{ getSlotError(index) }}
                     </p>
                 </div>
 

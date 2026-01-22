@@ -17,10 +17,27 @@ class Series extends Model
 
     protected $fillable = ['name', 'custom', 'requested_by', 'accepted_by', 'image_data'];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'custom' => 'boolean',
+        ];
+    }
+
     // Relationship: A Series has 4 (usually) Clippers
     public function clippers(): HasMany
     {
         return $this->hasMany(Clipper::class);
+    }
+
+    public function acceptedClippers(): HasMany
+    {
+        return $this->hasMany(Clipper::class)->whereNotNull('accepted_by');
     }
 
     // Relationship: A Series was requested by a User
@@ -43,5 +60,21 @@ class Series extends Model
             get: fn ($value) => $value ? Storage::url($value) : null,
             set: fn ($value) => $value
         );
+    }
+
+    /**
+     * Scope a query to only include accepted series.
+     */
+    public function scopeAccepted($query)
+    {
+        return $query->whereNotNull('accepted_by');
+    }
+
+    /**
+     * Scope a query to only include pending series requests.
+     */
+    public function scopePending($query)
+    {
+        return $query->whereNull('accepted_by');
     }
 }

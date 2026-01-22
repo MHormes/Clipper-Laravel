@@ -14,7 +14,7 @@ class CollectionService
      */
     public function getCollectedSeries(User $user, array $filters)
     {
-        $query = Series::whereHas('clippers.collections', function ($q) use ($user) {
+        $query = Series::accepted()->whereHas('clippers.collections', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
 
@@ -28,9 +28,9 @@ class CollectionService
         $sortDir = ($filters['sortDir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
         $query->orderBy($sortCol, $sortDir);
 
-        return $query->withCount('clippers')
+        return $query->withCount(['clippers' => fn($q) => $q->accepted()])
             ->withCount(['clippers as collected_clippers_count' => function ($q) use ($user) {
-                $q->whereHas('collections', fn($sq) => $sq->where('user_id', $user->id));
+                $q->accepted()->whereHas('collections', fn($sq) => $sq->where('user_id', $user->id));
             }])
             ->paginate(20)
             ->through(fn($series) => [
@@ -49,6 +49,7 @@ class CollectionService
     public function getAllOwnedClippers(User $user)
     {
         return $user->myCollection()
+            ->whereHas('clipper', fn($q) => $q->accepted())
             ->with(['clipper.series'])
             ->paginate(64)
             // ->orderBy('series_id', 'asc')
@@ -107,7 +108,7 @@ class CollectionService
      */
     public function toggleEntireSeries(User $user, Series $series): void
     {
-        $clipperIds = $series->clippers()->pluck('id');
+        $clipperIds = $series->clippers()->accepted()->pluck('id');
         
         $collectedCount = $user->myCollection()
             ->whereIn('clipper_id', $clipperIds)

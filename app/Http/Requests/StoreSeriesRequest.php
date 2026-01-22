@@ -13,8 +13,9 @@ class StoreSeriesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Change this to true or check for admin role
-        return $this->user()->role === 'admin';
+        // Allow any authenticated user to proceed.
+        // Specific route protection is handled by middleware in web.php (e.g., admin check for updates).
+        return !!$this->user();
     }
 
     /**
@@ -23,62 +24,75 @@ class StoreSeriesRequest extends FormRequest
     public function rules(): array
     {
         $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
+        $isClipperRequest = $this->routeIs('series.store-clipper-request');
         $series = $this->route('series'); // Get the series model from the route
         $seriesId = is_object($series) ? $series->id : $series;
 
-        return [
+        $rules = [
             'name' => [
-                'required', 
+                $isClipperRequest ? 'nullable' : 'required', 
                 'string', 
                 'max:255',
-                $isUpdate ? Rule::unique('series')->ignore($seriesId) : 'unique:series,name'
+                ($isUpdate || $isClipperRequest) ? Rule::unique('series')->ignore($seriesId) : 'unique:series,name'
             ],
-            'custom' => 'required',
-            'image' => $isUpdate ? 'nullable|image|max:10240' : 'required|image|max:10240',
+            'custom' => 'boolean',
+            'image' => ($isUpdate || $isClipperRequest) ? 'nullable|image|max:10240' : 'required|image|max:10240',
             'clippers' => [
                 'array',
                 $this->boolean('custom') ? 'max:100' : 'max:4',
                 // This calls the custom function below
-                fn ($attribute, $value, $fail) => $this->validateClipperSlots($value, $fail)
+                fn ($attribute, $value, $fail) => $this->validateClipperSlots($value, $fail, $isClipperRequest)
             ],
             'clippers.*.image' => 'nullable|image|max:10240',
+            'clippers.*.id' => 'nullable|string',
+            'clippers.*.series_number' => 'nullable|integer|min:1',
             'deleted_ids' => 'nullable|array',
             'deleted_ids.*' => 'string|exists:clippers,id'
         ];
+
+        return $rules;
     }
 
     /**
      * Custom logic to validate the nested clipper array.
      */
-    protected function validateClipperSlots($value, $fail)
+    protected function validateClipperSlots($value, $fail, $isClipperRequest = false)
     {
-        $isCustom = $this->boolean('custom');
         $clippers = collect($value);
         $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
+        $isCustom = $this->boolean('custom');
 
-        if ($isCustom) {
-            if ($clippers->isEmpty()) {
-                return $fail('Custom series must have at least one clipper.');
-            }
-            
-            // For custom series, every slot needs an ID (existing) or an Image (new)
-            $allValid = $clippers->every(fn($slot) => 
-                (isset($slot['id']) && !empty($slot['id'])) || 
-                (isset($slot['image']) && $slot['image'] instanceof UploadedFile)
-            );
+        // 1. Initial global checks
+        if ($clippers->isEmpty() && !$isClipperRequest) {
+            $fail('The series must have at least one clipper slot.');
+            return;
+        }
 
-            if (!$allValid) {
-                $fail('All custom slots must have an image.');
+        // 2. Interaction-specific checks
+        if ($isClipperRequest) {
+            // Must have at least one NEW image being suggested
+            $hasNew = $clippers->contains(fn($c) => !empty($c['image']) && $c['image'] instanceof UploadedFile);
+            if (!$hasNew) {
+                $fail('Please upload at least one new clipper image for your request.');
             }
-        } else {
-            // For standard series, we only force one image if it's a brand new series
-            if (!$isUpdate) {
-                $hasOne = $clippers->contains(fn($slot) => 
-                    isset($slot['image']) && $slot['image'] instanceof UploadedFile
-                );
-                if (!$hasOne) {
-                    $fail('Please upload at least one clipper image.');
-                }
+        }
+
+        // 3. Per-slot integrity checks
+        foreach ($value as $index => $slot) {
+            $hasId = !empty($slot['id'] ?? null);
+            $hasImage = isset($slot['image']) && $slot['image'] instanceof UploadedFile;
+
+            // Strict check for Custom series: every slot MUST have something
+            if ($isCustom && !$hasId && !$hasImage) {
+                // We skip this check if it's a clipper request and the slot is simply untouched (no ID, no Image)
+                // but wait... in custom series, if a slot is there, it must be valid.
+                $fail("Clipper slot #" . ($index + 1) . " must have an image.");
+            }
+
+            // General check for brand new series: must have at least one image total
+            if (!$isUpdate && !$isClipperRequest && $clippers->every(fn($c) => empty($c['image']))) {
+                 $fail('Please upload at least one clipper image.');
+                 break;
             }
         }
     }

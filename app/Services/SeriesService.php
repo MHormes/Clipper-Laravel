@@ -18,20 +18,23 @@ class SeriesService
     /**
      * Create a brand new series and its clippers.
      */
-    public function createSeriesWithClippers($user, array $data)
+    public function createSeriesWithClippers($user, array $data, bool $isRequest = false)
     {
-        return DB::transaction(function () use ($user, $data) {
-            $seriesPath = $this->imageService->uploadImage($data['image'], 'series');
+        return DB::transaction(function () use ($user, $data, $isRequest) {
+            $seriesPath = null;
+            if (isset($data['image'])) {
+                $seriesPath = $this->imageService->uploadImage($data['image'], 'series');
+            }
 
             $series = Series::create([
                 'name'       => $data['name'],
                 'custom'     => filter_var($data['custom'], FILTER_VALIDATE_BOOLEAN),
                 'image_data' => $seriesPath, // Stores: "series/filename.jpg"
                 'requested_by' => $user->id,
-                'accepted_by' => $user->id,
+                'accepted_by' => $isRequest ? null : $user->id,
             ]);
 
-            $this->clipperService->createClippersInBatch($series, $data['clippers'], $user->id);
+            $this->clipperService->createClippersInBatch($series, $data['clippers'], $user->id, $isRequest);
 
             return $series;
         });
@@ -51,6 +54,7 @@ class SeriesService
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 $this->imageService->deleteImage($series->getRawOriginal('image_data'));
                 $series->image_data = $this->imageService->uploadImage($data['image'], 'series');
+                // When admin updates, we ensure it's marked as accepted by them
                 $series->accepted_by = $user->id;
             }
             
@@ -93,7 +97,8 @@ class SeriesService
         $column = filled($sortCol) ? $sortCol : 'created_at';
         $direction = in_array(strtolower($sortDir ?? ''), ['asc', 'desc']) ? $sortDir : 'desc';
 
-        $query = Series::withCount('clippers')
+        $query = Series::accepted()
+            ->withCount('clippers')
             ->with(['requester:id,name'])
             // We use an alias to clearly distinguish "Total" vs "Owned"
             ->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
@@ -108,16 +113,30 @@ class SeriesService
     }
 
     /**
+     * Get pending series requests for admin review.
+     */
+    public function getPendingSeriesRequests()
+    {
+        return Series::pending()
+            ->with(['requester', 'clippers'])
+            ->withCount('clippers')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
      * Count the number of completed series for a user.
      * Used as stats on the dashboard.
      */
     public function countCompletedSeries(User $user): int
     {
-        $seriesStats = Series::withCount(['clippers', 'clippers as collected_count' => function ($query) use ($user) {
-            $query->whereHas('collections', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
-        }])->get();
+        $seriesStats = Series::accepted()
+            ->withCount(['clippers' => fn($q) => $q->accepted()])
+            ->withCount(['clippers as collected_count' => function ($query) use ($user) {
+                $query->accepted()->whereHas('collections', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+            }])->get();
 
         return $seriesStats->filter(function ($series) {
             return $series->custom 

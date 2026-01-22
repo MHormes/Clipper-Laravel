@@ -15,7 +15,7 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Map, Users } from 'lucide-vue-next';
+import { LayoutGrid, Map, Users, ClipboardCheck, ClipboardList } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { AppPageProps } from '@/types';
 
@@ -40,6 +40,16 @@ const mainNavItems = computed<NavItem[]>(() => {
             title: 'User Management',
             href: '/admin/users',
             icon: Users,
+        });
+        items.push({
+            title: 'Series Requests',
+            href: '/admin/requests/series',
+            icon: ClipboardList,
+        });
+        items.push({
+            title: 'Clipper Requests',
+            href: '/admin/requests/clippers',
+            icon: ClipboardCheck,
         });
     }
 

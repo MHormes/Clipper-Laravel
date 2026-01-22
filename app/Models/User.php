@@ -58,19 +58,19 @@ class User extends Authenticatable
     }
 
 
-    public function requestedSeries() {
+    public function requestedSeries(): HasMany {
         return $this->hasMany(Series::class, 'requested_by');
     }
 
-    public function acceptedSeries() {
+    public function acceptedSeries(): HasMany {
         return $this->hasMany(Series::class, 'accepted_by');
     }
 
-    public function requestedClippers() {
+    public function requestedClippers(): HasMany {
         return $this->hasMany(Clipper::class, 'requested_by');
     }
 
-    public function acceptedClippers() {
+    public function acceptedClippers(): HasMany {
         return $this->hasMany(Clipper::class, 'accepted_by');
     }
 

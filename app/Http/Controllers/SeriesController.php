@@ -39,10 +39,21 @@ class SeriesController extends Controller
 
     public function show(Request $request, Series $series)
     {
-        // Eager load the clippers associated with this series
-        $series->load(['clippers', 'requester:id,name']);
-
         $user = $request->user();
+
+        // Prevent viewing pending series unless you are admin or the requester
+        if ($series->accepted_by === null && !$user->isAdmin() && $series->requested_by !== $user->id) {
+            abort(404);
+        }
+
+        // Eager load only the ACCEPTED clippers for public view
+        // If the user IS an admin or the requester, we might want to show pending too?
+        // But the requirement says "Only accepted series and clippers are displayed publicly."
+        // Let's stick to showing only accepted clippers on the main show page.
+        $series->load([
+            'clippers' => fn($q) => $q->accepted(),
+            'requester:id,name'
+        ]);
 
         return Inertia::render('series/Show', [
             'series' => $series,
@@ -69,12 +80,43 @@ class SeriesController extends Controller
      */
     public function store(StoreSeriesRequest $request): RedirectResponse
     {
+        $user = $request->user();
+        $isRequest = !$user->isAdmin();
+
         $series = $this->seriesService->createSeriesWithClippers(
-            $request->user(), 
-            $request->validated() 
+            $user, 
+            $request->validated(),
+            $isRequest
         );
 
+        if ($isRequest) {
+            return to_route('series.index')
+                ->with('success', 'Your series request has been submitted and is pending review.');
+        }
+
         return to_route('series.show', $series->id);
+    }
+
+    /**
+     * Show the form for requesting clippers for an existing series.
+     */
+    public function requestClippers(Series $series)
+    {
+        $series->load('clippers');
+        return Inertia::render('series/RequestClippers', [
+            'series' => $series
+        ]);
+    }
+
+    /**
+     * Store a clipper request for an existing series.
+     */
+    public function storeClipperRequest(StoreSeriesRequest $request, Series $series): RedirectResponse
+    {
+        $this->clipperService->syncClippers($series, $request->validated(), $request->user()->id, true);
+
+        return to_route('series.show', $series->id)
+            ->with('success', 'Your clipper requests have been submitted and are pending review.');
     }
 
     /**

@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import SeriesForm from '@/components/series/SeriesForm.vue';
 import { route } from 'ziggy-js';
+import { computed } from 'vue';
+
+const page = usePage();
+const isAdmin = computed(() => page.props.auth.is_admin);
 
 const submit = (form: any) => {
     form.post(route('series.store'), {
@@ -13,11 +17,17 @@ const submit = (form: any) => {
 </script>
 
 <template>
-    <Head title="Register New Series" />
+    <Head :title="isAdmin ? 'Register New Series' : 'Request New Series'" />
     <AppLayout>
         <div class="max-w-5xl mx-auto p-6">
-            <h1 class="text-3xl font-black mb-8 uppercase tracking-tighter">New Series</h1>
-            <SeriesForm submit-label="Create Series" @submit="submit" />
+            <h1 class="text-3xl font-black mb-8 uppercase tracking-tighter">
+                {{ isAdmin ? 'New Series' : 'Request Series' }}
+            </h1>
+            <SeriesForm 
+                :mode="isAdmin ? 'create' : 'request'"
+                :submit-label="isAdmin ? 'Create Series' : 'Submit Request'" 
+                @submit="submit" 
+            />
         </div>
     </AppLayout>
 </template>

@@ -71,8 +71,13 @@ class CsvDataSeeder extends Seeder
             }
 
             $preparedData = $chunk->map(function ($item) {
-                // Convert empty strings to null for better database integrity
-                return array_map(fn($value) => $value === '' ? null : $value, $item);
+                // Convert values for better database integrity
+                return array_map(function($value) {
+                    if ($value === '' || $value === null) return null;
+                    if ($value === 'true') return true;
+                    if ($value === 'false') return false;
+                    return $value;
+                }, $item);
             })->toArray();
 
             if (empty($preparedData)) {

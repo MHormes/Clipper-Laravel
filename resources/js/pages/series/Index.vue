@@ -11,7 +11,8 @@ import { route } from 'ziggy-js';
 
 const page = usePage<any>();
 const props = defineProps<{ series: any; filters?: any }>();
-const canRegister = computed(() => page.props.auth.can.manage_series);
+const isAdmin = computed(() => page.props.auth.is_admin);
+const canCreate = computed(() => !!page.props.auth.user); // Anyone logged in can at least request
 
 const { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort } = useFilters('series.index', props.filters);
 </script>
@@ -34,7 +35,9 @@ const { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort } = useFi
                         <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground p-1"><X class="w-4 h-4" /></button>
                     </div>
 
-                    <Link v-if="canRegister" :href="route('series.create')" class="px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold text-sm hover:bg-orange-700 transition-all">+ REGISTER NEW SERIES</Link>
+                    <Link v-if="canCreate" :href="route('series.create')" class="px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold text-sm hover:bg-orange-700 transition-all shadow-lg shadow-orange-900/20">
+                        + {{ isAdmin ? 'REGISTER NEW SERIES' : 'REQUEST NEW SERIES' }}
+                    </Link>
                 </div>
             </div>
 

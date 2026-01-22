@@ -29,14 +29,26 @@ class DashboardController extends Controller
             $query->where('user_id', $request->user()->id);
         })->count();
 
+        $pendingSeriesCount = 0;
+        $pendingClippersCount = 0;
+
+        if ($user->isAdmin()) {
+            $pendingSeriesCount = Series::pending()->count();
+            $pendingClippersCount = Clipper::pending()->count();
+        }
+
         return Inertia::render('Dashboard', [
             'recentSeries' => $this->seriesService->getSeriesCatalog($user, 8),
             'stats' => [
-                ['label' => 'Total Series', 'value' => (string) Series::count()],
-                ['label' => 'Total Clippers', 'value' => (string) Clipper::count()],
+                ['label' => 'Total Series', 'value' => (string) Series::accepted()->count()],
+                ['label' => 'Total Clippers', 'value' => (string) Clipper::accepted()->count()],
                 ['label' => 'My Series', 'value' => (string) $mySeriesCount],
                 ['label' => 'My Clippers', 'value' => (string) $request->user()->myCollection()->count()],
                 ['label' => 'Completed Series', 'value' => (string) $this->seriesService->countCompletedSeries($request->user())],
+            ],
+            'pendingRequests' => [
+                'series' => $pendingSeriesCount,
+                'clippers' => $pendingClippersCount,
             ]
         ]);
     }

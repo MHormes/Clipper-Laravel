@@ -34,4 +34,36 @@ class Clipper extends Model
             get: fn ($value) => $value ? Storage::url($value) : null,
         );
     }
+
+    // Relationship: A Clipper was requested by a User
+    public function requester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requested_by')->withDefault([
+            'name' => 'Deleted User',
+        ]);
+    }
+
+    // Relationship: A Clipper was accepted by an Admin
+    public function accepter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'accepted_by')->withDefault([
+            'name' => 'Deleted User',
+        ]);
+    }
+
+    /**
+     * Scope a query to only include accepted clippers.
+     */
+    public function scopeAccepted($query)
+    {
+        return $query->whereNotNull('accepted_by');
+    }
+
+    /**
+     * Scope a query to only include pending clipper requests.
+     */
+    public function scopePending($query)
+    {
+        return $query->whereNull('accepted_by');
+    }
 }

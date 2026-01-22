@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
+import { computed } from 'vue';
 import { 
     Layers, 
     Library, 
@@ -24,7 +25,14 @@ defineProps<{
         created_at: string;
     }>;
     stats: Array<{ label: string, value: string | number }>;
+    pendingRequests?: {
+        series: number;
+        clippers: number;
+    };
 }>();
+
+const { props: pageProps } = usePage<any>();
+const isAdmin = computed(() => pageProps.auth.is_admin);
 
 const getStatConfig = (label: string) => {
     switch (label) {
@@ -89,18 +97,47 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </div>
                 </Link>
 
-                <Link v-if="$page.props.auth.can.manage_series" :href="route('series.create')"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-green-500/50 hover:shadow-md dark:bg-[#161615]">
+                <Link :href="route('series.create')"
+                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all dark:bg-[#161615]"
+                    :class="isAdmin ? 'hover:border-green-500/50' : 'hover:border-orange-500/50'">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-green-500/10 text-green-600">
-                                <PlusCircle class="w-6 h-6" />
+                            <div :class="['p-2 rounded-lg', isAdmin ? 'bg-green-500/10 text-green-600' : 'bg-orange-500/10 text-orange-600']">
+                                <PlusCircle v-if="isAdmin" class="w-6 h-6" />
+                                <Flame v-else class="w-6 h-6" />
                             </div>
-                            <h3 class="text-2xl font-black">Add to System</h3>
+                            <h3 class="text-2xl font-black">{{ isAdmin ? 'Add to System' : 'Request New Series' }}</h3>
                         </div>
-                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">Found a new series? Help the community by adding it to the database.</p>
-                        <div class="mt-8 flex items-center font-bold text-green-600 group-hover:gap-2 transition-all">
-                            <span>Register Series</span>
+                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">
+                            {{ isAdmin ? 'Found a new series? Help the community by adding it to the database.' : 'Suggest a new series to be added to the system.' }}
+                        </p>
+                        <div class="mt-8 flex items-center font-bold group-hover:gap-2 transition-all"
+                             :class="isAdmin ? 'text-green-600' : 'text-orange-600'">
+                            <span>{{ isAdmin ? 'Register Series' : 'Submit Request' }}</span>
+                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </div>
+                </Link>
+
+                <Link v-if="isAdmin && (pendingRequests?.series || pendingRequests?.clippers)" :href="route('admin.requests.series.index')"
+                    class="group relative overflow-hidden rounded-2xl border-2 border-orange-500 bg-orange-500/5 p-8 shadow-sm transition-all hover:shadow-md">
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 rounded-lg bg-orange-500 text-white">
+                                    <ArrowRight class="w-6 h-6 -rotate-45" />
+                                </div>
+                                <h3 class="text-2xl font-black">Pending Requests</h3>
+                            </div>
+                            <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-xs font-black">
+                                {{ (pendingRequests?.series || 0) + (pendingRequests?.clippers || 0) }}
+                            </span>
+                        </div>
+                        <p class="text-orange-950 dark:text-orange-200 text-sm font-bold uppercase tracking-tight">
+                            {{ pendingRequests?.series }} Series • {{ pendingRequests?.clippers }} Clippers
+                        </p>
+                        <div class="mt-8 flex items-center font-bold text-orange-600 group-hover:gap-2 transition-all">
+                            <span>Review Now</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
                     </div>

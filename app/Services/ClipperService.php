@@ -13,7 +13,7 @@ class ClipperService
     /**
      * Entry point for updating clippers within a series.
      */
-    public function syncClippers(Series $series, array $data, $userId): void
+    public function syncClippers(Series $series, array $data, $userId, bool $isRequest = false): void
     {
         // 1. Delete requested clippers
         if (!empty($data['deleted_ids'])) {
@@ -23,7 +23,8 @@ class ClipperService
         // 2. Process the clippers array (Create or Update)
         if (isset($data['clippers']) && is_array($data['clippers'])) {
             foreach ($data['clippers'] as $index => $clipperData) {
-                $this->syncClipperSlot($series, $clipperData, $index + 1, $userId);
+                $slotNumber = $clipperData['series_number'] ?? ($index + 1);
+                $this->syncClipperSlot($series, $clipperData, (int)$slotNumber, $userId, $isRequest);
             }
         }
 
@@ -36,7 +37,7 @@ class ClipperService
     /**
      * Determines if a slot needs a new Clipper or an Update to an existing one.
      */
-    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId): void
+    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId, bool $isRequest = false): void
     {
         // If no new image is provided, we don't need to do anything for this slot
         if (!isset($clipperData['image']) || !($clipperData['image'] instanceof UploadedFile)) {
@@ -46,16 +47,16 @@ class ClipperService
         $existingClipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
         if ($existingClipper) {
-            $this->updateClipper($existingClipper, $clipperData['image'], $userId);
+            $this->updateClipper($existingClipper, $clipperData['image'], $userId, $isRequest);
         } else {
-            $this->createClipper($series, $clipperData['image'], $slotNumber, $userId);
+            $this->createClipper($series, $clipperData['image'], $slotNumber, $userId, $isRequest);
         }
     }
 
     /**
      * Create a single Clipper.
      */
-    public function createClipper(Series $series, UploadedFile $image, int $slotNumber, $userId): Clipper
+    public function createClipper(Series $series, UploadedFile $image, int $slotNumber, $userId, bool $isRequest = false): Clipper
     {
         $path = $this->imageService->uploadImage($image, 'clippers');
 
@@ -63,23 +64,23 @@ class ClipperService
             'series_number' => $slotNumber,
             'image_data'    => $path,
             'requested_by'  => $userId,
-            'accepted_by'   => $userId,
+            'accepted_by'   => $isRequest ? null : $userId,
         ]);
     }
 
     /**
      * Update a single Clipper and swap images.
      */
-    public function updateClipper(Clipper $clipper, UploadedFile $image, $userId): bool
+    public function updateClipper(Clipper $clipper, UploadedFile $image, $userId, bool $isRequest = false): bool
     {
         // Delete old physical file
         $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
 
         $newPath = $this->imageService->uploadImage($image, 'clippers');
 
-        return $clipper->update([
-            'image_data'  => $newPath,
-            'accepted_by' => $userId,
+         return $clipper->update([
+            'image_data' => $newPath,
+            'accepted_by' => $isRequest ? null : $userId,
         ]);
     }
 
@@ -113,13 +114,25 @@ class ClipperService
     /**
      * Batch create helper (for the initial Series creation).
      */
-    public function createClippersInBatch(Series $series, array $clippersData, $userId): void
+    public function createClippersInBatch(Series $series, array $clippersData, $userId, bool $isRequest = false): void
     {
         foreach ($clippersData as $index => $clipperData) {
             if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                $this->createClipper($series, $clipperData['image'], $index + 1, $userId);
+                $this->createClipper($series, $clipperData['image'], $index + 1, $userId, $isRequest);
             }
         }
+    }
+
+    /**
+     * Get pending clipper requests (for existing series) grouped by series.
+     */
+    public function getPendingClipperRequests()
+    {
+        return Clipper::pending()
+            ->with(['series', 'requester:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('series_id');
     }
 
     /**
