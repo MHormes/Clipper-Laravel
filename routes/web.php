@@ -13,6 +13,10 @@ use App\Http\Controllers\SitemapController;
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
+    ])->withViewData([
+        'metaTitle' => 'Clipper-MS: Welcome',
+        'metaDescription' => 'Discover, catalog, and complete your collection of legendary Clipper series.',
+        'metaImage' => url('/images/homepage-og.png')
     ]);
 })->name('home');
 

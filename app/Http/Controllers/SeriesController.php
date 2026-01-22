@@ -58,6 +58,10 @@ class SeriesController extends Controller
         return Inertia::render('series/Show', [
             'series' => $series,
             'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
+        ])->withViewData([
+            'metaTitle' => 'Clipper-MS: View Series ' . $series->name,
+            'metaDescription' => 'Check out the ' . $series->name . ' series and track your progress.',
+            'metaImage' => $series->image_data
         ]);
     }
 
