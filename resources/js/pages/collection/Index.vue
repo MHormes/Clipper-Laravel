@@ -23,8 +23,8 @@ const { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort } = useFi
                     <p class="text-muted-foreground text-sm">Overview of all series you have started collecting.</p>
                 </div>
 
-                <div class="flex items-center gap-4 w-full lg:w-auto">
-                    <div class="relative flex-1 lg:w-96">
+                <div class="grid grid-cols-1 md:flex md:items-center md:gap-4 w-full lg:w-auto">
+                    <div class="relative flex-1 lg:w-96 mb-2 md:mb-0">
                         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input v-model="search" type="text" placeholder="Search your collection..." class="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-black border border-sidebar-border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-sm shadow-sm" />
                         <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"><X class="w-4 h-4" /></button>

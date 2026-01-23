@@ -106,7 +106,7 @@ class SeriesService
                     $q->where('user_id', $user->id);
                 });
             }])
-            ->when($search, fn($q) => $q->where('name', 'like', '%' . $search . '%'))
+            ->when($search, fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']))
             ->orderBy($column, $direction);
 
         return $limit ? $query->limit($limit)->get() : $query->paginate(20)->withQueryString();

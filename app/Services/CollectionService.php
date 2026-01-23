@@ -20,7 +20,7 @@ class CollectionService
 
         // Search
         if (!empty($filters['search'])) {
-            $query->where('name', 'like', "%{$filters['search']}%");
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($filters['search']) . '%']);
         }
 
         // Sorting
