@@ -106,7 +106,7 @@ const reset = () => {
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 border-t border-sidebar-border bg-gray-50/50 dark:bg-white/2 flex items-center justify-between">
+            <div class="grid grid-cols-1 md:flex md:items-center md:justify-between px-6 py-4 border-t border-sidebar-border bg-gray-50/50 dark:bg-white/2">
                 <div class="flex items-center gap-1">
                     <button 
                         @click="reset"
@@ -152,7 +152,7 @@ const reset = () => {
                     </div>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="mt-2 md:mt-0 flex gap-3">
                     <button 
                         @click="handleCancel"
                         class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-sidebar-border hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-muted-foreground"
