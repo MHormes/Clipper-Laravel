@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { computed } from 'vue';
 import { 
@@ -15,7 +15,7 @@ import {
 } from 'lucide-vue-next';
 
 // Define Props from Controller
-defineProps<{
+const props = defineProps<{
     recentSeries: Array<{
         id: string;
         name: string;

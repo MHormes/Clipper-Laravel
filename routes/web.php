@@ -28,16 +28,16 @@ Route::get('/terms', function(){
     return Inertia::render('Terms');
 })->name('terms');
 
+Route::middleware(['crawler.access'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
+    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
+    Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
+});
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Protected Routes (Require Login)
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
-
-    //Map view
     Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
 
     // Collection
@@ -59,9 +59,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/series/{series}', [SeriesController::class, 'destroy'])->name('series.destroy');
     });
 
-    // Series Management - Read (Auth required)
-    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
-    Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
 
     //Clipper Management
     Route::post('/clippers/{clipper}/toggle', [CollectionController::class, 'toggle'])->name('clippers.toggle');

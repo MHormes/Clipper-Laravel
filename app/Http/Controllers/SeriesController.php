@@ -41,8 +41,10 @@ class SeriesController extends Controller
     {
         $user = $request->user();
 
-        // Prevent viewing pending series unless you are admin or the requester
-        if ($series->accepted_by === null && !$user->isAdmin() && $series->requested_by !== $user->id) {
+        // Prevent viewing pending series unless you are admin
+        $isAdmin = $user && $user->isAdmin();
+        
+        if ($series->accepted_by === null && !$isAdmin) {
             abort(404);
         }
 
@@ -76,6 +78,10 @@ class SeriesController extends Controller
                 $request->input('sortDir')
             ),
             'filters' => $request->only(['search', 'sortCol', 'sortDir'])
+        ])->withViewData([
+            'metaTitle' => 'Clipper-MS: View All Series',
+            'metaDescription' => 'Browse through hundreds of Clipper series, complete your collection, and track every design you own!',
+            'metaImage' => url('/images/default-og.jpg')
         ]);
     }
 
