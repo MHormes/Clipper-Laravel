@@ -82,8 +82,8 @@ const confirmDelete = () => {
 <template>
     <Head>
         <title>{{ series.name }} | Clipper-MS</title>
-        <meta property="og:title" :content="'Clipper-MS: View Series ' + series.name" />
-        <meta property="og:description" :content="'Check out the ' + series.name + ' series and track your progress.'" />
+        <meta property="og:title" :content="'Clipper-MS: View Series ' + series.name + ' and track your progress.'"/>
+        <meta property="og:description" :content="'Check out the ' + series.name + ' series and track your progress. Add notes and locations to make your collection complete!'" />
         <meta property="og:image" :content="series.image_data" />
     </Head>
 

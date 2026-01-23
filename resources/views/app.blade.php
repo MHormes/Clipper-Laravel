@@ -42,13 +42,14 @@
 
     <!-- SEO & Open Graph (Server-side for crawlers) -->
     <meta name="description"
-        content="{{ $metaDescription ?? 'Manage your Clipper lighter collection with ease. Track series, discover new designs, and complete your sets.' }}">
+        content="{{ $metaDescription ?? 'Manage your Clipper lighter collection with ease. Track series, discover new designs, and complete your series.' }}">
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Clipper-MS" />
-    <meta property="og:title" content="{{ $metaTitle ?? 'Clipper-MS: Track Your Collection' }}" />
+    <meta property="og:title"
+        content="{{ $metaTitle ?? 'Clipper-MS: Start Tracking Your Clipper Collection Today!' }}" />
     <meta property="og:description"
-        content="{{ $metaDescription ?? 'Discover, catalog, and complete your collection of legendary Clipper series.' }}" />
-    <meta property="og:image" content="{{ $metaImage ?? asset('images/og-image.png') }}" />
+        content="{{ $metaDescription ?? 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!' }}" />
+    <meta property="og:image" content="{{ $metaImage ?? asset('images/homepage-og.jpg') }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta name="twitter:card" content="summary_large_image" />
 

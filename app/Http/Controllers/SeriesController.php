@@ -59,8 +59,8 @@ class SeriesController extends Controller
             'series' => $series,
             'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
         ])->withViewData([
-            'metaTitle' => 'Clipper-MS: View Series ' . $series->name,
-            'metaDescription' => 'Check out the ' . $series->name . ' series and track your progress.',
+            'metaTitle' => 'Clipper-MS: View Series ' . $series->name . ' and track your progress.',
+            'metaDescription' => 'Check out the ' . $series->name . ' series and track your progress. Add notes and locations to make your collection complete!',
             'metaImage' => $series->image_data
         ]);
     }

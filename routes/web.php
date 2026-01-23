@@ -14,9 +14,9 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ])->withViewData([
-        'metaTitle' => 'Clipper-MS: Welcome',
-        'metaDescription' => 'Discover, catalog, and complete your collection of legendary Clipper series.',
-        'metaImage' => url('/images/homepage-og.png')
+        'metaTitle' => 'Clipper-MS: Start Tracking Your Clipper Collection Today!',
+        'metaDescription' => 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!',
+        'metaImage' => url('/images/homepage-og.jpg')
     ]);
 })->name('home');
 

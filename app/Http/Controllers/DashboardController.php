@@ -51,9 +51,9 @@ class DashboardController extends Controller
                 'clippers' => $pendingClippersCount,
             ]
         ])->withViewData([
-            'metaTitle' => 'Clipper-MS: Dashboard',
-            'metaDescription' => 'View and manage your Clipper collection at a glance.',
-            'metaImage' => url('/images/dashboard-og.png')
+            'metaTitle' => 'Clipper-MS: Find Everything Easily On Your Dashboard!',
+            'metaDescription' => 'View and manage your Clipper collection at a glance. See stats, find friends & new series and request missing designs.',
+            'metaImage' => url('/images/dashboard-og.jpg')
         ]);
     }
 }
