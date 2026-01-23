@@ -22,7 +22,7 @@ const stats = [
         
         <meta property="og:title" content="Clipper-MS: Start Tracking Your Clipper Collection Today!" />
         <meta property="og:description" content="Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!" />
-        <meta property="og:image" content="/images/homepage-og.jpg" />
+        <meta property="og:image" content="/images/default-og.jpg" />
     </Head>
 
     <div class="min-h-screen bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] selection:bg-orange-500 selection:text-white">

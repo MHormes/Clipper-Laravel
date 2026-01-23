@@ -65,13 +65,13 @@ const breadcrumbs: BreadcrumbItem[] = [
         <title>Clipper-MS | Dashboard</title>
         <meta property="og:title" content="Clipper-MS: Find Everything Easily On Your Dashboard!" />
         <meta property="og:description" content="View and manage your Clipper collection at a glance. See stats, find friends & new series and request missing designs." />
-        <meta property="og:image" content="/images/dashboard-og.jpg" />
+        <meta property="og:image" content="/images/dash-og.jpg" />
     </Head>
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-8 p-8 max-w-7xl mx-auto w-full">
 
-            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div v-for="stat in stats" :key="stat.label"
                     class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615]">
                     <div class="flex items-center justify-between mb-2">

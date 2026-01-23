@@ -16,7 +16,7 @@ Route::get('/', function () {
     ])->withViewData([
         'metaTitle' => 'Clipper-MS: Start Tracking Your Clipper Collection Today!',
         'metaDescription' => 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!',
-        'metaImage' => url('/images/homepage-og.jpg')
+        'metaImage' => url('/images/default-og.jpg')
     ]);
 })->name('home');
 

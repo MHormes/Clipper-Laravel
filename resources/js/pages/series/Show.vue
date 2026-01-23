@@ -91,22 +91,6 @@ const confirmDelete = () => {
         <div class="max-w-7xl mx-auto p-6 space-y-8">
             <div class="flex flex-col md:flex-row gap-8 items-start bg-white dark:bg-[#161615] p-8 rounded-3xl border border-sidebar-border relative">
                 
-                <div class="absolute top-8 right-8 flex gap-2">
-                    <template v-if="isAdmin">
-                        <Link :href="route('series.edit', series.id)" class="px-4 py-2 bg-orange-600 text-white text-sm font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg">
-                            Edit Series
-                        </Link>
-                        <button @click="showDeleteModal = true" class="px-4 py-2 bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white text-sm font-bold rounded-xl transition-all border border-red-600/20 shadow-sm">
-                            Delete
-                        </button>
-                    </template>
-                    <template v-else>
-                        <Link :href="route('series.request-clippers', series.id)" class="px-4 py-2 bg-orange-600/10 text-orange-600 hover:bg-orange-600 hover:text-white text-sm font-bold rounded-xl transition-all border border-orange-600/20 shadow-sm">
-                            Request Clippers
-                        </Link>
-                    </template>
-                </div>
-
                 <div class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
                     <img :src="series.image_data" class="w-full h-full object-cover" />
                 </div>
@@ -139,13 +123,30 @@ const confirmDelete = () => {
                         </div>
                     </div>
 
-                    <div class="pt-4">
+                    <div class="pt-4 grid grid-cols-2 gap-3">
                         <button @click="toggleAll" class="w-full sm:w-auto px-6 py-3 rounded-xl font-black uppercase text-sm transition-all flex items-center justify-center gap-2 group/btn"
                             :class="isFullyCollected ? 'bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white border border-red-600/20 shadow-sm' : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-600/20'">
                             <CheckCheck v-if="isFullyCollected" class="w-4 h-4" />
                             <Heart v-else class="w-4 h-4 fill-current group-hover/btn:scale-110 transition-transform" />
                             {{ isFullyCollected ? 'Uncollect Series' : 'Collect Complete Series' }}
                         </button>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <template v-if="isAdmin">
+                                <Link :href="route('series.edit', series.id)" class="flex items-center justify-center bg-orange-600 text-white text-sm font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg">
+                                    Edit
+                                </Link>
+                                <button @click="showDeleteModal = true" class="text-center bg-red-600/10 text-red-600 text-sm font-bold rounded-xl hover:bg-red-600 hover:text-white transition-all border border-red-600/20 shadow-sm">
+                                    Delete
+                                </button>
+                            </template>
+                            <template v-else>
+                                <Link :href="route('series.request-clippers', series.id)" class="col-span-2 flex items-center justify-center bg-orange-600/10 text-orange-600 hover:bg-orange-600 hover:text-white text-sm font-bold rounded-xl transition-all border border-orange-600/20 shadow-sm">
+                                    Request Clippers
+                                </Link>
+                            </template>
+                        </div>
+
                     </div>
                 </div>
             </div>

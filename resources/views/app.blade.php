@@ -49,7 +49,7 @@
         content="{{ $metaTitle ?? 'Clipper-MS: Start Tracking Your Clipper Collection Today!' }}" />
     <meta property="og:description"
         content="{{ $metaDescription ?? 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!' }}" />
-    <meta property="og:image" content="{{ $metaImage ?? asset('images/homepage-og.jpg') }}" />
+    <meta property="og:image" content="{{ $metaImage ?? asset('images/default-og.jpg') }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta name="twitter:card" content="summary_large_image" />
 

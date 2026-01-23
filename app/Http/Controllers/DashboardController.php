@@ -53,7 +53,7 @@ class DashboardController extends Controller
         ])->withViewData([
             'metaTitle' => 'Clipper-MS: Find Everything Easily On Your Dashboard!',
             'metaDescription' => 'View and manage your Clipper collection at a glance. See stats, find friends & new series and request missing designs.',
-            'metaImage' => url('/images/dashboard-og.jpg')
+            'metaImage' => url('/images/dash-og.jpg')
         ]);
     }
 }
