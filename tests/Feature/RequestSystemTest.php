@@ -30,7 +30,7 @@ class RequestSystemTest extends TestCase
         $response = $this->actingAs($this->user)
             ->post(route('series.store'), [
                 'name' => 'New Request Series',
-                'custom' => 'false',
+                'custom' => false,
                 'image' => UploadedFile::fake()->image('series.jpg'),
                 'clippers' => [
                     ['image' => UploadedFile::fake()->image('clipper1.jpg')],
@@ -40,7 +40,8 @@ class RequestSystemTest extends TestCase
 
         $series = Series::where('name', 'New Request Series')->first();
         
-        $response->assertRedirect(route('series.show', $series->id));
+        $response->assertRedirect(route('series.index'));
+        $this->assertNotNull($series);
         $this->assertNull($series->accepted_by);
         $this->assertEquals($this->user->id, $series->requested_by);
         $this->assertCount(2, $series->clippers);
