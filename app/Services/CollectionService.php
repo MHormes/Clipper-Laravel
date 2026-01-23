@@ -46,12 +46,20 @@ class CollectionService
     /**
      * Get all individual clippers owned by the user (Board View).
      */
-    public function getAllOwnedClippers(User $user)
+    public function getAllOwnedClippers(User $user, ?string $search = null)
     {
         return $user->myCollection()
-            ->whereHas('clipper', fn($q) => $q->accepted())
+            ->whereHas('clipper', function ($q) use ($search) {
+                $q->accepted();
+                if ($search) {
+                    $q->whereHas('series', function ($sq) use ($search) {
+                        $sq->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
+                    });
+                }
+            })
             ->with(['clipper.series'])
             ->paginate(64)
+            ->withQueryString()
             // ->orderBy('series_id', 'asc')
             ->through(fn($item) => [
                 'id' => $item->clipper->id,
