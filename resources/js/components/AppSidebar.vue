@@ -29,50 +29,60 @@ const mainNavItems = computed<NavItem[]>(() => {
             icon: LayoutGrid,
         },
         {
-            title: 'Your Clippers',
-            href: '/collection/clippers',
-            icon: CheckCircle,
-        },
-        {
-            title: 'Your Series',
-            href: '/collection/',
-            icon: ListCheck,
-        },
-        // {
-        //     title: 'All Clippers',
-        //     href: '/clippers',
-        //     icon: Map,
-        // },
-        {
-            title: 'Map View',
-            href: '/mapview',
-            icon: Map,
-        },
-        {
             title: 'All Series',
             href: '/series',
             icon: Library,
         },
+        {
+            title: 'Collection',
+            icon: ListCheck,
+            children: [
+                {
+                    title: 'Your Clippers',
+                    href: '/collection/clippers',
+                    icon: CheckCircle,
+                },
+                {
+                    title: 'Your Series',
+                    href: '/collection/',
+                    icon: ListCheck,
+                },
+                {
+                    title: 'Map View',
+                    href: '/mapview',
+                    icon: Map,
+                },
+            ],
+        },
     ];
 
     if (page.props.auth.is_admin) {
-        items.push({
-            title: 'User Management',
-            href: '/admin/users',
+        
+        items.push(
+            {
+                title: 'Admin',
+                icon: Users,
+                children:[{
+                    title: 'User Management',
+                    href: '/admin/users',
             icon: Users,
+        }],
         });
         items.push({
-            title: 'Series Requests',
-            href: '/admin/requests/series',
+            title: 'Requests',
             icon: ClipboardList,
-        });
-        items.push({
-            title: 'Clipper Requests',
-            href: '/admin/requests/clippers',
-            icon: ClipboardCheck,
+            children:[{
+                    title: 'Series Requests',
+                    href: '/admin/requests/series',
+                    icon: ClipboardList,
+                },
+                {
+                    title: 'Clipper Requests',
+                    href: '/admin/requests/clippers',
+                    icon: ClipboardCheck,
+                }],
         });
     }
-
     return items;
 });
 

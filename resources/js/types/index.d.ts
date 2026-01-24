@@ -15,8 +15,9 @@ export interface BreadcrumbItem {
 }
 
 export interface NavItem {
+    children?: NavItem[];
     title: string;
-    href: NonNullable<InertiaLinkProps['href']>;
+    href?: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon;
     isActive?: boolean;
 }
