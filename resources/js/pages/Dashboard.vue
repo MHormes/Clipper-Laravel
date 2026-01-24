@@ -11,7 +11,8 @@ import {
     CheckCircle,
     ArrowRight,
     PlusCircle,
-    Trophy
+    Trophy,
+    ListCheck
 } from 'lucide-vue-next';
 
 // Define Props from Controller
@@ -43,7 +44,7 @@ const getStatConfig = (label: string) => {
         case 'My Clippers':
             return { icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-500/10' };
         case 'My Series':
-            return { icon: Layers, color: 'text-purple-600', bg: 'bg-purple-500/10' };
+            return { icon: ListCheck, color: 'text-purple-600', bg: 'bg-purple-500/10' };
         case 'Completed Series':
             return { icon: Trophy, color: 'text-amber-600', bg: 'bg-amber-500/10' };
         default:
@@ -57,6 +58,25 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
 ];
+
+/**
+ * Handle redirection when clicking on a stat box.
+ * 
+ * @param label The label of the stat box clicked
+ */
+const handleStatClick = (label: string) => {
+    switch (label) {
+        case 'Total Series':
+            router.get(route('series.index'));
+            break;
+        case 'My Series':
+            router.get(route('collection.index'));
+            break;
+        case 'My Clippers':
+            router.get(route('collection.clippers'));
+            break;
+    }
+};
 </script>
 
 <template>
@@ -73,7 +93,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div v-for="stat in stats" :key="stat.label"
-                    class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615]">
+                    @click="handleStatClick(stat.label)"
+                    class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615]"
+                    :class="['Total Series', 'My Series', 'My Clippers'].includes(stat.label) ? 'cursor-pointer hover:border-orange-500/50' : ''">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-sm font-bold text-muted-foreground uppercase tracking-wider">{{ stat.label }}</span>
                         <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
@@ -155,7 +177,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <div class="p-2 rounded-lg bg-purple-500/10 text-purple-600">
                                 <Layers class="w-6 h-6" />
                             </div>
-                            <h3 class="text-2xl font-black">My Collection</h3>
+                            <h3 class="text-2xl font-black">My Series</h3>
                         </div>
                         <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
                         <div class="mt-8 flex items-center font-bold text-purple-600 group-hover:gap-2 transition-all">

@@ -13,13 +13,13 @@ const { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort } = useFi
 </script>
 
 <template>
-    <Head title="My Collection" />
+    <Head title="My Series" />
 
     <AppLayout>
         <div class="w-full max-w-7xl mx-auto p-6">
             <div class="grid grid-cols-1 lg:grid-cols-[1fr,auto] items-center gap-6 mb-8">
                 <div>
-                    <h1 class="text-3xl font-black uppercase tracking-tight">My Collection</h1>
+                    <h1 class="text-3xl font-black uppercase tracking-tight">My Series</h1>
                     <p class="text-muted-foreground text-sm">Overview of all series you have started collecting.</p>
                 </div>
 

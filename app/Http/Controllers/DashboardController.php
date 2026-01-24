@@ -52,10 +52,10 @@ class DashboardController extends Controller
             $pendingClippersCount = $user->isAdmin() ? Clipper::pending()->count() : 0;
 
             $stats = [
-                ['label' => 'Total Series', 'value' => (string) Series::accepted()->count()],
                 ['label' => 'Total Clippers', 'value' => (string) Clipper::accepted()->count()],
-                ['label' => 'My Series', 'value' => (string) $mySeriesCount],
+                ['label' => 'Total Series', 'value' => (string) Series::accepted()->count()],
                 ['label' => 'My Clippers', 'value' => (string) $user->myCollection()->count()],
+                ['label' => 'My Series', 'value' => (string) $mySeriesCount],
                 ['label' => 'Completed Series', 'value' => (string) $this->seriesService->countCompletedSeries($user)],
             ];
 

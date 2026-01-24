@@ -50,7 +50,7 @@ class SearchTest extends TestCase
     }
 
     /**
-     * Test case-insensitive search in My Collection.
+     * Test case-insensitive search in My Series.
      */
     public function test_collection_search_is_case_insensitive()
     {

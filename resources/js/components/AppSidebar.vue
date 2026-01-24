@@ -15,7 +15,7 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Map, Users, ClipboardCheck, ClipboardList } from 'lucide-vue-next';
+import { LayoutGrid, Map, Users, ClipboardCheck, ClipboardList, ListCheck, CheckCircle, Library } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { AppPageProps } from '@/types';
 
@@ -29,9 +29,29 @@ const mainNavItems = computed<NavItem[]>(() => {
             icon: LayoutGrid,
         },
         {
+            title: 'Your Clippers',
+            href: '/collection/clippers',
+            icon: CheckCircle,
+        },
+        {
+            title: 'Your Series',
+            href: '/collection/',
+            icon: ListCheck,
+        },
+        // {
+        //     title: 'All Clippers',
+        //     href: '/clippers',
+        //     icon: Map,
+        // },
+        {
             title: 'Map View',
             href: '/mapview',
             icon: Map,
+        },
+        {
+            title: 'All Series',
+            href: '/series',
+            icon: Library,
         },
     ];
 
