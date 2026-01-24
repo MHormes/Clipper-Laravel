@@ -13,26 +13,46 @@ if [ ! -f "$ENV_SOURCE" ]; then
     exit 1
 fi
 
-# 3. Bestanden klaarmaken (ALLEEN voor productie/server)
-# Als het profile NIET local is, overschrijven we .env en docker-compose.yml voor Dockge
+# 3. Bestanden klaarmaken
 if [ "$PROFILE" != "local" ]; then
-    echo "📝 Server modus: Bestanden synchroniseren naar .env en docker-compose.yml voor Dockge..."
+    echo "📝 Server modus: Bestanden synchroniseren..."
     cp "$ENV_SOURCE" .env
     cp "$COMPOSE_SOURCE" docker-compose.yml
-    
     COMPOSE_FILE="docker-compose.yml"
     ENV_FILE=".env"
 else
-    echo "🏠 Lokale modus: Ik raak je standaard .env en docker-compose.yml NIET aan."
-    # We gebruiken de bronbestanden direct zonder te kopiëren
+    echo "🏠 Lokale modus: Bronbestanden direct gebruiken."
     COMPOSE_FILE="$COMPOSE_SOURCE"
     ENV_FILE="$ENV_SOURCE"
 fi
 
-# 4. Omgevingsvariabelen laden (nodig voor de volumes en MinIO checks in dit script)
+# Omgevingsvariabelen laden
 export $(grep -v '^#' "$ENV_FILE" | xargs)
 
-echo "🛑 Stop & verwijder containers..."
+# --- NIEUW: TEST FASE ---
+echo "🧪 Fase: Tests uitvoeren voor deployment..."
+
+# We bouwen de image eerst om er zeker van te zijn dat we de nieuwste code testen
+APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build app
+
+# Draai de tests in een eenmalige container
+# --rm zorgt dat de container na de test direct wordt opgeruimd
+APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm app php artisan test
+
+# Controleer de exit status van de tests
+if [ $? -ne 0 ]; then
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "❌ TESTS GEFAALD! De deployment is afgebroken."
+    echo "De huidige versie van het systeem blijft ongewijzigd."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    exit 1
+fi
+
+echo "✅ Tests geslaagd! We gaan verder met de update..."
+# --- EINDE TEST FASE ---
+
+# 4. Stop & verwijder containers (PAS NU AANROEPEN)
+echo "🛑 Stop & verwijder oude containers..."
 docker compose -f "$COMPOSE_FILE" down
 
 # 5. Volumes aanmaken
@@ -46,12 +66,11 @@ else
 fi
 
 # 6. Start Containers
-echo "🚀 Bouwen en opstarten..."
-APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
+echo "🚀 Opstarten..."
+APP_PROFILE=$PROFILE docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
 
-# 3. Permissies Fixen (Essentieel na 'up')
+# 3. Permissies Fixen
 echo "🔒 Rechten herstellen voor Laravel storage..."
-# We zoeken de container die op dat moment draait
 CONTAINER_APP=$(docker ps --format "{{.Names}}" | grep "_app")
 
 if [ ! -z "$CONTAINER_APP" ]; then
@@ -80,4 +99,4 @@ docker exec $CONTAINER_NAME sh -c "
     mc mb local/clipper-ms || echo 'Bucket bestaat al' && \
     mc anonymous set download local/clipper-ms"
 
-echo "✅ Systeem is up op profiel: $PROFILE"
+echo "✅ Systeem is succesvol geüpdatet op profiel: $PROFILE"
