@@ -1,13 +1,13 @@
 FROM php:8.4-apache
 
-# 1. Install system dependencies (Added netcat-openbsd and git)
+# 1. Install system dependencies (libzip-dev toegevoegd voor de PHP zip extensie)
 RUN apt-get update && apt-get install -y \
-    libpng-dev libonig-dev libxml2-dev zip curl unzip libpq-dev nodejs npm \
+    libpng-dev libonig-dev libxml2-dev libzip-dev zip curl unzip libpq-dev nodejs npm \
     netcat-openbsd git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+# 2. Install PHP extensions (zip toegevoegd aan de lijst)
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
 
 # 3. Configure Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -22,7 +22,7 @@ COPY composer.json composer.lock package.json package-lock.json ./
 
 # 5. Install Dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-# Note: I removed --no-dev because you mentioned Pail earlier, which is often a dev dependency
+# Omdat we nu ook tests willen runnen, installeren we ook de dev-dependencies
 RUN composer install --no-scripts --no-autoloader
 RUN npm install
 
@@ -37,5 +37,4 @@ RUN npm run build
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod +x /var/www/html/start.sh
 
-# Use the full path for the start script
 CMD ["/var/www/html/start.sh"]
