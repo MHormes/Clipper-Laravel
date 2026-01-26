@@ -224,7 +224,7 @@ const handleStatClick = (label: string) => {
                         </div>
 
                         <div class="flex-1">
-                            <Link :href="route('series.show', item.id)"
+                            <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
                                 class="font-bold text-sm hover:text-orange-600 transition-colors">
                                 {{ item.name }}
                             </Link>
@@ -233,7 +233,7 @@ const handleStatClick = (label: string) => {
                             </p>
                         </div>
 
-                        <Link :href="route('series.show', item.id)"
+                        <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
                             class="text-[10px] font-black text-orange-600 uppercase border border-orange-600/20 px-3 py-1 rounded hover:bg-orange-600 hover:text-white transition-all">
                             View Series
                         </Link>

@@ -37,8 +37,12 @@ class SeriesController extends Controller
     }
 
 
-    public function show(Request $request, Series $series)
+    public function show(Request $request, Series $series, $slug = null)
     {
+        if ($slug !== $series->slug) {
+            return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug], 301);
+        }
+
         $user = $request->user();
 
         // Prevent viewing pending series unless you are admin
@@ -63,7 +67,8 @@ class SeriesController extends Controller
         ])->withViewData([
             'metaTitle' => 'Clipper-MS: View Series ' . $series->name . ' and track your progress.',
             'metaDescription' => 'Check out the ' . $series->name . ' series and track your progress. Add notes and locations to make your collection complete!',
-            'metaImage' => $series->image_data
+            'metaImage' => $series->image_data,
+            'metaCanonical' => route('series.show', ['series' => $series->id, 'slug' => $series->slug])
         ]);
     }
 
@@ -81,7 +86,8 @@ class SeriesController extends Controller
         ])->withViewData([
             'metaTitle' => 'Clipper-MS: View All Series',
             'metaDescription' => 'Browse through hundreds of Clipper series, complete your collection, and track every design you own!',
-            'metaImage' => url('/images/default-og.jpg')
+            'metaImage' => url('/images/default-og.jpg'),
+            'metaCanonical' => route('series.index')
         ]);
     }
 
@@ -104,7 +110,7 @@ class SeriesController extends Controller
                 ->with('success', 'Your series request has been submitted and is pending review.');
         }
 
-        return to_route('series.show', $series->id);
+        return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug]);
     }
 
     /**
@@ -125,7 +131,7 @@ class SeriesController extends Controller
     {
         $this->clipperService->syncClippers($series, $request->validated(), $request->user()->id, true);
 
-        return to_route('series.show', $series->id)
+        return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug])
             ->with('success', 'Your clipper requests have been submitted and are pending review.');
     }
 
@@ -138,7 +144,7 @@ class SeriesController extends Controller
         Log::info($series);
         $this->seriesService->updateSeries($series, $request->user(), $request->validated());
 
-        return to_route('series.show', $series->id)
+        return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug])
             ->with('success', 'Series updated successfully!');
     }
 

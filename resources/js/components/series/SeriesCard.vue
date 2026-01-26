@@ -19,7 +19,7 @@ const progressWidth = computed(() => ((props.item.collected_count || 0) / totalT
 </script>
 
 <template>
-    <Link :href="route('series.show', item.id)"
+    <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
         class="group bg-white dark:bg-[#161615] rounded-2xl overflow-hidden border border-sidebar-border shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
         
         <div class="aspect-[4/3] relative overflow-hidden bg-white dark:bg-black border-b border-sidebar-border">

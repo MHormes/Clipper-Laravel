@@ -17,6 +17,8 @@ class Series extends Model
 
     protected $fillable = ['name', 'custom', 'requested_by', 'accepted_by', 'image_data'];
 
+    protected $appends = ['slug'];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -76,5 +78,13 @@ class Series extends Model
     public function scopePending($query)
     {
         return $query->whereNull('accepted_by');
+    }
+
+    /**
+     * Get the URL-friendly slug for the series name.
+     */
+    protected function getSlugAttribute(): string
+    {
+        return str($this->name)->slug();
     }
 }

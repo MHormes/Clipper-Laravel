@@ -16,7 +16,8 @@ Route::get('/', function () {
     ])->withViewData([
         'metaTitle' => 'Clipper-MS: Start Tracking Your Clipper Collection Today!',
         'metaDescription' => 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!',
-        'metaImage' => url('/images/default-og.jpg')
+        'metaImage' => url('/images/default-og.jpg'),
+        'metaCanonical' => route('home')
     ]);
 })->name('home');
 
@@ -31,7 +32,7 @@ Route::get('/terms', function(){
 Route::middleware(['crawler.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
     Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
-    Route::get('/series/{series}', [SeriesController::class, 'show'])->name('series.show');
+    Route::get('/series/{series}/{slug?}', [SeriesController::class, 'show'])->name('series.show');
 });
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
