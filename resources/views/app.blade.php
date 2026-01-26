@@ -40,6 +40,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+    <link rel="canonical" href="{{ str_replace('http://', 'https://', url()->current()) }}" />
+
     <!-- SEO & Open Graph (Server-side for crawlers) -->
     <meta name="description"
         content="{{ $metaDescription ?? 'Manage your Clipper lighter collection with ease. Track series, discover new designs, and complete your series.' }}">
@@ -50,7 +52,7 @@
     <meta property="og:description"
         content="{{ $metaDescription ?? 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!' }}" />
     <meta property="og:image" content="{{ $metaImage ?? asset('images/default-og.jpg') }}" />
-    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:url" content="{{ str_replace('http://', 'https://', url()->current()) }}" />
     <meta name="twitter:card" content="summary_large_image" />
 
     @routes @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
