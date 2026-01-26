@@ -44,7 +44,7 @@ const mainNavItems = computed<NavItem[]>(() => {
                 },
                 {
                     title: 'Your Series',
-                    href: '/collection/',
+                    href: '/collection',
                     icon: ListCheck,
                 },
                 {
