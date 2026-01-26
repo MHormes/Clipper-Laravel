@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Series;
 use App\Models\Clipper;
 use App\Services\CollectionService;
+use App\Support\SeoMetadata;
 use Illuminate\Http\RedirectResponse;
 
 class CollectionController extends Controller
@@ -24,7 +25,9 @@ class CollectionController extends Controller
                 $request->only(['search', 'sortCol', 'sortDir'])
             ),
             'filters' => $request->only(['search', 'sortCol', 'sortDir']),
-        ]);
+        ])->withViewData(
+            SeoMetadata::forCollectionIndex()->toArray()
+        );
     }
 
     /**
@@ -33,7 +36,9 @@ class CollectionController extends Controller
     public function mapview(Request $request)
     {
         return Inertia::render('collection/map/Index', [
-        ]);
+        ])->withViewData(
+            SeoMetadata::forMapView()->toArray()
+        );
     }
 
     /**
@@ -47,7 +52,9 @@ class CollectionController extends Controller
                 $request->input('search')
             ),
             'filters' => $request->only(['search']),
-        ]);
+        ])->withViewData(
+            SeoMetadata::forClippersBoard()->toArray()
+        );
     }
     
     public function update(Request $request, Clipper $clipper)

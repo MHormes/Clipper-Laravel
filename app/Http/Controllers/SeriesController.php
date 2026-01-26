@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\ClipperService;
 use App\Services\SeriesService;
 use App\Services\CollectionService;
+use App\Support\SeoMetadata;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Series;
@@ -64,12 +65,9 @@ class SeriesController extends Controller
         return Inertia::render('series/Show', [
             'series' => $series,
             'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
-        ])->withViewData([
-            'metaTitle' => 'Clipper-MS: View Series ' . $series->name . ' and track your progress.',
-            'metaDescription' => 'Check out the ' . $series->name . ' series and track your progress. Add notes and locations to make your collection complete!',
-            'metaImage' => $series->image_data,
-            'metaCanonical' => route('series.show', ['series' => $series->id, 'slug' => $series->slug])
-        ]);
+        ])->withViewData(
+            SeoMetadata::forSeries($series)->toArray()
+        );
     }
 
     public function index(Request $request)
@@ -83,12 +81,9 @@ class SeriesController extends Controller
                 $request->input('sortDir')
             ),
             'filters' => $request->only(['search', 'sortCol', 'sortDir'])
-        ])->withViewData([
-            'metaTitle' => 'Clipper-MS: View All Series',
-            'metaDescription' => 'Browse through hundreds of Clipper series, complete your collection, and track every design you own!',
-            'metaImage' => url('/images/default-og.jpg'),
-            'metaCanonical' => route('series.index')
-        ]);
+        ])->withViewData(
+            SeoMetadata::forSeriesIndex()->toArray()
+        );
     }
 
    /**

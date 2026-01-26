@@ -44,7 +44,7 @@
 
     <!-- SEO & Open Graph (Server-side for crawlers) -->
     <meta name="description"
-        content="{{ $metaDescription ?? 'Manage your Clipper lighter collection with ease. Track series, discover new designs, and complete your series.' }}">
+        content="{{ $metaDescription ?? 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!' }}">
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Clipper-MS" />
     <meta property="og:title"
@@ -54,6 +54,24 @@
     <meta property="og:image" content="{{ $metaImage ?? asset('images/default-og.jpg') }}" />
     <meta property="og:url" content="{{ str_replace('http://', 'https://', url()->current()) }}" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    {{-- Schema.org Structured Data for SEO --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Clipper-MS",
+        "description": "Clipper Lighter Collection Management System - Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!",
+        "url": "{{ config('app.url') }}",
+        "applicationCategory": "CollectionManagement",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
 
     @routes @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     @inertiaHead

@@ -83,9 +83,6 @@ const handleStatClick = (label: string) => {
 
     <Head>
         <title>Clipper-MS | Dashboard</title>
-        <meta property="og:title" content="Clipper-MS: Find Everything Easily On Your Dashboard!" />
-        <meta property="og:description" content="View and manage your Clipper collection at a glance. See stats, find friends & new series and request missing designs." />
-        <meta property="og:image" content="/images/dash-og.jpg" />
     </Head>
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -220,7 +217,7 @@ const handleStatClick = (label: string) => {
 
                         <div
                             class="h-12 w-16 rounded bg-white dark:bg-black overflow-hidden border border-sidebar-border">
-                            <img :src="item.image_data" class="h-full w-full object-contain" />
+                            <img :src="item.image_data" :alt="item.name + 'Clipper Lighter Series'" class="h-full w-full object-contain" />
                         </div>
 
                         <div class="flex-1">

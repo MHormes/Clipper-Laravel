@@ -67,7 +67,7 @@ const toggleCollection = (clipperId: number) => {
                         <div class="bg-white dark:bg-[#161615] rounded-2xl border-2 border-sidebar-border shadow-sm transition-all hover:border-orange-500 hover:shadow-lg">
                             
                             <div class="aspect-[1/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-900 bg-white dark:bg-black relative group-hover:scale-[1.02] transition-transform duration-300">
-                                <img :src="clipper.image_data" class="w-full h-full object-cover" />
+                                <img :src="clipper.image_data" :alt="clipper.series.name + ' #' + clipper.series_number + 'Clipper Lighter'" class="w-full h-full object-cover" />
                             </div>
 
                             <Link :href="route('series.show', clipper.series.id)" class="absolute inset-0 z-0" aria-label="View Series">

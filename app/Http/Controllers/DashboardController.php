@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\ClipperService;
 use App\Services\SeriesService;
+use App\Support\SeoMetadata;
 use App\Models\Series;
 use App\Models\Clipper;
 
@@ -25,19 +26,14 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // Pass metadata to the root template for scrapers
-        $viewData = [
-            'metaTitle' => 'Clipper-MS: Your Collection Dashboard',
-            'metaDescription' => 'Track your Clipper collection, view stats, and manage your series at a glance.',
-            'metaImage' => url('/images/dash-og.jpg')
-        ];
-
         if (!$user) {
             // Serve a blank page with metadata for crawlers
             return Inertia::render('Dashboard', [
                 'recentSeries' => [],
                 'stats' => [],
-            ])->withViewData($viewData);
+            ])->withViewData(
+                SeoMetadata::forDashboard()->toArray()
+            );
         }
 
         $stats = [];
@@ -69,6 +65,8 @@ class DashboardController extends Controller
             'recentSeries' => $user ? $this->seriesService->getSeriesCatalog($user, 8) : [],
             'stats' => $stats,
             'pendingRequests' => $pendingRequests
-        ])->withViewData($viewData);
+        ])->withViewData(
+            SeoMetadata::forDashboard()->toArray()
+        );
     }
 }

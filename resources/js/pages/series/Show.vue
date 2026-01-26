@@ -82,9 +82,6 @@ const confirmDelete = () => {
 <template>
     <Head>
         <title>{{ series.name }} | Clipper-MS</title>
-        <meta property="og:title" :content="'Clipper-MS: View Series ' + series.name + ' and track your progress.'"/>
-        <meta property="og:description" :content="'Check out the ' + series.name + ' series and track your progress. Add notes and locations to make your collection complete!'" />
-        <meta property="og:image" :content="series.image_data" />
     </Head>
 
     <AppLayout>
@@ -92,7 +89,7 @@ const confirmDelete = () => {
             <div class="flex flex-col md:flex-row gap-8 items-start bg-white dark:bg-[#161615] p-8 rounded-3xl border border-sidebar-border relative">
                 
                 <div class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-                    <img :src="series.image_data" class="w-full h-full object-cover" />
+                    <img :src="series.image_data" :alt="series.name + 'Clipper Lighter Series'" class="w-full h-full object-cover" />
                 </div>
 
                 <div class="flex-1 space-y-6">
@@ -178,7 +175,7 @@ const confirmDelete = () => {
                             </div>
 
                             <div class="aspect-[1/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-900 bg-white dark:bg-black">
-                                <img :src="getClipperByNumber(n)!.image_data" class="w-full h-full object-cover" />
+                                <img :src="getClipperByNumber(n)!.image_data" :alt="series.name + ' #' + n + 'Clipper Lighter'" class="w-full h-full object-cover" />
                             </div>
                         </div>
                     </div>
