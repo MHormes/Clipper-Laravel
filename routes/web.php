@@ -17,32 +17,32 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/privacy', function(){
-    return Inertia::render('Privacy');
-})->name('privacy');
+Route::get('/privacy', fn() => Inertia::render('Privacy'))->name('privacy');
+Route::get('/terms', fn() => Inertia::render('Terms'))->name('terms');
 
-Route::get('/terms', function(){
-    return Inertia::render('Terms');
-})->name('terms');
-
-Route::middleware(['crawler.access'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
-    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
-    Route::get('/series/{series}/{slug?}', [SeriesController::class, 'show'])->name('series.show');
-});
+// SEO & Utility
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
+
+// Publicly viewable pages (Guest-smart)
+Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
+Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
+Route::get('/series/{series}/{slug?}', [SeriesController::class, 'show'])->name('series.show');
+Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
+Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
+Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+
+
 // Protected Routes (Require Login)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
 
-    // Collection
-    Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
-    Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+    //Clipper Management
+    Route::post('/clippers/{clipper}/toggle', [CollectionController::class, 'toggle'])->name('clippers.toggle');
+    Route::post('/series/{series}/toggle-collection', [CollectionController::class, 'toggleCollection'])->name('series.toggle-collection');
+    Route::patch('/collection/{clipper}', [CollectionController::class, 'update'])->name('collection.update');
 
     // Series Management - Write
-    // create and store are now open to all authenticated users for requests
     Route::get('/series/create', [SeriesController::class, 'create'])->name('series.create');
     Route::post('/series', [SeriesController::class, 'store'])->name('series.store');
     
@@ -50,24 +50,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/series/{series}/request-clippers', [SeriesController::class, 'requestClippers'])->name('series.request-clippers');
     Route::post('/series/{series}/request-clippers', [SeriesController::class, 'storeClipperRequest'])->name('series.store-clipper-request');
 
+    // Admin Role Required
     Route::middleware(['admin'])->group(function () {
         Route::get('/series/{series}/edit', [SeriesController::class, 'edit'])->name('series.edit');
         Route::put('/series/{series}', [SeriesController::class, 'update'])->name('series.update');
         Route::delete('/series/{series}', [SeriesController::class, 'destroy'])->name('series.destroy');
     });
 
-
-    //Clipper Management
-    Route::post('/clippers/{clipper}/toggle', [CollectionController::class, 'toggle'])->name('clippers.toggle');
-    Route::post('/series/{series}/toggle-collection', [CollectionController::class, 'toggleCollection'])->name('series.toggle-collection');
-
-    Route::patch('/collection/{clipper}', [CollectionController::class, 'update'])
-    ->name('collection.update')
-    ->middleware('auth');
-
     // Admin Routes
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        // User Management
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 

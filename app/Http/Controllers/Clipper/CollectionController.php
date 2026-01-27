@@ -20,12 +20,14 @@ class CollectionController extends Controller
      */
     public function index(Request $request)
     {
+        $user = $request->user();
+
         return Inertia::render('collection/Index', [
-            'series' => $this->collectionService->getCollectedSeries(
-                $request->user(), 
+            'series' => $user ? $this->collectionService->getCollectedSeries(
+                $user, 
                 $request->only(['search', 'sortCol', 'sortDir'])
-            ),
-            'filters' => $request->only(['search', 'sortCol', 'sortDir']),
+            ) : [],
+            'filters' => $user ? $request->only(['search', 'sortCol', 'sortDir']) : [],
         ])->withViewData(
             SeoMetadata::forCollectionIndex()->toArray()
         );
@@ -47,12 +49,14 @@ class CollectionController extends Controller
      */
     public function clippers(Request $request)
     {
+        $user = $request->user();
+
         return Inertia::render('collection/All', [
-            'clippers' => $this->collectionService->getAllOwnedClippers(
-                $request->user(),
+            'clippers' => $user ? $this->collectionService->getAllOwnedClippers(
+                $user,
                 $request->input('search')
-            ),
-            'filters' => $request->only(['search']),
+            ) : [],
+            'filters' => $user ? $request->only(['search']) : [],
         ])->withViewData(
             SeoMetadata::forClippersBoard()->toArray()
         );

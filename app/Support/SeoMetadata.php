@@ -28,8 +28,8 @@ class SeoMetadata
     public static function default(): self
     {
         return new self(
-            title: 'Start Tracking Your Clipper Lighter Collection Today! | Clipper-MS',
-            description: 'Track your Clipper collection with ease. Discover new series, catalog your clippers, and complete your series. Create your free account and start tracking your collection today!',
+            title: 'Track Your Clipper Lighter Collection | Clipper-MS',
+            description: 'Discover new series, catalog your clippers, and complete your series. Create your free account and start tracking your collection today!',
             image: url('/images/default-og.jpg')
         );
     }

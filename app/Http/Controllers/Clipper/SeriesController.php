@@ -54,18 +54,16 @@ class SeriesController extends Controller
             abort(404);
         }
 
-        // Eager load only the ACCEPTED clippers for public view
-        // If the user IS an admin or the requester, we might want to show pending too?
-        // But the requirement says "Only accepted series and clippers are displayed publicly."
-        // Let's stick to showing only accepted clippers on the main show page.
-        $series->load([
-            'clippers' => fn($q) => $q->accepted(),
-            'requester:id,name'
-        ]);
-
+        if($user){
+            $series->load([
+                'clippers' => fn($q) => $q->accepted(),
+                'requester:id,name'
+            ]);
+        }
+        
         return Inertia::render('series/Show', [
             'series' => $series,
-            'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
+            'userCollection' => $user ? $this->collectionService->getCollectedClippersForSeries($series, $user) : [],
         ])->withViewData(
             SeoMetadata::forSeries($series)->toArray()
         );
@@ -73,15 +71,16 @@ class SeriesController extends Controller
 
     public function index(Request $request)
     {
+        $user = $request->user();
         return Inertia::render('series/Index', [
-            'series' => $this->seriesService->getSeriesCatalog(
-                $request->user(), 
+            'series' => $user ? $this->seriesService->getSeriesCatalog(
+                $user, 
                 null, 
                 $request->input('search'), 
                 $request->input('sortCol'), 
                 $request->input('sortDir')
-            ),
-            'filters' => $request->only(['search', 'sortCol', 'sortDir'])
+            ) : [],
+            'filters' => $user ? $request->only(['search', 'sortCol', 'sortDir']) : []
         ])->withViewData(
             SeoMetadata::forSeriesIndex()->toArray()
         );
