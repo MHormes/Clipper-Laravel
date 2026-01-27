@@ -14,10 +14,20 @@ class SitemapController extends Controller
      */
     public function index(): Response
     {
-        // Only include accepted series in the sitemap
+        $staticPages = [
+            ['url' => url('/'), 'priority' => '1.0', 'freq' => 'daily'],
+            ['url' => url('/dashboard'), 'priority' => '0.9', 'freq' => 'daily'],
+            ['url' => url('/series'), 'priority' => '0.8', 'freq' => 'weekly'],
+            ['url' => url('/collection'), 'priority' => '0.7', 'freq' => 'weekly'],
+            ['url' => url('/collection/clippers'), 'priority' => '0.7', 'freq' => 'weekly'],
+            ['url' => url('/privacy'), 'priority' => '0.3', 'freq' => 'monthly'],
+            ['url' => url('/terms'), 'priority' => '0.3', 'freq' => 'monthly'],
+        ];
+
         $series = Series::accepted()->latest()->get();
 
         return response()->view('sitemap', [
+            'staticPages' => $staticPages,
             'series' => $series,
         ])->header('Content-Type', 'text/xml');
     }
