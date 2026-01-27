@@ -34,29 +34,31 @@ toggle_maintenance() {
     local action=$1
     if [ "$PROFILE" == "production" ] && [ ! -z "$CLOUDFLARE_ZONE_ID" ]; then
         
-        # 1. Clean the URL: strip protocol and trailing slashes
-        # If APP_URL is "https://clipper-ms.com/", this turns it into "clipper-ms.com"
+        # 1. Clean the URL (remove https:// and trailing slashes)
+        # Result: clipper-ms.com
         local TARGET_DOMAIN=$(echo "$APP_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
         
+        # 2. Get Worker Name from Env (fallback to 'maintenance-page' if empty)
+        local WORKER_NAME="${CLOUDFLARE_WORKER_NAME:-maintenance-page}"
+
         if [ "$action" == "on" ]; then
-            echo "🚧 Enabling Maintenance Mode for $TARGET_DOMAIN..."
+            echo "🚧 Enabling Maintenance Mode for $TARGET_DOMAIN using worker [$WORKER_NAME]..."
             
-            # Capture the full response from Cloudflare to see errors
             RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
                  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
                  -H "Content-Type: application/json" \
-                 --data "{\"pattern\":\"$TARGET_DOMAIN/*\",\"script\":\"maintenance-page\"}")
+                 --data "{\"pattern\":\"$TARGET_DOMAIN/*\",\"script\":\"$WORKER_NAME\"}")
 
-            # Check if success is true in the JSON response
             if echo "$RESPONSE" | grep -q '"success":true'; then
                 echo "✅ Maintenance Route active."
             else
                 echo "❌ Cloudflare Error: $RESPONSE"
+                echo "👉 Double check that the Worker Name in Cloudflare matches: $WORKER_NAME"
             fi
         else
             echo "🟢 Disabling Maintenance Mode..."
             
-            # Get the ID of the route we created
+            # Find the ID of the route we created
             ROUTE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
                         -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
                         jq -r ".result[] | select(.pattern==\"$TARGET_DOMAIN/*\") | .id")
@@ -66,7 +68,7 @@ toggle_maintenance() {
                      -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /dev/null
                 echo "✅ Maintenance Route removed."
             else
-                echo "⚠️ No active maintenance route found to remove."
+                echo "⚠️ No active maintenance route found for $TARGET_DOMAIN."
             fi
         fi
     fi
