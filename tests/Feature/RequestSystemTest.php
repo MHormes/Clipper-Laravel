@@ -110,7 +110,7 @@ class RequestSystemTest extends TestCase
                 ]
             ]);
 
-        $response->assertRedirect(route('series.show', $series->id));
+        $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
         $this->assertDatabaseHas('clippers', [
             'series_id' => $series->id,
             'requested_by' => $this->user->id,
