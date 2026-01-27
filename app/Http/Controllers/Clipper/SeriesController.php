@@ -40,17 +40,18 @@ class SeriesController extends Controller
 
     public function show(Request $request, Series $series, $slug = null)
     {
-        if ($slug !== $series->slug) {
-            return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug], 301);
-        }
-
         $user = $request->user();
 
         // Prevent viewing pending series unless you are admin
+        // This check must happen BEFORE the slug redirect to avoid leaking existence via 301
         $isAdmin = $user && $user->isAdmin();
         
         if ($series->accepted_by === null && !$isAdmin) {
             abort(404);
+        }
+
+        if ($slug !== $series->slug) {
+            return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug], 301);
         }
 
         if($user){

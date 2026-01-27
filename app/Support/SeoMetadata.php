@@ -55,7 +55,7 @@ class SeoMetadata
         return new self(
             title: $series->name . ' Clipper Lighter Series | Clipper-MS',
             description: 'View the ' . $series->name . ' Clipper series. Track your collection progress, add notes, and complete this legendary Clipper series.',
-            image: $series->image_data,
+            image: $series->image_data ?? url('/images/default-og.jpg'),
             canonical: route('series.show', ['series' => $series->id, 'slug' => $series->slug])
         );
     }

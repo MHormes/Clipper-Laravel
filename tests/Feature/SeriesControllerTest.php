@@ -55,7 +55,7 @@ test('admins can view pending series details', function () {
     $pendingSeries = Series::factory()->create(['accepted_by' => null]);
 
     $this->actingAs($this->admin);
-    $response = $this->get(route('series.show', $pendingSeries));
+    $response = $this->get(route('series.show', ['series' => $pendingSeries->id, 'slug' => $pendingSeries->slug]));
     
     $response->assertStatus(200);
 });
@@ -102,7 +102,7 @@ test('admins can create series directly', function () {
     ]);
     
     $series = Series::where('name', 'Admin Series')->first();
-    $response->assertRedirect(route('series.show', $series->id));
+    $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
 });
 
 test('non-admins cannot delete series', function () {
