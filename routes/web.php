@@ -26,12 +26,14 @@ Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 
 // Publicly viewable pages (Guest-smart)
-Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
-Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
-Route::get('/series/{series}/{slug?}', [SeriesController::class, 'show'])->name('series.show');
-Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
-Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
-Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+Route::middleware(['crawler.access'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
+    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
+    Route::get('/series/{series}/{slug?}', [SeriesController::class, 'show'])->name('series.show');
+    Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
+    Route::get('/collection', [CollectionController::class, 'index'])->name('collection.index');
+    Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+});
 
 
 // Protected Routes (Require Login)
