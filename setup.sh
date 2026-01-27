@@ -1,34 +1,5 @@
 #!/bin/bash
 
-# Function to toggle Maintenance Mode
-toggle_maintenance() {
-    local action=$1 # "add" or "remove"
-    if [ "$PROFILE" == "production" ] && [ ! -z "$CLOUDFLARE_ZONE_ID" ]; then
-        echo "🔧 Maintenance mode: $action"
-        
-        if [ "$action" == "on" ]; then
-        echo "🛠️ Cloudflare worker toevoegen..."
-            # Create a route that points your domain to the worker
-            curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
-                 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-                 -H "Content-Type: application/json" \
-                 --data "{\"pattern\":\"clipper-ms.com/*\",\"script\":\"maintenance-page\"}" > /dev/null
-        else
-            echo "🛠️ Cloudflare worker verwijderen..."
-            # Find the route ID and delete it
-            ROUTE_ID=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
-                        -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[] | select(.script=="maintenance-page") | .id')
-            
-            if [ ! -z "$ROUTE_ID" ]; then
-                curl -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes/$ROUTE_ID" \
-                     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /dev/null
-            fi
-        fi
-    fi
-}
-
-
-
 # 1. Bepaal het profiel (standaard 'local')
 PROFILE=${1:-local}
 ENV_SOURCE=".env.$PROFILE"
@@ -58,6 +29,33 @@ else
     ENV_FILE="$ENV_SOURCE"
 
 fi
+
+# Function to toggle Maintenance Mode
+toggle_maintenance() {
+    local action=$1 # "add" or "remove"
+    if [ "$PROFILE" == "production" ] && [ ! -z "$CLOUDFLARE_ZONE_ID" ]; then
+        echo "🔧 Maintenance mode: $action"
+        
+        if [ "$action" == "on" ]; then
+        echo "🛠️ Cloudflare worker toevoegen..."
+            # Create a route that points your domain to the worker
+            curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
+                 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                 -H "Content-Type: application/json" \
+                 --data "{\"pattern\":\"clipper-ms.com/*\",\"script\":\"maintenance-page\"}" > /dev/null
+        else
+            echo "🛠️ Cloudflare worker verwijderen..."
+            # Find the route ID and delete it
+            ROUTE_ID=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
+                        -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[] | select(.script=="maintenance-page") | .id')
+            
+            if [ ! -z "$ROUTE_ID" ]; then
+                curl -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes/$ROUTE_ID" \
+                     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /dev/null
+            fi
+        fi
+    fi
+}
 
 # 4. Omgevingsvariabelen laden (nodig voor de volumes en MinIO checks in dit script)
 export $(grep -v '^#' "$ENV_FILE" | xargs)
