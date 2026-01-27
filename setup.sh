@@ -7,12 +7,14 @@ toggle_maintenance() {
         echo "🔧 Maintenance mode: $action"
         
         if [ "$action" == "on" ]; then
+        echo "🛠️ Cloudflare worker toevoegen..."
             # Create a route that points your domain to the worker
             curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
                  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
                  -H "Content-Type: application/json" \
                  --data "{\"pattern\":\"clipper-ms.com/*\",\"script\":\"maintenance-page\"}" > /dev/null
         else
+            echo "🛠️ Cloudflare worker verwijderen..."
             # Find the route ID and delete it
             ROUTE_ID=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
                         -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[] | select(.script=="maintenance-page") | .id')

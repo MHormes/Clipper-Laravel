@@ -1,0 +1,65 @@
+export default {
+async fetch(request) {
+const html = `
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance | Clipper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-slow {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-[#161615] text-white flex items-center justify-center min-h-screen font-sans p-6">
+    <div class="max-w-md w-full text-center">
+        <div class="mb-8 inline-flex p-4 rounded-3xl bg-orange-500/10 text-orange-500 ring-1 ring-orange-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </svg>
+        </div>
+
+        <h1 class="text-4xl font-black mb-4 tracking-tight">Clipper is updating</h1>
+        <p class="text-zinc-400 leading-relaxed mb-10 text-lg">
+            We're currently fine-tuning the system to improve your experience. Hang tight, we'll be back in a few
+            minutes.
+        </p>
+
+        <div
+            class="flex items-center justify-center gap-3 text-sm font-bold uppercase tracking-widest text-orange-500 animate-pulse-slow">
+            <span class="relative flex h-3 w-3">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+            </span>
+            Deploying Improvements
+        </div>
+    </div>
+</body>
+
+</html>`;
+
+return new Response(html, {
+headers: { 'content-type': 'text/html;charset=UTF-8' },
+});
+},
+};
