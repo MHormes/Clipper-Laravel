@@ -30,28 +30,43 @@ else
 
 fi
 
-# Function to toggle Maintenance Mode
 toggle_maintenance() {
-    local action=$1 # "add" or "remove"
+    local action=$1
     if [ "$PROFILE" == "production" ] && [ ! -z "$CLOUDFLARE_ZONE_ID" ]; then
-        echo "🔧 Maintenance mode: $action"
+        
+        # 1. Clean the URL: strip protocol and trailing slashes
+        # If APP_URL is "https://clipper-ms.com/", this turns it into "clipper-ms.com"
+        local TARGET_DOMAIN=$(echo "$APP_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
         
         if [ "$action" == "on" ]; then
-        echo "🛠️ Cloudflare worker toevoegen..."
-            # Create a route that points your domain to the worker
-            curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
+            echo "🚧 Enabling Maintenance Mode for $TARGET_DOMAIN..."
+            
+            # Capture the full response from Cloudflare to see errors
+            RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
                  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
                  -H "Content-Type: application/json" \
-                 --data "{\"pattern\":\"clipper-ms.com/*\",\"script\":\"maintenance-page\"}" > /dev/null
+                 --data "{\"pattern\":\"$TARGET_DOMAIN/*\",\"script\":\"maintenance-page\"}")
+
+            # Check if success is true in the JSON response
+            if echo "$RESPONSE" | grep -q '"success":true'; then
+                echo "✅ Maintenance Route active."
+            else
+                echo "❌ Cloudflare Error: $RESPONSE"
+            fi
         else
-            echo "🛠️ Cloudflare worker verwijderen..."
-            # Find the route ID and delete it
-            ROUTE_ID=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
-                        -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[] | select(.script=="maintenance-page") | .id')
+            echo "🟢 Disabling Maintenance Mode..."
             
-            if [ ! -z "$ROUTE_ID" ]; then
-                curl -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes/$ROUTE_ID" \
+            # Get the ID of the route we created
+            ROUTE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
+                        -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | \
+                        jq -r ".result[] | select(.pattern==\"$TARGET_DOMAIN/*\") | .id")
+            
+            if [ ! -z "$ROUTE_ID" ] && [ "$ROUTE_ID" != "null" ]; then
+                curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes/$ROUTE_ID" \
                      -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /dev/null
+                echo "✅ Maintenance Route removed."
+            else
+                echo "⚠️ No active maintenance route found to remove."
             fi
         fi
     fi
