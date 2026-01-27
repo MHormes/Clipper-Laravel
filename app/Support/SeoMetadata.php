@@ -35,18 +35,6 @@ class SeoMetadata
     }
 
     /**
-     * Get SEO metadata for the welcome page.
-     */
-    public static function forWelcome(): self
-    {
-        return new self(
-            title: 'Start Tracking Your Clipper Lighter Collection Today! | Clipper-MS',
-            description: 'Track your Clipper collection with ease. Discover new series, catalog your clippers, and complete your series. Create your free account and start tracking your collection today!',
-            image: url('/images/default-og.jpg')
-        );
-    }
-
-    /**
      * Get SEO metadata for the dashboard.
      */
     public static function forDashboard(): self
@@ -54,7 +42,8 @@ class SeoMetadata
         return new self(
             title: 'My Clipper Lighter Collection Dashboard | Clipper-MS',
             description: 'Manage your Clipper collection dashboard. View collection stats, track series progress, and discover new Clipper designs.',
-            image: url('/images/dash-og.jpg')
+            image: url('/images/dash-og.jpg'),
+            canonical: route('dashboard')
         );
     }
 

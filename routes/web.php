@@ -9,15 +9,11 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RequestController; // Added for request management
 use App\Http\Controllers\SitemapController;
+use App\Support\SeoMetadata;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
-    ])->withViewData([
-        'metaTitle' => 'Clipper-MS: Start Tracking Your Clipper Collection Today!',
-        'metaDescription' => 'Discover, catalog, and complete your collection of legendary Clipper series. Create a free account and start tracking your collection today!',
-        'metaImage' => url('/images/default-og.jpg'),
-        'metaCanonical' => route('home')
     ]);
 })->name('home');
 
