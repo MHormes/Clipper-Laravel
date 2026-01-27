@@ -34,26 +34,24 @@ toggle_maintenance() {
     local action=$1
     if [ "$PROFILE" == "production" ] && [ ! -z "$CLOUDFLARE_ZONE_ID" ]; then
         
-        # 1. Clean the URL (remove https:// and trailing slashes)
-        # Result: clipper-ms.com
         local TARGET_DOMAIN=$(echo "$APP_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
-        
-        # 2. Get Worker Name from Env (fallback to 'maintenance-page' if empty)
         local WORKER_NAME="${CLOUDFLARE_WORKER_NAME:-maintenance-page}"
 
         if [ "$action" == "on" ]; then
             echo "🚧 Enabling Maintenance Mode for $TARGET_DOMAIN using worker [$WORKER_NAME]..."
             
+            # We use jq to check the success field directly
             RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes" \
                  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
                  -H "Content-Type: application/json" \
                  --data "{\"pattern\":\"$TARGET_DOMAIN/*\",\"script\":\"$WORKER_NAME\"}")
 
-            if echo "$RESPONSE" | grep -q '"success":true'; then
-                echo "✅ Maintenance Route active."
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+
+            if [ "$SUCCESS" == "true" ]; then
+                echo "✅ Maintenance Route active in Cloudflare."
             else
                 echo "❌ Cloudflare Error: $RESPONSE"
-                echo "👉 Double check that the Worker Name in Cloudflare matches: $WORKER_NAME"
             fi
         else
             echo "🟢 Disabling Maintenance Mode..."
@@ -66,7 +64,7 @@ toggle_maintenance() {
             if [ ! -z "$ROUTE_ID" ] && [ "$ROUTE_ID" != "null" ]; then
                 curl -s -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/workers/routes/$ROUTE_ID" \
                      -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /dev/null
-                echo "✅ Maintenance Route removed."
+                echo "✅ Maintenance Route removed. Site is LIVE."
             else
                 echo "⚠️ No active maintenance route found for $TARGET_DOMAIN."
             fi
