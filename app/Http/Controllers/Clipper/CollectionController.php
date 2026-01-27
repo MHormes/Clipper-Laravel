@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Clipper;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -8,6 +8,7 @@ use App\Models\Series;
 use App\Models\Clipper;
 use App\Services\CollectionService;
 use App\Support\SeoMetadata;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 
 class CollectionController extends Controller

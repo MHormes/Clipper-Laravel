@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Http\Controllers\SeriesController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\Clipper\SeriesController;
+use App\Http\Controllers\Clipper\DashboardController;
+use App\Http\Controllers\Clipper\CollectionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RequestController; // Added for request management
 use App\Http\Controllers\SitemapController;

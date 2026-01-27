@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Clipper;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -8,6 +8,7 @@ use App\Services\ClipperService;
 use App\Services\SeriesService;
 use App\Support\SeoMetadata;
 use App\Models\Series;
+use App\Http\Controllers\Controller;
 use App\Models\Clipper;
 
 class DashboardController extends Controller

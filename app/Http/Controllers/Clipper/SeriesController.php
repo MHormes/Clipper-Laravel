@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Clipper;
 
 use App\Services\ClipperService;
 use App\Services\SeriesService;
 use App\Services\CollectionService;
 use App\Support\SeoMetadata;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use App\Models\Series;
 use App\Http\Requests\StoreSeriesRequest;
