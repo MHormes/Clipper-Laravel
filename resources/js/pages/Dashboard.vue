@@ -16,7 +16,7 @@ import {
 } from 'lucide-vue-next';
 
 // Define Props from Controller
-const props = defineProps<{
+defineProps<{
     recentSeries: Array<{
         id: string;
         name: string;

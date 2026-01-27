@@ -25,18 +25,33 @@ class HandleCrawlerAccess
         // List of common social media and search engine crawlers
         $crawlers = [
             'facebookexternalhit',
-            'WhatsApp',
-            'Twitterbot',
-            'Slackbot',
-            'LinkedInBot',
-            'Googlebot',
+            'facebot',
+            'meta-externalagent',
+            'meta-externalfetcher',
+            'whatsapp',
+            'twitterbot',
+            'slackbot-linkexpanding',
+            'linkedinbot',
+            'discordbot',
+            'telegrambot',
+            'pinterestbot',
+
+            // Search engines
+            'googlebot',
+            'adsbot-google',
+            'mediapartners-google',
             'bingbot',
-            'Baidu',
-            'yacybot',
-            'YandexBot',
-            'Sogou',
-            'Exabot',
-            'ia_archiver'
+            'msnbot',
+            'duckduckbot',
+            'applebot',
+            'baiduspider',
+            'yandex',
+            'sogou',
+            'exabot',
+
+            // Archives
+            'ia_archiver',
+            'archive.org_bot',
         ];
 
         $userAgent = $request->header('User-Agent', '');

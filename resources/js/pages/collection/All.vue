@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import Pagination from '@/components/Pagination.vue';   
 import { Head, Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { Library, Heart, Search, X } from 'lucide-vue-next';
@@ -25,12 +26,6 @@ const props = defineProps<{
 }>();
 
 const { search, isFiltered } = useFilters('collection.clippers', props.filters);
-
-const toggleCollection = (clipperId: number) => {
-    router.post(route('clippers.toggle', clipperId), {}, {
-        preserveScroll: true,
-    });
-};
 </script>
 
 <template>
@@ -95,25 +90,7 @@ const toggleCollection = (clipperId: number) => {
                     </Link>
                 </div>
 
-                <!-- Pagination -->
-                <div v-if="clippers.links.length > 3 && clippers.data.length > 0" class="mt-12 mb-6 flex justify-center gap-2">
-                    <template v-for="(link, k) in clippers.links" :key="k">
-                        <span v-if="link.url === null" 
-                            v-html="link.label" 
-                            class="px-5 py-2.5 rounded-xl text-sm border font-bold opacity-50 cursor-not-allowed bg-white dark:bg-black border-sidebar-border"
-                        />
-                        
-                        <Link v-else 
-                            :href="link.url" 
-                            v-html="link.label"
-                            class="px-5 py-2.5 rounded-xl text-sm border font-bold transition-all shadow-sm"
-                            :class="{ 
-                                'bg-orange-600 text-white border-orange-600 shadow-orange-900/10': link.active, 
-                                'bg-white dark:bg-black border-sidebar-border hover:border-orange-500/50': !link.active 
-                            }" 
-                        />
-                    </template>
-                </div>
+                <Pagination :links="clippers.links" />
             </div>
         </div>
     </AppLayout>

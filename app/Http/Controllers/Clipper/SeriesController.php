@@ -31,7 +31,6 @@ class SeriesController extends Controller
      */
     public function edit(Series $series)
     {
-
         $series->load('clippers');
         return Inertia::render('series/Edit', [
             'series' => $series

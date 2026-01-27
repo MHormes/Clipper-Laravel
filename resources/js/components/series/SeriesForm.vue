@@ -25,7 +25,6 @@ const isProcessing = ref(false);
 
 const page = usePage<any>();
 const isClipperRequest = computed(() => props.mode === 'clipper-request');
-const isRequest = computed(() => props.mode === 'request' || props.mode === 'clipper-request');
 const isAdmin = computed(() => page.props.auth.is_admin);
 
 const getInitialClippers = () => {
