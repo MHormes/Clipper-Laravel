@@ -148,13 +148,13 @@ const confirmDelete = () => {
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+            <div class="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                 
                 <template v-for="n in (series.custom ? series.clippers.map(c => c.series_number) : [1, 2, 3, 4])" :key="n">
                     <div v-if="getClipperByNumber(n)" class="group">
-                        <div class="bg-white dark:bg-[#161615] p-4 rounded-2xl border-2 border-sidebar-border shadow-sm transition-all hover:border-orange-500 relative">
+                        <div class="bg-white dark:bg-[#161615] p-1 sm:p-4 rounded-2xl border-2 border-sidebar-border shadow-sm transition-all hover:border-orange-500 relative">
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xs font-black text-gray-400 uppercase">#{{ n }}</span>
+                                <span class="hidden sm:block text-xs font-black text-gray-400 uppercase p-2">#{{ n }}</span>
                                 
                                 <div class="flex gap-1">
                                     <button 

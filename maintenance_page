@@ -7,7 +7,7 @@ const html = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance | Clipper</title>
+    <title>Maintenance | Clipper-MS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes pulse-slow {
@@ -38,7 +38,7 @@ const html = `
             </svg>
         </div>
 
-        <h1 class="text-4xl font-black mb-4 tracking-tight">Clipper is updating</h1>
+        <h1 class="text-4xl font-black mb-4 tracking-tight">Clipper-MS is updating</h1>
         <p class="text-zinc-400 leading-relaxed mb-10 text-lg">
             We're currently fine-tuning the system to improve your experience. Hang tight, we'll be back in a few
             minutes.
