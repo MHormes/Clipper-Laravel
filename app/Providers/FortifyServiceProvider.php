@@ -33,6 +33,13 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         Fortify::authenticateUsing(function (Request $request) {
+            $request->validate([
+                'terms' => ['required', 'accepted'],
+            ], [
+                'terms.required' => 'The terms field is required.',
+                'terms.accepted' => 'The terms field is required.',
+            ]);
+
             $user = \App\Models\User::where('email', $request->email)->first();
 
             if ($user &&

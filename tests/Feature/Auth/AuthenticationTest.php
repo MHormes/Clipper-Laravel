@@ -16,6 +16,7 @@ test('users can authenticate using the login screen', function () {
     $response = $this->post(route('login.store'), [
         'email' => $user->email,
         'password' => 'password',
+        'terms' => true,
     ]);
 
     $this->assertAuthenticated();
@@ -43,6 +44,7 @@ test('users with two factor enabled are redirected to two factor challenge', fun
     $response = $this->post(route('login'), [
         'email' => $user->email,
         'password' => 'password',
+        'terms' => true,
     ]);
 
     $response->assertRedirect(route('two-factor.login'));
@@ -56,6 +58,7 @@ test('users can not authenticate with invalid password', function () {
     $this->post(route('login.store'), [
         'email' => $user->email,
         'password' => 'wrong-password',
+        'terms' => true,
     ]);
 
     $this->assertGuest();
@@ -78,6 +81,7 @@ test('users are rate limited', function () {
     $response = $this->post(route('login.store'), [
         'email' => $user->email,
         'password' => 'wrong-password',
+        'terms' => true,
     ]);
 
     $response->assertTooManyRequests();

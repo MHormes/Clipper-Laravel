@@ -2,6 +2,7 @@
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -90,16 +91,28 @@ import { route } from 'ziggy-js';
                     <InputError :message="errors.password_confirmation" />
                 </div>
 
-                <p class="text-[11px] text-[#706f6c] dark:text-[#A1A09A] leading-tight">
-                    By registering, you agree to our 
-                    <TextLink :href="route('terms')" class="text-[#f53003] hover:underline">Terms</TextLink> and acknowledge our 
-                    <TextLink :href="route('privacy')" class="text-[#f53003] hover:underline">Privacy Policy</TextLink>.
-                </p>
+                <div class="flex items-center">
+                    <Label for="terms" class="flex items-center space-x-3 cursor-pointer group">
+                        <Checkbox 
+                            id="terms" 
+                            name="terms" 
+                            required
+                            :tabindex="5" 
+                            class="border-gray-300 data-[state=checked]:bg-[#f53003] data-[state=checked]:border-[#f53003]"
+                        />
+                        <span class="text-[11px] text-[#706f6c] dark:text-[#A1A09A] leading-tight group-hover:text-black dark:group-hover:text-white transition-colors">
+                            By registering, you agree to our 
+                            <TextLink :href="route('terms')" class="text-[#f53003] hover:underline">Terms</TextLink> and acknowledge our 
+                            <TextLink :href="route('privacy')" class="text-[#f53003] hover:underline">Privacy Policy</TextLink>.
+                        </span>
+                    </Label>
+                    <InputError :message="errors.terms" class="ml-2" />
+                </div>
 
                 <Button
                     type="submit"
                     class="mt-2 w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
-                    tabindex="5"
+                    tabindex="6"
                     :disabled="processing"
                     data-test="register-user-button"
                 >

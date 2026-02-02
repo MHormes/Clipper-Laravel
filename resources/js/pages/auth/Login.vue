@@ -11,6 +11,7 @@ import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
+import { route } from 'ziggy-js';
 
 defineProps<{
     status?: string;
@@ -95,10 +96,26 @@ defineProps<{
                     </Label>
                 </div>
 
+                <div class="flex items-center">
+                    <Label for="terms" class="flex items-center space-x-3 cursor-pointer group">
+                        <Checkbox 
+                            id="terms" 
+                            name="terms" 
+                            required
+                            :tabindex="4" 
+                            class="border-gray-300 data-[state=checked]:bg-[#f53003] data-[state=checked]:border-[#f53003]"
+                        />
+                        <span class="text-sm text-[#706f6c] dark:text-[#A1A09A] group-hover:text-black dark:group-hover:text-white transition-colors">
+                            I agree to the <TextLink :href="route('terms')" class="text-[#f53003] hover:underline">Terms</TextLink> and <TextLink :href="route('privacy')" class="text-[#f53003] hover:underline">Privacy Policy</TextLink>
+                        </span>
+                        <span v-if="errors.terms" class="text-sm text-red-600 dark:text-red-400">{{ errors.terms }}</span>
+                    </Label>
+                </div>
+
                 <Button
                     type="submit"
                     class="mt-2 w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
-                    :tabindex="4"
+                    :tabindex="5"
                     :disabled="processing"
                     data-test="login-button"
                 >
