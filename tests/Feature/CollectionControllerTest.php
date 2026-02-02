@@ -10,7 +10,7 @@ beforeEach(function () {
     $this->user = User::factory()->create(['role' => 'user']);
 });
 
-test('users can see their collection', function () {
+test('users can see their collection via redirect', function () {
     $series = Series::factory()->create(['accepted_by' => $this->admin->id]);
     $clipper = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => $this->admin->id]);
     
@@ -21,6 +21,22 @@ test('users can see their collection', function () {
 
     $this->actingAs($this->user);
     $response = $this->get(route('collection.index'));
+    
+    $response->assertStatus(301);
+    $response->assertRedirect(route('series.index', ['filter' => 'collected']));
+});
+
+test('users can see their collection via filtered series catalog', function () {
+    $series = Series::factory()->create(['accepted_by' => $this->admin->id]);
+    $clipper = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => $this->admin->id]);
+    
+    CollectedClipper::create([
+        'user_id' => $this->user->id,
+        'clipper_id' => $clipper->id
+    ]);
+
+    $this->actingAs($this->user);
+    $response = $this->get(route('series.index', ['filter' => 'collected']));
     
     $response->assertStatus(200);
     $response->assertSee($series->name);

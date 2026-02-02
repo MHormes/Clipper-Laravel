@@ -7,14 +7,29 @@ export function useFilters(routeName: string, initialFilters: any) {
     const search = ref(initialFilters?.search || '');
     const sortCol = ref(initialFilters?.sortCol || '');
     const sortDir = ref(initialFilters?.sortDir || '');
+    const filter = ref(initialFilters?.filter || 'all');
+    const type = ref(initialFilters?.type || 'all');
 
-    const isFiltered = computed(() => search.value !== '' || sortCol.value !== '' || sortDir.value !== '');
+    // Watch for internal prop changes (Inertia partial reloads)
+    watch(() => initialFilters, (newFilters) => {
+        if (newFilters) {
+            search.value = newFilters.search || '';
+            sortCol.value = newFilters.sortCol || '';
+            sortDir.value = newFilters.sortDir || '';
+            filter.value = newFilters.filter || 'all';
+            type.value = newFilters.type || 'all';
+        }
+    }, { deep: true });
+
+    const isFiltered = computed(() => search.value !== '' || sortCol.value !== '' || sortDir.value !== '' || filter.value !== 'all' || type.value !== 'all');
 
     const updateResults = () => {
         router.get(route(routeName), {
             search: search.value,
             sortCol: sortCol.value,
-            sortDir: sortDir.value
+            sortDir: sortDir.value,
+            filter: filter.value,
+            type: type.value
         }, { preserveState: true, replace: true, preserveScroll: true });
     };
 
@@ -22,6 +37,8 @@ export function useFilters(routeName: string, initialFilters: any) {
         search.value = '';
         sortCol.value = '';
         sortDir.value = '';
+        filter.value = 'all';
+        type.value = 'all';
         updateResults();
     };
 
@@ -29,6 +46,10 @@ export function useFilters(routeName: string, initialFilters: any) {
     watch(search, () => {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(updateResults, 300);
+    });
+
+    watch([filter, type], () => {
+        updateResults();
     });
 
     const toggleSort = (column: string) => {
@@ -44,5 +65,5 @@ export function useFilters(routeName: string, initialFilters: any) {
         updateResults();
     };
 
-    return { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort, updateResults };
+    return { search, sortCol, sortDir, filter, type, isFiltered, resetFilters, toggleSort, updateResults };
 }

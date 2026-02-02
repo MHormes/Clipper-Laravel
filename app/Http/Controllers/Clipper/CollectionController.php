@@ -15,23 +15,6 @@ class CollectionController extends Controller
 {
    public function __construct(protected CollectionService $collectionService) {}
 
-    /**
-     * Display a listing of the series the user has started collecting.
-     */
-    public function index(Request $request)
-    {
-        $user = $request->user();
-
-        return Inertia::render('collection/Index', [
-            'series' => $user ? $this->collectionService->getCollectedSeries(
-                $user, 
-                $request->only(['search', 'sortCol', 'sortDir'])
-            ) : [],
-            'filters' => $user ? $request->only(['search', 'sortCol', 'sortDir']) : [],
-        ])->withViewData(
-            SeoMetadata::forCollectionIndex()->toArray()
-        );
-    }
 
     /**
      * Display a map with all collected clippers

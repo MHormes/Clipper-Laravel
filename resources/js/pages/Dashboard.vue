@@ -73,13 +73,13 @@ const handleStatClick = (label: string) => {
             router.get(route('series.index'));
             break;
         case 'My Series':
-            router.get(route('collection.index'));
+            router.get(route('series.index', { filter: 'collected' }));
             break;
         case 'My Clippers':
             router.get(route('collection.clippers'));
             break;
         case 'Completed Series':
-            router.get(route('collection.index'));
+            router.get(route('series.index', { filter: 'completed' }));
             break;
     }
 };
@@ -172,7 +172,7 @@ const handleStatClick = (label: string) => {
                     </div>
                 </Link>
 
-                <Link :href="route('collection.index')"
+                <Link :href="route('series.index', { filter: 'collected' })"
                     class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-[#161615]">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">

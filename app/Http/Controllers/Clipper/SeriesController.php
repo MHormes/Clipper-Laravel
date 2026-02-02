@@ -74,13 +74,17 @@ class SeriesController extends Controller
         $user = $request->user();
         return Inertia::render('series/Index', [
             'series' => $user ? $this->seriesService->getSeriesCatalog(
-                $user, 
+                $user,
                 null, 
-                $request->input('search'), 
-                $request->input('sortCol'), 
-                $request->input('sortDir')
+                $request->only(['search', 'sortCol', 'sortDir', 'filter', 'type'])
             ) : [],
-            'filters' => $user ? $request->only(['search', 'sortCol', 'sortDir']) : []
+            'filters' => $user ? array_merge(
+                $request->only(['search', 'sortCol', 'sortDir']),
+                [
+                    'filter' => $request->input('filter', 'all'),
+                    'type' => $request->input('type', 'all')
+                ]
+            ) : ['filter' => 'all', 'type' => 'all']
         ])->withViewData(
             SeoMetadata::forSeriesIndex()->toArray()
         );

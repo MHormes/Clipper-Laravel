@@ -92,22 +92,49 @@ class SeriesService
      * Get a paginated list of series for the catalog.
      * Includes the count of clippers the user has collected in that series.
      */
-    public function getSeriesCatalog(User $user, ?int $limit = null, ?string $search = null, ?string $sortCol = 'created_at', ?string $sortDir = 'desc')
+    public function getSeriesCatalog(User $user, ?int $limit = null, array $filters = [])
     {
-        $column = filled($sortCol) ? $sortCol : 'created_at';
-        $direction = in_array(strtolower($sortDir ?? ''), ['asc', 'desc']) ? $sortDir : 'desc';
+        $column = filled($filters['sortCol'] ?? null) ? $filters['sortCol'] : 'created_at';
+        $direction = in_array(strtolower($filters['sortDir'] ?? ''), ['asc', 'desc']) ? $filters['sortDir'] : 'desc';
 
         $query = Series::accepted()
-            ->withCount('clippers')
+            ->withCount(['clippers' => fn($q) => $q->accepted()])
             ->with(['requester:id,name'])
             // We use an alias to clearly distinguish "Total" vs "Owned"
             ->withCount(['clippers as collected_clippers_count' => function ($query) use ($user) {
-                $query->whereHas('collections', function ($q) use ($user) {
+                $query->accepted()->whereHas('collections', function ($q) use ($user) {
                     $q->where('user_id', $user->id);
                 });
-            }])
-            ->when($search, fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']))
-            ->orderBy($column, $direction);
+            }]);
+
+        // Search
+        if (!empty($filters['search'])) {
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($filters['search']) . '%']);
+        }
+
+        // Type Filter (Official/Custom)
+        $type = $filters['type'] ?? 'all';
+        if ($type === 'official') {
+            $query->where('custom', 0);
+        } elseif ($type === 'custom') {
+            $query->where('custom', 1);
+        }
+
+        // Status Filter (Collected/Completed)
+        $filter = $filters['filter'] ?? 'all';
+        if ($filter === 'collected') {
+            // Collected Any: Show series where user has >=1 clipper
+            $query->whereHas('clippers.collections', fn($q) => $q->where('user_id', $user->id));
+        } elseif ($filter === 'none') {
+            // Collected None: Show series where user has 0 clippers
+            $query->whereDoesntHave('clippers.collections', fn($q) => $q->where('user_id', $user->id));
+        } elseif ($filter === 'completed') {
+            // Completed: Matches Dashboard logic
+            $query->groupBy('series.id')
+                ->havingRaw('(custom = 1 AND collected_clippers_count >= clippers_count AND clippers_count > 0) OR (custom = 0 AND collected_clippers_count >= 4)');
+        }
+
+        $query->orderBy($column, $direction);
 
         return $limit ? $query->limit($limit)->get() : $query->paginate(20)->withQueryString();
     }

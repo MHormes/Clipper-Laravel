@@ -14,7 +14,20 @@ const props = defineProps<{ series: any; filters?: any }>();
 const isAdmin = computed(() => page.props.auth.is_admin);
 const canCreate = computed(() => !!page.props.auth.user); // Anyone logged in can at least request
 
-const { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort } = useFilters('series.index', props.filters);
+const { search, sortCol, sortDir, filter, type, isFiltered, resetFilters, toggleSort } = useFilters('series.index', props.filters);
+
+const originFilters = [
+    { label: 'All', value: 'all' },
+    { label: 'Official', value: 'official' },
+    { label: 'Custom', value: 'custom' }
+];
+
+const statusFilters = [
+    { label: 'All', value: 'all' },
+    { label: 'Collected', value: 'collected' },
+    { label: 'Not Collected', value: 'none' },
+    { label: 'Completed', value: 'completed' }
+];
 </script>
 
 <template>
@@ -41,15 +54,64 @@ const { search, sortCol, sortDir, isFiltered, resetFilters, toggleSort } = useFi
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 mb-12 pb-4 border-b border-sidebar-border/50">
-                <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-2">Sort By:</span>
-                
-                <SortButton label="Name" column="name" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />
-                <SortButton label="Date Added" column="created_at" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />
+            <div class="flex flex-col gap-6 mb-12 pb-4 border-b border-sidebar-border/50">
+                <div class="flex flex-wrap items-center justify-between gap-6">
+                    <div class="flex flex-wrap items-center gap-6">
+                        <!-- Series Origin Group -->
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 px-1">Origin</span>
+                            <div class="flex items-center gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                                <button 
+                                    v-for="f in originFilters" 
+                                    :key="f.value"
+                                    @click="type = f.value"
+                                    :class="[
+                                        'px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
+                                        type === f.value ? 'bg-orange-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                                    ]"
+                                >
+                                    {{ f.label }}
+                                </button>
+                            </div>
+                        </div>
 
-                <button v-if="isFiltered" @click="resetFilters" class="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold border border-dashed border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white ml-auto">
-                    <X class="w-3 h-3" /> Reset All
-                </button>
+                        <!-- Status Group -->
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 px-1">Your Status</span>
+                            <div class="flex items-center gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                                <button 
+                                    v-for="f in statusFilters" 
+                                    :key="f.value"
+                                    @click="filter = f.value"
+                                    :class="[
+                                        'px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
+                                        filter === f.value ? 'bg-orange-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                                    ]"
+                                >
+                                    {{ f.label }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 self-end">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-2">Sort By:</span>
+                        
+                        <SortButton label="Name" column="name" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />
+                        <SortButton label="Date Added" column="created_at" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />
+
+                        <button v-if="isFiltered" @click="resetFilters" class="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold border border-dashed border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white ml-auto">
+                            <X class="w-3 h-3" /> Reset All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 px-1">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        Showing <span class="text-foreground">{{ series.total }}</span> series
+                    </span>
+                    <div class="h-px flex-1 bg-sidebar-border/30 ml-2"></div>
+                </div>
             </div>
 
             <div v-if="series.data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

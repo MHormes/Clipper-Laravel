@@ -108,7 +108,6 @@ defineProps<{
                         <span class="text-sm text-[#706f6c] dark:text-[#A1A09A] group-hover:text-black dark:group-hover:text-white transition-colors">
                             I agree to the <TextLink :href="route('terms')" class="text-[#f53003] hover:underline">Terms</TextLink> and <TextLink :href="route('privacy')" class="text-[#f53003] hover:underline">Privacy Policy</TextLink>
                         </span>
-                        <span v-if="errors.terms" class="text-sm text-red-600 dark:text-red-400">{{ errors.terms }}</span>
                     </Label>
                 </div>
 

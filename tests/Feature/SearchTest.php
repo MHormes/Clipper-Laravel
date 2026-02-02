@@ -67,18 +67,18 @@ class SearchTest extends TestCase
         $this->user->myCollection()->create(['clipper_id' => $clipper2->id]);
 
         // Search with exact case
-        $response = $this->get(route('collection.index', ['search' => 'Vintage']));
+        $response = $this->get(route('series.index', ['filter' => 'collected', 'search' => 'Vintage']));
         $response->assertStatus(200);
         $response->assertSee('Vintage Cars');
         $response->assertDontSee('Modern Art');
 
         // Search with lowercase
-        $response = $this->get(route('collection.index', ['search' => 'vintage']));
+        $response = $this->get(route('series.index', ['filter' => 'collected', 'search' => 'vintage']));
         $response->assertStatus(200);
         $response->assertSee('Vintage Cars');
 
         // Search with uppercase
-        $response = $this->get(route('collection.index', ['search' => 'VINTAGE']));
+        $response = $this->get(route('series.index', ['filter' => 'collected', 'search' => 'VINTAGE']));
         $response->assertStatus(200);
         $response->assertSee('Vintage Cars');
     }
