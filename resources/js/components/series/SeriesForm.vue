@@ -93,37 +93,60 @@ watch(() => form.custom, (isCustom) => {
 
 const handleRemoveAction = (index: number) => {
     const clipper = form.clippers[index];
-    
-    // Only push to deleted_ids if we are in admin edit mode.
-    // In request modes, users shouldn't be able to delete existing accepted clippers.
-    if (clipper.id && props.mode === 'edit' && isAdmin.value) {
-        form.deleted_ids.push(clipper.id.toString());
+    const isEditMode = props.mode === 'edit';
+
+    // Admin + Edit Mode logic: Enhanced control
+    if (isAdmin.value && isEditMode) {
+        if (clipper.id) {
+            // It's an existing clipper
+            if (clipperPreviews.value[index] === null) {
+                // Secondary click: remove slot entirely if it's a custom series
+                if (form.custom && form.clippers.length > 1) {
+                    form.clippers.splice(index, 1);
+                    clipperPreviews.value.splice(index, 1);
+                }
+            } else {
+                // Primary click: clear the image but keep the slot (re-upload preserves ID/collections)
+                if (!form.deleted_ids.includes(clipper.id.toString())) {
+                    form.deleted_ids.push(clipper.id.toString());
+                }
+                clipper.image = null;
+                clipperPreviews.value[index] = null;
+            }
+        } else {
+            // It's a brand new slot
+            if (form.custom && form.clippers.length > 1) {
+                form.clippers.splice(index, 1);
+                clipperPreviews.value.splice(index, 1);
+            } else {
+                clipper.image = null;
+                clipperPreviews.value[index] = null;
+            }
+        }
+        return;
     }
 
+    // Default Restricted Logic (Requests and Non-Admins)
     if (form.custom && form.clippers.length > 1 && !isClipperRequest.value) {
         form.clippers.splice(index, 1);
         clipperPreviews.value.splice(index, 1);
     } else {
-        // In clipper-request mode, we might want to revert to the original image 
-        // if we are "cancelling" a new upload for an existing slot.
         const original = props.initialData?.clippers.find(c => c.series_number === clipper.series_number);
         
         if (isClipperRequest.value && (original || clipper.id)) {
-            // Immutable existing slots: clear image preview but keep it occupied
+            // Revert to the original image rather than deleting
             clipper.id = original?.id || clipper.id;
             clipper.image = null;
             clipperPreviews.value[index] = original?.image_data || null;
         } else if (isClipperRequest.value && form.custom) {
-            // New slots in a clipper-request: allow removal of the slot itself
             form.clippers.splice(index, 1);
             clipperPreviews.value.splice(index, 1);
             
-            // Re-index remaining slots to maintain sequence
+            // Re-index temporary slot markers
             form.clippers.forEach((c, i) => {
                 if (!c.id) c.series_number = i + 1;
             });
         } else {
-            // Full clear for new slots or create mode
             clipper.id = null;
             clipper.image = null;
             clipperPreviews.value[index] = null;
@@ -170,10 +193,18 @@ const onCropDone = (blob: Blob) => {
         seriesPreview.value = url;
     } else if (cropperTarget.value?.index !== undefined) {
         const index = cropperTarget.value.index;
-        form.clippers[index].image = file;
-        // Explicitly set series_number to index + 1 if it doesn't have one
-        if (!form.clippers[index].series_number) {
-            form.clippers[index].series_number = index + 1;
+        const clipper = form.clippers[index];
+        
+        clipper.image = file;
+        
+        // If we are re-uploading to a slot that was previously marked for deletion,
+        // remove it from deleted_ids so the backend performs an UPDATE instead.
+        if (clipper.id && form.deleted_ids.includes(clipper.id.toString())) {
+            form.deleted_ids = form.deleted_ids.filter(id => id !== clipper.id.toString());
+        }
+
+        if (!clipper.series_number) {
+            clipper.series_number = index + 1;
         }
         clipperPreviews.value[index] = url;
     }
@@ -271,7 +302,9 @@ const getSlotError = (index: number) => {
                             <Plus class="w-5 h-5 text-gray-300 mb-1" />
                             <span class="text-[8px] uppercase font-black text-gray-400">Add</span>
                         </div>
-                        <input v-if="!clipperPreviews[index]" type="file" @change="handleFile('clipper', index, $event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <input v-if="!clipperPreviews[index] || (isAdmin && props.mode === 'edit')" 
+                               type="file" @change="handleFile('clipper', index, $event)" 
+                               accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                     </div>
 
                     <div class="mt-2 text-[10px] font-black text-muted-foreground uppercase tracking-tighter flex items-center gap-1">

@@ -14,7 +14,7 @@ const submit = (form: any) => {
     })).post(route('series.update', props.series.id), {
         forceFormData: true,
         preserveScroll: true,
-        onError: (errors) => {
+        onError: (errors: Record<string, string>) => {
             console.error("Server-side validation failed:", errors);
         }
     });
@@ -34,6 +34,7 @@ const submit = (form: any) => {
             </div>
             
             <SeriesForm 
+                mode="edit"
                 :initial-data="series" 
                 submit-label="Save Changes" 
                 @submit="submit" 

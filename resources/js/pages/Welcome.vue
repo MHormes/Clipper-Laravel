@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { login, register } from '@/routes';
+import GlobalFooter from '@/components/GlobalFooter.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 
@@ -90,18 +91,6 @@ const stats = [
             </div>
         </section>
 
-        <footer class="border-t border-gray-100 py-12 dark:border-white/5">
-            <div class="mx-auto max-w-7xl px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                <p class="text-sm text-[#706f6c]">© 2024 Clipper-MS. All rights reserved.</p>
-                <div class="flex gap-8 text-sm font-medium">
-                    <Link :href="route('terms')" class="hover:text-[#f53003] transition">Terms of Use</Link>
-                    <Link :href="route('privacy')" class="hover:text-[#f53003] transition">
-                        Privacy Policy
-                    </Link>
-                    <a href="https://buymeacoffee.com/mhormes" class="hover:text-[#f53003] transition">Buy me a Coffee</a>
-                    <a href="https://github.com/mhormes" class="hover:text-[#f53003] transition">Support</a>
-                </div>
-            </div>
-        </footer>
+        <GlobalFooter />
     </div>
 </template>
