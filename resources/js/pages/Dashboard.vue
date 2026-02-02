@@ -66,6 +66,9 @@ const breadcrumbs: BreadcrumbItem[] = [
  */
 const handleStatClick = (label: string) => {
     switch (label) {
+        case 'Total Clippers':
+            router.get(route('series.index'));
+            break;
         case 'Total Series':
             router.get(route('series.index'));
             break;
@@ -74,6 +77,9 @@ const handleStatClick = (label: string) => {
             break;
         case 'My Clippers':
             router.get(route('collection.clippers'));
+            break;
+        case 'Completed Series':
+            router.get(route('collection.index'));
             break;
     }
 };
@@ -91,8 +97,7 @@ const handleStatClick = (label: string) => {
             <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div v-for="stat in stats" :key="stat.label"
                     @click="handleStatClick(stat.label)"
-                    class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615]"
-                    :class="['Total Series', 'My Series', 'My Clippers'].includes(stat.label) ? 'cursor-pointer hover:border-orange-500/50' : ''">
+                    class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615] cursor-pointer hover:border-orange-500/50">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-sm font-bold text-muted-foreground uppercase tracking-wider">{{ stat.label }}</span>
                         <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
