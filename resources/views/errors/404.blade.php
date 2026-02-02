@@ -41,9 +41,9 @@
             </div>
 
             <div class="pt-4">
-                <a href="/"
+                <a href="/dashboard"
                     class="inline-flex items-center justify-center rounded-xl bg-[#f53003] px-8 py-4 text-sm font-bold text-white transition-all hover:scale-105 hover:bg-[#ff4433] shadow-lg shadow-orange-500/20">
-                    Back to the home page
+                    Back to the dashboard
                 </a>
             </div>
         </div>

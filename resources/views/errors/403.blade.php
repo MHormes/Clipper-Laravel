@@ -45,7 +45,7 @@
             </div>
 
             <div class="pt-4">
-                <a href="/"
+                <a href="/dashboard"
                     class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-8 py-4 text-sm font-bold text-white transition-all hover:bg-white/10 active:scale-95">
                     Return to safety
                 </a>
