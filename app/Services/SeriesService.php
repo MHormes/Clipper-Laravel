@@ -129,9 +129,23 @@ class SeriesService
             // Collected None: Show series where user has 0 clippers
             $query->whereDoesntHave('clippers.collections', fn($q) => $q->where('user_id', $user->id));
         } elseif ($filter === 'completed') {
-            // Completed: Matches Dashboard logic
-            $query->groupBy('series.id')
-                ->havingRaw('(custom = 1 AND collected_clippers_count >= clippers_count AND clippers_count > 0) OR (custom = 0 AND collected_clippers_count >= 4)');
+            $query->where(function ($q) use ($user) {
+                // Official Series (custom = 0): User has collected 4 or more clippers
+                $q->where(function ($q) use ($user) {
+                    $q->where('series.custom', false)
+                        ->whereHas('clippers', function ($q) use ($user) {
+                            $q->accepted()->whereHas('collections', fn($q) => $q->where('user_id', $user->id));
+                        }, '>=', 4);
+                })
+                // Custom Series (custom = 1): User has collected ALL accepted clippers (min 1)
+                ->orWhere(function ($q) use ($user) {
+                    $q->where('series.custom', true)
+                        ->whereHas('clippers', fn($q) => $q->accepted())
+                        ->whereDoesntHave('clippers', function ($q) use ($user) {
+                            $q->accepted()->whereDoesntHave('collections', fn($q) => $q->where('user_id', $user->id));
+                        });
+                });
+            });
         }
 
         $query->orderBy($column, $direction);
