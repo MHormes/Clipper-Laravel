@@ -3,6 +3,8 @@ import { login, register } from '@/routes';
 import GlobalFooter from '@/components/GlobalFooter.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import AppLogo from '@/components/AppLogo.vue';
 
 defineProps<{
     canRegister: boolean;
@@ -24,7 +26,10 @@ const stats = [
         
         <nav class="fixed top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-[#0a0a0a]/80">
             <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-                <span class="text-xl font-black tracking-tighter">CLIPPER<span class="text-[#f53003]">-MS</span></span>
+                <div class="flex items-center gap-2">
+                    <AppLogoIcon class="h-12 w-12"/>
+                    <span class="text-xl font-black tracking-tighter">CLIPPER<span class="text-[#f53003]">-MS</span></span>
+                </div>
                 <div class="flex items-center gap-4">
                     <Link :href="login()" class="text-sm font-medium hover:text-[#f53003] transition">
                         Log in
