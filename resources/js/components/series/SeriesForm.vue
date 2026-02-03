@@ -329,9 +329,16 @@ const getSlotError = (index: number) => {
             </div>
         </div>
 
-        <div class="flex items-center justify-end border-t border-sidebar-border pt-10 gap-6">
+        <div class="flex flex-col md:flex-row items-center justify-between border-t border-sidebar-border pt-10 gap-8">
+            <div class="flex items-start gap-4 max-w-lg">
+                <AlertCircle class="w-5 h-5 text-orange-600 mt-1 shrink-0" />
+                <p class="text-xs text-muted-foreground font-bold leading-relaxed">
+                    By submitting images, you state that you are the owner of the images or have explicit permission to use them. 
+                    Unauthorized use of copyrighted material is prohibited.
+                </p>
+            </div>
             <button type="submit" :disabled="form.processing" 
-                    class="px-12 py-5 bg-orange-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-orange-700 disabled:opacity-50 shadow-xl shadow-orange-900/20 transition-all active:scale-95">
+                    class="w-full md:w-auto px-12 py-5 bg-orange-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-orange-700 disabled:opacity-50 shadow-xl shadow-orange-900/20 transition-all active:scale-95">
                 {{ form.processing ? 'Syncing...' : props.submitLabel }}
             </button>
         </div>
