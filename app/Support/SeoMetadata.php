@@ -94,7 +94,7 @@ class SeoMetadata
         return new self(
             title: 'My Clipper Lighters Collection | Clipper-MS',
             description: 'Browse all your collected Clipper in one place. View every design you own, search your collection, and track your progress.',
-            image: url('/images/default-og.jpg'),
+            image: url('/images/board-og.jpeg'),
             canonical: route('collection.clippers')
         );
     }
