@@ -3,6 +3,12 @@ import { ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { geocodingService } from '@/util/geocodingSupport';
 import { MapPin, Search, Loader2, Check, ExternalLink } from 'lucide-vue-next';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const props = defineProps<{
     show: boolean;
@@ -18,7 +24,9 @@ const isEditing = ref(false);
 const searchQuery = ref('');
 const isSearching = ref(false);
 const searchResults = ref<any[]>([]);
-const selectedCoords = ref<string | null>(props.initialLocation);
+const selectedCoords = ref<string | null>(props.initialLocation as string | null);
+const readableLocation = ref<string | null>(null);
+const isFetchingReadable = ref(false);
 
 const form = useForm({
     notes: props.initialNotes ?? '',
@@ -52,6 +60,35 @@ const selectLocation = (result: any) => {
     selectedCoords.value = coords;
     searchQuery.value = result.display_name; // Show the full name in the input
     searchResults.value = []; // Close dropdown
+    fetchReadableLocation(coords);
+};
+
+const fetchReadableLocation = async (coords: string | null | undefined) => {
+    if (!coords) {
+        readableLocation.value = null;
+        return;
+    }
+
+    const [lat, lon] = coords.split(',').map(c => c.trim());
+    if (!lat || !lon) {
+        readableLocation.value = null;
+        return;
+    }
+
+    isFetchingReadable.value = true;
+    try {
+        const data = await geocodingService.reverse(lat, lon);
+        if (data && data.display_name) {
+            readableLocation.value = data.display_name;
+        } else {
+            readableLocation.value = null;
+        }
+    } catch (e) {
+        console.error('Failed to fetch readable location:', e);
+        readableLocation.value = null;
+    } finally {
+        isFetchingReadable.value = false;
+    }
 };
 
 // --- Lifecycle ---
@@ -61,7 +98,8 @@ watch(() => props.show, (val) => {
         form.notes = props.initialNotes ?? '';
         form.location_bought = props.initialLocation ?? '';
         searchQuery.value = '';
-        selectedCoords.value = props.initialLocation;
+        selectedCoords.value = props.initialLocation as string | null;
+        fetchReadableLocation(props.initialLocation as string | null);
     }
 });
 
@@ -94,10 +132,26 @@ const submit = () => {
                     <div>
                         <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">Location Found</span>
                         <div class="mt-1 flex flex-col gap-2">
-                            <p class="text-primary-content font-medium flex items-center gap-2">
-                                <MapPin class="w-4 h-4 text-orange-600" />
-                                {{ initialLocation || 'No location set...' }}
-                            </p>
+                            <div class="flex items-start gap-2">
+                                <MapPin class="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
+                                <div class="flex flex-col">
+                                    <TooltipProvider v-if="readableLocation" :delay-duration="300">
+                                        <Tooltip>
+                                            <TooltipTrigger as-child>
+                                                <p class="text-primary-content font-medium leading-tight line-clamp-2 cursor-help">
+                                                    {{ readableLocation }}
+                                                </p>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="bottom" class="max-w-[280px] bg-primary-background text-primary-content border-border-color shadow-2xl">
+                                                <p class="font-bold">{{ readableLocation }}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                    <p class="text-primary-content font-medium uppercase tracking-tighter" :class="{ 'text-[10px] text-success mt-1': readableLocation }">
+                                        {{ initialLocation || 'No location set...' }}
+                                    </p>
+                                </div>
+                            </div>
 
                             <a v-if="initialLocation"
                                :href="`https://www.openstreetmap.org/?mlat=${initialLocation.split(',')[0].trim()}&mlon=${initialLocation.split(',')[1].trim()}#map=17`"
