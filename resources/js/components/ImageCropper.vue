@@ -75,15 +75,15 @@ const reset = () => {
     <div v-if="open" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="handleCancel"></div>
-        
+
         <!-- Modal Content -->
-        <div class="relative bg-white dark:bg-[#161615] w-full max-w-4xl rounded-3xl shadow-2xl border border-sidebar-border overflow-hidden flex flex-col max-h-[90vh]">
-            
+        <div class="relative bg-white dark:bg-[#161615] w-full max-w-4xl rounded-3xl shadow-2xl border border-border-color overflow-hidden flex flex-col max-h-[90vh]">
+
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-sidebar-border flex items-center justify-between">
+            <div class="px-6 py-4 border-b border-border-color flex items-center justify-between">
                 <div>
                     <h3 class="text-xl font-black uppercase tracking-tight">{{ title }}</h3>
-                    <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">Adjust the crop to fit the required aspect ratio</p>
+                    <p class="text-[10px] text-muted-content font-bold uppercase tracking-widest mt-0.5">Adjust the crop to fit the required aspect ratio</p>
                 </div>
                 <button @click="handleCancel" class="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
                     <X class="w-6 h-6" />
@@ -106,44 +106,44 @@ const reset = () => {
             </div>
 
             <!-- Footer -->
-            <div class="grid grid-cols-1 md:flex md:items-center md:justify-between px-6 py-4 border-t border-sidebar-border bg-gray-50/50 dark:bg-white/2">
+            <div class="grid grid-cols-1 md:flex md:items-center md:justify-between px-6 py-4 border-t border-border-color bg-gray-50/50 dark:bg-white/2">
                 <div class="flex items-center gap-1">
-                    <button 
+                    <button
                         @click="reset"
-                        class="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                        class="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-muted-content hover:text-primary-content transition-colors"
                         title="Reset"
                     >
                         <RotateCcw class="w-3.5 h-3.5" />
                         Reset
                     </button>
 
-                    <div class="w-px h-4 bg-sidebar-border mx-2"></div>
+                    <div class="w-px h-4 bg-border-color mx-2"></div>
 
-                    <button 
+                    <button
                         @click="rotateLeft"
-                        class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                        class="p-2 text-muted-content hover:text-primary-content transition-colors"
                         title="Rotate Left"
                     >
                         <RotateCcw class="w-4 h-4" />
                     </button>
 
-                    <button 
+                    <button
                         @click="rotateRight"
-                        class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                        class="p-2 text-muted-content hover:text-primary-content transition-colors"
                         title="Rotate Right"
                     >
                         <RotateCw class="w-4 h-4" />
                     </button>
 
-                    <div class="w-px h-4 bg-sidebar-border mx-2"></div>
+                    <div class="w-px h-4 bg-border-color mx-2"></div>
 
                     <div class="flex items-center gap-3 px-2">
-                        <span class="text-[10px] font-bold text-muted-foreground w-8 uppercase tracking-tighter">Rotate</span>
-                        <input 
-                            type="range" 
-                            v-model.number="rotation" 
-                            min="-180" 
-                            max="180" 
+                        <span class="text-[10px] font-bold text-muted-content w-8 uppercase tracking-tighter">Rotate</span>
+                        <input
+                            type="range"
+                            v-model.number="rotation"
+                            min="-180"
+                            max="180"
                             step="1"
                             @input="handleRotationSlide"
                             class="w-32 h-1.5 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-orange-600"
@@ -153,13 +153,13 @@ const reset = () => {
                 </div>
 
                 <div class="mt-2 md:mt-0 flex gap-3">
-                    <button 
+                    <button
                         @click="handleCancel"
-                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-sidebar-border hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-muted-foreground"
+                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-border-color hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-muted-content"
                     >
                         Deny / Cancel
                     </button>
-                    <button 
+                    <button
                         @click="handleAccept"
                         class="px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-600/20 transition-all flex items-center gap-2"
                     >

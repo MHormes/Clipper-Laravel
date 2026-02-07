@@ -38,8 +38,8 @@ const acceptPartial = () => {
         return;
     }
 
-    const message = selectedClippers.value.length === props.series.clippers.length 
-        ? 'Are you sure you want to accept all clippers?' 
+    const message = selectedClippers.value.length === props.series.clippers.length
+        ? 'Are you sure you want to accept all clippers?'
         : `Are you sure you want to accept ${selectedClippers.value.length} clippers? Unselected clippers will be PERMANENTLY DELETED.`;
 
     if (confirm(message)) {
@@ -61,7 +61,7 @@ const declineSeries = () => {
     <AppLayout>
         <div class="max-w-6xl mx-auto p-6">
             <div class="mb-10">
-                <Link :href="route('admin.requests.series.index')" class="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-orange-600 transition-colors uppercase tracking-widest">
+                <Link :href="route('admin.requests.series.index')" class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-orange-600 transition-colors uppercase tracking-widest">
                     <ChevronLeft class="w-4 h-4" /> Back to Requests
                 </Link>
                 <div class="flex items-center justify-between mt-4">
@@ -77,28 +77,28 @@ const declineSeries = () => {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Left: Series Info -->
                 <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-white dark:bg-[#161615] rounded-3xl border border-sidebar-border p-6 shadow-sm">
+                    <div class="bg-white dark:bg-[#161615] rounded-3xl border border-border-color p-6 shadow-sm">
                         <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-600 mb-6 flex items-center gap-2">
                              Series Overview
                         </h2>
-                        
-                        <div class="aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-gray-100 dark:bg-black border border-sidebar-border">
+
+                        <div class="aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-gray-100 dark:bg-black border border-border-color">
                             <img :src="series.image_data" class="w-full h-full object-cover" />
                         </div>
 
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Series Name</label>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-muted-content mb-1">Series Name</label>
                                 <p class="text-lg font-black uppercase tracking-tight">{{ series.name }}</p>
                             </div>
-                            <div class="pt-4 border-t border-sidebar-border">
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Requested By</label>
-                                <p class="font-bold text-sidebar-foreground">{{ series.requester.name }}</p>
-                                <p class="text-[10px] font-mono text-muted-foreground">{{ series.requester.email }}</p>
+                            <div class="pt-4 border-t border-border-color">
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-muted-content mb-1">Requested By</label>
+                                <p class="font-bold text-muted-content">{{ series.requester.name }}</p>
+                                <p class="text-[10px] font-mono text-muted-content">{{ series.requester.email }}</p>
                             </div>
-                            <div class="pt-4 border-t border-sidebar-border flex items-center justify-between">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Custom Series</label>
-                                <span :class="series.custom ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'" 
+                            <div class="pt-4 border-t border-border-color flex items-center justify-between">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-muted-content">Custom Series</label>
+                                <span :class="series.custom ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'"
                                       class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
                                     {{ series.custom ? 'Yes' : 'No' }}
                                 </span>
@@ -118,43 +118,43 @@ const declineSeries = () => {
 
                 <!-- Right: Clippers Review -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-[#161615] rounded-3xl border border-sidebar-border shadow-sm overflow-hidden">
-                        <div class="p-6 border-b border-sidebar-border flex items-center justify-between bg-gray-50/50 dark:bg-black/20">
+                    <div class="bg-white dark:bg-[#161615] rounded-3xl border border-border-color shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-border-color flex items-center justify-between bg-gray-50/50 dark:bg-black/20">
                             <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-600">
                                 Clippers ({{ selectedClippers.length }} / {{ series.clippers.length }} Selected)
                             </h2>
-                            <button @click="toggleAll" class="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-orange-600 transition-colors">
+                            <button @click="toggleAll" class="text-[10px] font-black uppercase tracking-widest text-muted-content hover:text-orange-600 transition-colors">
                                 {{ allSelected ? 'Deselect All' : 'Select All' }}
                             </button>
                         </div>
 
                         <div class="p-6">
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                                <div v-for="clipper in series.clippers" :key="clipper.id" 
+                                <div v-for="clipper in series.clippers" :key="clipper.id"
                                      @click="selectedClippers.includes(clipper.id) ? selectedClippers = selectedClippers.filter(id => id !== clipper.id) : selectedClippers.push(clipper.id)"
                                      class="relative group cursor-pointer">
-                                    <div :class="selectedClippers.includes(clipper.id) ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-sidebar-border opacity-60 hover:opacity-100'"
+                                    <div :class="selectedClippers.includes(clipper.id) ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-border-color opacity-60 hover:opacity-100'"
                                          class="aspect-[1/4] rounded-xl overflow-hidden border-2 transition-all relative bg-gray-50 dark:bg-black">
                                         <img :src="clipper.image_data" class="w-full h-full object-cover" />
-                                        
-                                        <div v-if="selectedClippers.includes(clipper.id)" 
+
+                                        <div v-if="selectedClippers.includes(clipper.id)"
                                              class="absolute top-2 right-2 bg-orange-600 text-white rounded-full p-1 shadow-lg">
                                             <CheckCircle2 class="w-3.5 h-3.5" />
                                         </div>
                                         <div v-else class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     </div>
                                     <div class="mt-2 text-center">
-                                        <p class="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Slot #{{ clipper.series_number }}</p>
+                                        <p class="text-[10px] font-black uppercase tracking-tighter text-muted-content">Slot #{{ clipper.series_number }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="p-8 border-t border-sidebar-border bg-gray-50/50 dark:bg-black/20 flex flex-col sm:flex-row gap-4">
+                        <div class="p-8 border-t border-border-color bg-gray-50/50 dark:bg-black/20 flex flex-col sm:flex-row gap-4">
                             <button @click="acceptFull" class="flex-1 py-4 bg-orange-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-orange-700 transition-all shadow-lg shadow-orange-900/20 active:scale-95 flex items-center justify-center gap-2">
                                 <CheckCircle2 class="w-4 h-4" /> Accept All
                             </button>
-                            <button @click="acceptPartial" 
+                            <button @click="acceptPartial"
                                     :disabled="selectedClippers.length === 0"
                                     class="flex-1 py-4 bg-white dark:bg-black text-orange-600 border border-orange-600/30 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-orange-600 hover:text-white transition-all disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-orange-600 flex items-center justify-center gap-2">
                                 Accept Selected

@@ -86,8 +86,8 @@ const confirmDelete = () => {
 
     <AppLayout>
         <div class="max-w-7xl mx-auto p-6 space-y-8">
-            <div class="flex flex-col md:flex-row gap-8 items-start bg-white dark:bg-[#161615] p-8 rounded-3xl border border-sidebar-border relative">
-                
+            <div class="flex flex-col md:flex-row gap-8 items-start bg-white dark:bg-[#161615] p-8 rounded-3xl border border-border-color relative">
+
                 <div class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
                     <img :src="series.image_data" :alt="series.name + 'Clipper Lighter Series'" class="w-full h-full object-cover" />
                 </div>
@@ -98,12 +98,12 @@ const confirmDelete = () => {
                             <h1 class="text-4xl font-black uppercase tracking-tight">{{ series.name }}</h1>
                             <span v-if="series.custom" class="px-3 py-1 bg-orange-100 text-orange-700 text-[10px] font-black rounded-full uppercase">Custom Set</span>
                         </div>
-                        <p class="text-sm text-muted-foreground font-medium">
-                            Added by <span class="text-foreground font-bold">{{ series.requester?.name || 'System' }}</span>
+                        <p class="text-sm text-muted-content font-medium">
+                            Added by <span class="text-primary-content font-bold">{{ series.requester?.name || 'System' }}</span>
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 border-t border-sidebar-border pt-6">
+                    <div class="grid grid-cols-2 gap-4 border-t border-border-color pt-6">
                         <div v-if="isAdmin">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">System Status</span>
                             <p class="text-xl font-bold">{{ registeredCount }} / {{ series.custom ? registeredCount : 4 }} Registered</p>
@@ -149,15 +149,15 @@ const confirmDelete = () => {
             </div>
 
             <div class="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-                
+
                 <template v-for="n in (series.custom ? series.clippers.map(c => c.series_number) : [1, 2, 3, 4])" :key="n">
                     <div v-if="getClipperByNumber(n)" class="group">
-                        <div class="bg-white dark:bg-[#161615] p-1 sm:p-4 rounded-2xl border-2 border-sidebar-border shadow-sm transition-all hover:border-orange-500 relative">
+                        <div class="bg-white dark:bg-[#161615] p-1 sm:p-4 rounded-2xl border-2 border-border-color shadow-sm transition-all hover:border-orange-500 relative">
                             <div class="flex justify-between items-center mb-4">
                                 <span class="hidden sm:block text-xs font-black text-gray-400 uppercase p-2">#{{ n }}</span>
-                                
+
                                 <div class="flex gap-1">
-                                    <button 
+                                    <button
                                         v-if="isOwned(getClipperByNumber(n)!.id)"
                                         @click="openClipperDetails(getClipperByNumber(n)!)"
                                         class="p-2 rounded-full bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-blue-500 transition-all"
@@ -167,7 +167,7 @@ const confirmDelete = () => {
                                     </button>
 
                                     <button @click="toggleCollection(getClipperByNumber(n)!.id)"
-                                        class="p-2 rounded-full transition-all" 
+                                        class="p-2 rounded-full transition-all"
                                         :class="isOwned(getClipperByNumber(n)!.id) ? 'text-red-500 bg-red-50 dark:bg-red-500/10' : 'text-gray-300 hover:text-orange-500 bg-gray-50 dark:bg-white/5'">
                                         <Heart class="w-5 h-5" :fill="isOwned(getClipperByNumber(n)!.id) ? 'currentColor' : 'none'" />
                                     </button>
@@ -188,7 +188,7 @@ const confirmDelete = () => {
             </div>
         </div>
 
-        <NoteModal 
+        <NoteModal
             :show="detailsModalOpen"
             :clipper="activeClipper"
             :initial-notes="activeClipper ? userCollection[activeClipper.id]?.notes : ''"

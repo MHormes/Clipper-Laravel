@@ -4,10 +4,10 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { computed } from 'vue';
-import { 
-    Layers, 
-    Library, 
-    Flame, 
+import {
+    Layers,
+    Library,
+    Flame,
     CheckCircle,
     ArrowRight,
     PlusCircle,
@@ -61,7 +61,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 /**
  * Handle redirection when clicking on a stat box.
- * 
+ *
  * @param label The label of the stat box clicked
  */
 const handleStatClick = (label: string) => {
@@ -97,9 +97,9 @@ const handleStatClick = (label: string) => {
             <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div v-for="stat in stats" :key="stat.label"
                     @click="handleStatClick(stat.label)"
-                    class="group relative flex flex-col rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615] cursor-pointer hover:border-orange-500/50">
+                    class="group relative flex flex-col rounded-2xl border border-border-color bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615] cursor-pointer hover:border-orange-500/50">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-bold text-muted-foreground uppercase tracking-wider">{{ stat.label }}</span>
+                        <span class="text-sm font-bold text-muted-content uppercase tracking-wider">{{ stat.label }}</span>
                         <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
                             <component :is="getStatConfig(stat.label).icon" :class="['w-5 h-5', getStatConfig(stat.label).color]" />
                         </div>
@@ -110,7 +110,7 @@ const handleStatClick = (label: string) => {
 
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
                 <Link :href="route('series.index')"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-orange-500/50 hover:shadow-md dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all hover:border-orange-500/50 hover:shadow-md dark:bg-[#161615]">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="p-2 rounded-lg bg-orange-500/10 text-orange-600">
@@ -118,7 +118,7 @@ const handleStatClick = (label: string) => {
                             </div>
                             <h3 class="text-2xl font-black">Series Catalog</h3>
                         </div>
-                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">View all series, check missing designs, and organize your sets.</p>
+                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">View all series, check missing designs, and organize your sets.</p>
                         <div class="mt-8 flex items-center font-bold text-orange-600 group-hover:gap-2 transition-all">
                             <span>Open Catalog</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -127,7 +127,7 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link :href="route('series.create')"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all dark:bg-[#161615]"
+                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all dark:bg-[#161615]"
                     :class="isAdmin ? 'hover:border-green-500/50' : 'hover:border-orange-500/50'">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
@@ -137,7 +137,7 @@ const handleStatClick = (label: string) => {
                             </div>
                             <h3 class="text-2xl font-black">{{ isAdmin ? 'Add to System' : 'Request New Series' }}</h3>
                         </div>
-                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">
+                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">
                             {{ isAdmin ? 'Found a new series? Help the community by adding it to the database.' : 'Suggest a new series to be added to the system.' }}
                         </p>
                         <div class="mt-8 flex items-center font-bold group-hover:gap-2 transition-all"
@@ -173,7 +173,7 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link :href="route('series.index', { filter: 'collected' })"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-[#161615]">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="p-2 rounded-lg bg-purple-500/10 text-purple-600">
@@ -181,7 +181,7 @@ const handleStatClick = (label: string) => {
                             </div>
                             <h3 class="text-2xl font-black">My Series</h3>
                         </div>
-                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
+                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
                         <div class="mt-8 flex items-center font-bold text-purple-600 group-hover:gap-2 transition-all">
                             <span>View Collection</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -190,7 +190,7 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link :href="route('collection.clippers')"
-                    class="group relative overflow-hidden rounded-2xl border border-sidebar-border bg-white p-8 shadow-sm transition-all hover:border-blue-500/50 hover:shadow-md dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all hover:border-blue-500/50 hover:shadow-md dark:bg-[#161615]">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="p-2 rounded-lg bg-blue-500/10 text-blue-600">
@@ -198,7 +198,7 @@ const handleStatClick = (label: string) => {
                             </div>
                             <h3 class="text-2xl font-black">My Clippers</h3>
                         </div>
-                        <p class="text-muted-foreground text-sm leading-relaxed max-w-[280px]">A dedicated board view of every single clipper you own.</p>
+                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">A dedicated board view of every single clipper you own.</p>
                         <div class="mt-8 flex items-center font-bold text-blue-600 group-hover:gap-2 transition-all">
                             <span>Open Board View</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -207,7 +207,7 @@ const handleStatClick = (label: string) => {
                 </Link>
             </div>
 
-            <div class="flex-1 rounded-2xl border border-sidebar-border bg-white p-6 shadow-sm dark:bg-[#161615]">
+            <div class="flex-1 rounded-2xl border border-border-color bg-white p-6 shadow-sm dark:bg-[#161615]">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold">Recent Additions</h3>
                     <Link :href="route('series.index')"
@@ -218,10 +218,10 @@ const handleStatClick = (label: string) => {
 
                 <div class="space-y-4">
                     <div v-for="item in recentSeries" :key="item.id"
-                        class="flex items-center gap-4 rounded-lg border border-sidebar-border/50 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
 
                         <div
-                            class="h-12 w-16 rounded bg-white dark:bg-black overflow-hidden border border-sidebar-border">
+                            class="h-12 w-16 rounded bg-white dark:bg-black overflow-hidden border border-border-color">
                             <img :src="item.image_data" :alt="item.name + 'Clipper Lighter Series'" class="h-full w-full object-contain" />
                         </div>
 
@@ -230,7 +230,7 @@ const handleStatClick = (label: string) => {
                                 class="font-bold text-sm hover:text-orange-600 transition-colors">
                                 {{ item.name }}
                             </Link>
-                            <p class="text-[10px] text-muted-foreground uppercase tracking-tight">
+                            <p class="text-[10px] text-muted-content uppercase tracking-tight">
                                 {{ item.clippers_count }} Design(s) • Added by {{ item.requester?.name || 'System' }}
                             </p>
                         </div>
@@ -242,7 +242,7 @@ const handleStatClick = (label: string) => {
                     </div>
 
                     <div v-if="recentSeries.length === 0"
-                        class="text-center py-10 text-muted-foreground text-sm italic">
+                        class="text-center py-10 text-muted-content text-sm italic">
                         No series added yet.
                     </div>
                 </div>

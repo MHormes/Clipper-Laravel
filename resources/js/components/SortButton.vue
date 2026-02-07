@@ -13,8 +13,8 @@ defineEmits(['toggle']);
 
 <template>
     <button @click="$emit('toggle', column)"
-        :class="['flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all border', 
-        activeColumn === column ? 'bg-orange-600 border-orange-600 text-white shadow-md' : 'bg-white dark:bg-white/5 border-sidebar-border text-muted-foreground']">
+        :class="['flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all border',
+        activeColumn === column ? 'bg-orange-600 border-orange-600 text-white shadow-md' : 'bg-white dark:bg-white/5 border-border-color text-muted-content']">
         {{ label }}
         <ArrowUp v-if="activeColumn === column && direction === 'asc'" class="w-3 h-3" />
         <ArrowDown v-else-if="activeColumn === column && direction === 'desc'" class="w-3 h-3" />

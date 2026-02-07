@@ -28,16 +28,16 @@ const submit = (form: any) => {
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-3xl font-black uppercase tracking-tighter">Edit Series</h1>
-                    <p class="text-[10px] text-muted-foreground font-mono">{{ series.id }}</p>
+                    <p class="text-[10px] text-muted-content font-mono">{{ series.id }}</p>
                 </div>
                 <Link :href="route('series.show', series.id)" class="text-sm font-bold text-orange-600 hover:underline">View Live Page</Link>
             </div>
-            
-            <SeriesForm 
+
+            <SeriesForm
                 mode="edit"
-                :initial-data="series" 
-                submit-label="Save Changes" 
-                @submit="submit" 
+                :initial-data="series"
+                submit-label="Save Changes"
+                @submit="submit"
             />
         </div>
     </AppLayout>

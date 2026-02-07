@@ -24,10 +24,10 @@ const { urlIsActive } = useActiveUrl();
             <template v-for="item in items" :key="item.title">
                 <template v-if="item.children && item.children.length > 0">
                     <SidebarMenuItem>
-                        <div class="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
+                        <div class="px-3 py-2 text-[10px] font-bold text-muted-content uppercase tracking-widest opacity-70">
                             {{ item.title }}
                         </div>
-                        
+
                         <div class="flex flex-col gap-1 ml-2 border-l pl-2">
                             <SidebarMenuButton
                                 v-for="child in item.children"

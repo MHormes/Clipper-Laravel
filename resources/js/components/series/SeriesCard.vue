@@ -20,9 +20,9 @@ const progressWidth = computed(() => ((props.item.collected_count || 0) / totalT
 
 <template>
     <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
-        class="group bg-white dark:bg-[#161615] rounded-2xl overflow-hidden border border-sidebar-border shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
-        
-        <div class="aspect-[4/3] relative overflow-hidden bg-white dark:bg-black border-b border-sidebar-border">
+        class="group bg-white dark:bg-[#161615] rounded-2xl overflow-hidden border border-border-color shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
+
+        <div class="aspect-[4/3] relative overflow-hidden bg-white dark:bg-black border-b border-border-color">
             <img :src="item.image_data" class="w-full h-full object-contain" />
             <div v-if="item.custom" class="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white font-bold rounded">
                 CUSTOM
@@ -33,10 +33,10 @@ const progressWidth = computed(() => ((props.item.collected_count || 0) / totalT
             <h3 class="font-bold text-lg truncate group-hover:text-orange-600 transition-colors">
                 {{ item.name }}
             </h3>
-            
-            <div class="flex flex-col gap-2 mt-3">   
+
+            <div class="flex flex-col gap-2 mt-3">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                    <span class="text-xs font-semibold text-muted-content uppercase tracking-widest">
                         {{ item.collected_count || 0 }} / {{ totalTarget }} Collected
                     </span>
                     <span class="text-[10px] text-orange-600 font-bold group-hover:underline">VIEW →</span>
