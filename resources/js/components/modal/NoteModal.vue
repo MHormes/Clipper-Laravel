@@ -8,7 +8,7 @@ import {
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@/components/ui';
 
 const props = defineProps<{
     show: boolean;
@@ -116,7 +116,7 @@ const submit = () => {
 
 <template>
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-[#161615] rounded-3xl w-full max-w-md overflow-hidden shadow-xl border border-border-color">
+        <div class="bg-primary-background rounded-3xl w-full max-w-md overflow-hidden shadow-xl border border-border-color">
             <div class="p-8">
                 <h3 class="text-xl font-black uppercase tracking-tight text-primary-content mb-6">
                     Clipper Details
@@ -133,7 +133,7 @@ const submit = () => {
                         <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">Location Found</span>
                         <div class="mt-1 flex flex-col gap-2">
                             <div class="flex items-start gap-2">
-                                <MapPin class="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
+                                <MapPin class="w-4 h-4 text-primary mt-0.5 shrink-0" />
                                 <div class="flex flex-col">
                                     <TooltipProvider v-if="readableLocation" :delay-duration="300">
                                         <Tooltip>
@@ -156,14 +156,14 @@ const submit = () => {
                             <a v-if="initialLocation"
                                :href="`https://www.openstreetmap.org/?mlat=${initialLocation.split(',')[0].trim()}&mlon=${initialLocation.split(',')[1].trim()}#map=17`"
                                target="_blank"
-                               class="text-[10px] font-bold text-orange-600 uppercase flex items-center gap-1 hover:underline tracking-tighter"
+                               class="text-[10px] font-bold text-primary uppercase flex items-center gap-1 hover:underline tracking-tighter"
                             >
                                 <ExternalLink class="w-3 h-3" /> View on OpenStreetMap
                             </a>
                         </div>
                     </div>
                     <button @click="isEditing = true"
-                        class="w-full py-3 bg-orange-600 text-white rounded-xl font-bold uppercase text-sm hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20">
+                        class="w-full py-3 bg-primary text-button-content rounded-xl font-bold uppercase text-sm hover:bg-primary hover:text-button-content!  transition-all shadow-lg shadow-primary/20">
                         Edit Details
                     </button>
                 </div>
@@ -172,7 +172,7 @@ const submit = () => {
                     <div>
                         <label class="block text-[10px] font-black text-muted-content uppercase tracking-widest mb-1">Notes</label>
                         <textarea v-model="form.notes" rows="3"
-                            class="p-3 w-full bg-transparent border-border-color rounded-xl focus:ring-orange-500 focus:border-orange-500 text-primary-content text-sm placeholder:text-muted-content/50"
+                            class="p-3 w-full bg-transparent border-border-color rounded-xl focus:ring-primary focus:border-primary text-primary-content text-sm placeholder:text-muted-content/50"
                             placeholder="Who did you get it from? Any funny memories?"></textarea>
                     </div>
 
@@ -183,28 +183,28 @@ const submit = () => {
                                 v-model="searchQuery"
                                 @input="handleSearchInput"
                                 type="text"
-                                class="p-3 pl-10 w-full bg-transparent border-border-color rounded-xl focus:ring-orange-500 focus:border-orange-500 text-primary-content text-sm placeholder:text-muted-content/50"
+                                class="p-3 pl-10 w-full bg-transparent border-border-color rounded-xl focus:ring-primary focus:border-primary text-primary-content text-sm placeholder:text-muted-content/50"
                                 placeholder="Search city, shop or street..."
                             />
                             <div class="absolute left-3 top-1/2 -translate-y-1/2">
-                                <Loader2 v-if="isSearching" class="w-4 h-4 text-orange-600 animate-spin" />
+                                <Loader2 v-if="isSearching" class="w-4 h-4 text-primary animate-spin" />
                                 <Search v-else class="w-4 h-4 text-muted-content" />
                             </div>
                         </div>
 
-                        <div v-if="searchResults.length > 0" class="absolute z-10 w-full mt-2 bg-white dark:bg-[#1c1c1b] border border-border-color rounded-xl shadow-2xl overflow-hidden max-h-40 overflow-y-auto">
+                        <div v-if="searchResults.length > 0" class="absolute z-10 w-full mt-2 bg-primary-background bg-component-background border border-border-color rounded-xl shadow-2xl overflow-hidden max-h-40 overflow-y-auto">
                             <button
                                 v-for="result in searchResults"
                                 :key="result.place_id"
                                 type="button"
                                 @click="selectLocation(result)"
-                                class="w-full text-left px-4 py-3 text-[11px] leading-tight text-primary-content hover:bg-orange-600 hover:text-white transition-colors border-b border-border-color last:border-0"
+                                class="w-full text-left px-4 py-3 text-[11px] leading-tight text-primary-content hover:bg-primary hover:text-button-content!  transition-colors border-b border-border-color last:border-0"
                             >
                                 {{ result.display_name }}
                             </button>
                         </div>
 
-                        <div v-if="selectedCoords" class="mt-2 flex items-center gap-1.5 text-[10px] font-black uppercase text-green-500 tracking-wider">
+                        <div v-if="selectedCoords" class="mt-2 flex items-center gap-1.5 text-[10px] font-black uppercase text-success tracking-wider">
                             <Check class="w-3 h-3" />
                             Coords Linked: {{ selectedCoords }}
                         </div>
@@ -212,7 +212,7 @@ const submit = () => {
 
                     <div class="flex gap-3 pt-2">
                         <button type="submit" :disabled="form.processing"
-                            class="flex-1 bg-orange-600 text-white py-3 rounded-xl font-black uppercase text-xs hover:bg-orange-700 transition-all disabled:opacity-50">
+                            class="flex-1 bg-primary text-button-content py-3 rounded-xl font-black uppercase text-xs hover:bg-primary hover:text-button-content!  transition-all disabled:opacity-50">
                             Save Changes
                         </button>
                         <button type="button" @click="isEditing = false"

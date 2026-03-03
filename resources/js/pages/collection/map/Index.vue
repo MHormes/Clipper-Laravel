@@ -13,25 +13,25 @@ import { Map as MapIcon, ArrowLeft } from 'lucide-vue-next';
             <div class="mb-8">
                 <Link
                     :href="route('collection.index')"
-                    class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-orange-600 transition-colors"
+                    class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-primary transition-colors"
                 >
                     <ArrowLeft class="w-4 h-4" />
                     BACK TO COLLECTION
                 </Link>
             </div>
 
-            <div class="min-h-[600px] flex flex-col items-center justify-center bg-white dark:bg-[#161615] rounded-3xl border border-dashed border-border-color shadow-sm p-12 text-center">
+            <div class="min-h-[600px] flex flex-col items-center justify-center bg-component-background rounded-3xl border border-dashed border-border-color shadow-sm p-12 text-center">
 
                 <div class="relative mb-8">
-                    <div class="absolute inset-0 bg-orange-500/20 blur-3xl rounded-full"></div>
-                    <div class="relative p-8 rounded-full bg-gray-50 dark:bg-white/5 text-orange-600">
+                    <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+                    <div class="relative p-8 rounded-full bg-muted-background text-primary">
                         <MapIcon class="w-20 h-20" />
                     </div>
                 </div>
 
-                <h1 class="text-4xl font-black uppercase tracking-tight mb-4 leading-tight">
+                <h1 class="text-4xl font-black uppercase tracking-tight mb-4 leading-tight text-primary-content">
                     Map View <br/>
-                    <span class="text-orange-600">In Development</span>
+                    <span class="text-primary">In Development</span>
                 </h1>
 
                 <p class="text-muted-content text-lg max-w-md mx-auto mb-10">
@@ -41,14 +41,14 @@ import { Map as MapIcon, ArrowLeft } from 'lucide-vue-next';
                 <div class="flex flex-col sm:flex-row items-center gap-4">
                     <Link
                         :href="route('dashboard')"
-                        class="px-8 py-4 bg-orange-600 text-white hover:bg-orange-700 rounded-2xl font-black transition-all shadow-lg shadow-orange-900/20 active:scale-95"
+                        class="px-8 py-4 bg-primary text-button-content hover:bg-primary hover:text-button-content! rounded-2xl font-black transition-all shadow-lg shadow-primary/20 active:scale-95"
                     >
                         RETURN TO DASHBOARD
                     </Link>
 
                     <Link
                         :href="route('series.index')"
-                        class="px-8 py-4 bg-gray-100 dark:bg-white/5 text-primary-content hover:bg-gray-200 dark:hover:bg-white/10 rounded-2xl font-black transition-all"
+                        class="px-8 py-4 bg-muted-background text-primary-content hover:bg-muted-background dark:hover:bg-secondary-content/10 rounded-2xl font-black transition-all"
                     >
                         BROWSE CATALOG
                     </Link>
@@ -61,7 +61,7 @@ import { Map as MapIcon, ArrowLeft } from 'lucide-vue-next';
 
 <style scoped>
 /* Optional: Subtle pulse animation for the icon glow */
-.bg-orange-500\/20 {
+.bg-primary\/20 {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 

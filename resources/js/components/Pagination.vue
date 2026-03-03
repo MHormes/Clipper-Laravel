@@ -14,7 +14,7 @@ function decodeLabel(label: string) {
     <template v-for="(link, k) in links" :key="k">
       <span
         v-if="link.url === null"
-        class="px-5 py-2.5 rounded-xl text-sm border font-bold opacity-50 cursor-not-allowed bg-white dark:bg-black border-border-color"
+        class="px-5 py-2.5 rounded-xl text-sm border font-bold opacity-50 cursor-not-allowed bg-primary-background border-border-color"
       >
         {{ decodeLabel(link.label) }}
       </span>
@@ -24,8 +24,8 @@ function decodeLabel(label: string) {
         :href="link.url"
         class="px-5 py-2.5 rounded-xl text-sm border font-bold transition-all shadow-sm"
         :class="link.active
-          ? 'bg-orange-600 text-white border-orange-600'
-          : 'bg-white dark:bg-black border-border-color hover:border-orange-500/50'"
+          ? 'bg-primary text-button-content border-primary'
+          : 'bg-primary-background border-border-color hover:border-primary/50'"
       >
         {{ decodeLabel(link.label) }}
       </Link>

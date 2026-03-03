@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Spinner } from '@/components/ui';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { update } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
@@ -41,7 +41,7 @@ const inputEmail = ref(props.email);
                         autocomplete="email"
                         v-model="inputEmail"
                         readonly
-                        class="rounded-xl border-gray-200 bg-gray-50/50 opacity-60 cursor-not-allowed dark:bg-[#161615] dark:border-white/10"
+                        class="rounded-xl border-border-color bg-muted-background/50 opacity-60 cursor-not-allowed bg-component-background dark:border-secondary-content/10"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -56,7 +56,7 @@ const inputEmail = ref(props.email);
                             autocomplete="new-password"
                             autofocus
                             placeholder="••••••••"
-                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                         />
                     </div>
 
@@ -68,7 +68,7 @@ const inputEmail = ref(props.email);
                             name="password_confirmation"
                             autocomplete="new-password"
                             placeholder="••••••••"
-                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                         />
                     </div>
                 </div>
@@ -80,7 +80,7 @@ const inputEmail = ref(props.email);
 
                 <Button
                     type="submit"
-                    class="mt-4 w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
+                    class="mt-4 w-full py-6 rounded-xl bg-[var(--primary)] text-secondary-content font-bold text-lg shadow-lg shadow-primary/20 hover:bg-[var(--primary)] hover:scale-[1.02] transition-all active:scale-[0.98]"
                     :disabled="processing"
                     data-test="reset-password-button"
                 >

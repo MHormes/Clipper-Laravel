@@ -7,9 +7,9 @@ import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import DeleteUser from '@/components/DeleteUser.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -52,10 +52,10 @@ const user = page.props.auth.user;
                             description="Update your account's public identity and contact email"
                             class="text-xl font-black tracking-tight"
                         />
-                        <div class="h-1 w-12 bg-[#f53003] rounded-full mt-2"></div>
+                        <div class="h-1 w-12 bg-[var(--primary)] rounded-full mt-2"></div>
                     </div>
 
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#161615]">
+                    <div class="rounded-2xl border border-border-color  p-6 shadow-sm  bg-component-background">
                         <Form
                             v-bind="ProfileController.update.form()"
                             class="max-w-xl space-y-6"
@@ -64,13 +64,13 @@ const user = page.props.auth.user;
                             <div class="grid gap-2">
                                 <Label for="name" class="text-sm font-bold tracking-tight">Full Name</Label>
                                 <div class="flex gap-3">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-[#f53003] dark:bg-orange-950/30">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-[var(--primary)] dark:bg-primary/30">
                                         <span class="text-xs font-bold">{{ user.name.charAt(0).toUpperCase() }}</span>
                                     </div>
                                     <div class="grow">
                                         <Input
                                             id="name"
-                                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#0c0c0c]"
+                                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
                                             name="name"
                                             :default-value="user.name"
                                             required
@@ -87,7 +87,7 @@ const user = page.props.auth.user;
                                 <Input
                                     id="email"
                                     type="email"
-                                    class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#0c0c0c]"
+                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
                                     name="email"
                                     :default-value="user.email"
                                     required
@@ -97,13 +97,13 @@ const user = page.props.auth.user;
                                 <InputError :message="errors.email" />
                             </div>
 
-                            <div v-if="mustVerifyEmail && !user.email_verified_at" class="rounded-xl bg-amber-50 p-4 border border-amber-100 dark:bg-amber-950/10 dark:border-amber-900/20">
-                                <p class="text-sm text-amber-800 dark:text-amber-400">
+                            <div v-if="mustVerifyEmail && !user.email_verified_at" class="rounded-xl bg-warning p-4 border border-warning dark:bg-warning/10 dark:border-warning/20">
+                                <p class="text-sm text-warning dark:text-warning">
                                     Your email is unverified.
                                     <Link
                                         :href="send()"
                                         as="button"
-                                        class="font-bold underline decoration-amber-300 underline-offset-4 hover:text-amber-600 dark:hover:text-amber-200"
+                                        class="font-bold underline decoration-amber-300 underline-offset-4 hover:text-warning dark:hover:text-warning"
                                     >
                                         Resend verification.
                                     </Link>
@@ -111,7 +111,7 @@ const user = page.props.auth.user;
 
                                 <div
                                     v-if="status === 'verification-link-sent'"
-                                    class="mt-2 text-xs font-bold text-green-600 dark:text-green-400"
+                                    class="mt-2 text-xs font-bold text-success dark:text-success"
                                 >
                                     ✓ A new link has been sent.
                                 </div>
@@ -120,7 +120,7 @@ const user = page.props.auth.user;
                             <div class="flex items-center gap-4 pt-2">
                                 <Button
                                     :disabled="processing"
-                                    class="rounded-xl bg-[#f53003] px-8 font-bold text-white hover:bg-[#ff4433] transition-all active:scale-95 shadow-lg shadow-orange-500/10"
+                                    class="rounded-xl bg-[var(--primary)] px-8 font-bold text-secondary-content hover:bg-[var(--primary)] transition-all active:scale-95 shadow-lg shadow-primary/10"
                                     data-test="update-profile-button"
                                 >
                                     <Spinner v-if="processing" class="mr-2 h-4 w-4" />
@@ -133,7 +133,7 @@ const user = page.props.auth.user;
                                     leave-active-class="transition ease-in-out"
                                     leave-to-class="opacity-0 -translate-x-1"
                                 >
-                                    <p v-show="recentlySuccessful" class="text-sm font-semibold text-green-600 dark:text-green-400">
+                                    <p v-show="recentlySuccessful" class="text-sm font-semibold text-success dark:text-success">
                                         Saved.
                                     </p>
                                 </Transition>
@@ -143,7 +143,7 @@ const user = page.props.auth.user;
                 </div>
 
                 <div class="pt-4">
-                    <div class="rounded-2xl border border-red-100 bg-red-50/30 p-6 dark:border-red-900/20 dark:bg-red-950/5">
+                    <div class="rounded-2xl border border-error bg-error/30 p-6 dark:border-error/20 dark:bg-error/5">
                         <DeleteUser />
                     </div>
                 </div>

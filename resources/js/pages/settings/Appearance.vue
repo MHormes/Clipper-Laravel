@@ -31,12 +31,12 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         description="Customize how Clipper-MS looks on your device"
                         class="text-xl font-black tracking-tight"
                     />
-                    <div class="h-1 w-12 bg-[#f53003] rounded-full mt-2"></div>
+                    <div class="h-1 w-12 bg-[var(--primary)] rounded-full mt-2"></div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#161615]">
+                <div class="rounded-2xl border border-border-color  p-6 shadow-sm  bg-component-background">
                     <div class="max-w-xl">
-                        <p class="mb-6 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                        <p class="mb-6 text-sm text-[var(--muted-content)] dark:text-[var(--muted-content)]">
                             Switch between light and dark modes, or let the app follow your system preference.
                         </p>
                         
@@ -44,11 +44,11 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     </div>
                 </div>
 
-                <div class="flex items-start gap-4 rounded-xl bg-orange-50/50 p-4 border border-orange-100 dark:bg-orange-950/10 dark:border-orange-900/20">
-                    <div class="text-[#f53003] mt-1">
+                <div class="flex items-start gap-4 rounded-xl bg-primary/50 p-4 border border-primary dark:bg-primary/10 dark:border-primary/20">
+                    <div class="text-[var(--primary)] mt-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                     </div>
-                    <p class="text-xs leading-relaxed text-orange-900/80 dark:text-orange-300/80">
+                    <p class="text-xs leading-relaxed text-primary/80 dark:text-primary/80">
                         <strong>GDPR Note:</strong> Your appearance preference is stored locally to ensure a consistent experience without unnecessary tracking.
                     </p>
                 </div>

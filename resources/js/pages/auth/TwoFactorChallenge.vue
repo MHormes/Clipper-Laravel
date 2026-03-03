@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
 import {
     InputOTP,
     InputOTPGroup,
     InputOTPSlot,
-} from '@/components/ui/input-otp';
+} from '@/components/ui';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { store } from '@/routes/two-factor/login';
 import { Form, Head } from '@inertiajs/vue3';
@@ -79,7 +79,7 @@ const code = ref<string>('');
                                         v-for="index in 6"
                                         :key="index"
                                         :index="index - 1"
-                                        class="h-12 w-10 rounded-xl border-gray-200 text-lg font-bold focus:ring-2 focus:ring-[#f53003] dark:border-white/10 dark:bg-[#161615]"
+                                        class="h-12 w-10 rounded-xl border-border-color text-lg font-bold focus:ring-2 focus:ring-[var(--primary)] dark:border-secondary-content/10 bg-component-background"
                                     />
                                 </InputOTPGroup>
                             </InputOTP>
@@ -89,7 +89,7 @@ const code = ref<string>('');
 
                     <Button 
                         type="submit" 
-                        class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]" 
+                        class="w-full py-6 rounded-xl bg-[var(--primary)] text-secondary-content font-bold text-lg shadow-lg shadow-primary/20 hover:bg-[var(--primary)] hover:scale-[1.02] transition-all active:scale-[0.98]" 
                         :disabled="processing || code.length < 6"
                     >
                         <Spinner v-if="processing" class="mr-2" />
@@ -99,7 +99,7 @@ const code = ref<string>('');
                     <div class="text-center text-sm">
                         <button
                             type="button"
-                            class="font-bold text-[#f53003] hover:text-[#ff4433] transition-colors"
+                            class="font-bold text-[var(--primary)] hover:text-[var(--primary)] transition-colors"
                             @click="() => toggleRecoveryMode(clearErrors)"
                         >
                             {{ authConfigContent.toggleText }}
@@ -120,7 +120,7 @@ const code = ref<string>('');
                             name="recovery_code"
                             type="text"
                             placeholder="Enter 8-character recovery code"
-                            class="rounded-xl border-gray-200 py-6 text-center font-mono uppercase tracking-widest focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                            class="rounded-xl border-border-color py-6 text-center font-mono uppercase tracking-widest focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                             :autofocus="showRecoveryInput"
                             required
                         />
@@ -129,7 +129,7 @@ const code = ref<string>('');
 
                     <Button 
                         type="submit" 
-                        class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all" 
+                        class="w-full py-6 rounded-xl bg-[var(--primary)] text-secondary-content font-bold text-lg shadow-lg shadow-primary/20 hover:bg-[var(--primary)] hover:scale-[1.02] transition-all" 
                         :disabled="processing"
                     >
                         <Spinner v-if="processing" class="mr-2" />
@@ -139,7 +139,7 @@ const code = ref<string>('');
                     <div class="text-center text-sm">
                         <button
                             type="button"
-                            class="font-bold text-[#f53003] hover:text-[#ff4433] transition-colors"
+                            class="font-bold text-[var(--primary)] hover:text-[var(--primary)] transition-colors"
                             @click="() => toggleRecoveryMode(clearErrors)"
                         >
                             {{ authConfigContent.toggleText }}

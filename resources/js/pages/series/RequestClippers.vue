@@ -22,7 +22,7 @@ const submit = (form: any) => {
     <AppLayout>
         <div class="max-w-5xl mx-auto p-6">
             <div class="mb-8">
-                <Link :href="route('series.show', series.id)" class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-orange-600 transition-colors uppercase tracking-widest">
+                <Link :href="route('series.show', series.id)" class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-primary transition-colors uppercase tracking-widest">
                     <ChevronLeft class="w-4 h-4" /> Back to {{ series.name }}
                 </Link>
                 <h1 class="text-3xl font-black mt-4 uppercase tracking-tighter">Request Clippers</h1>

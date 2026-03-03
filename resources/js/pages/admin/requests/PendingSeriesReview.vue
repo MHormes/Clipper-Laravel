@@ -61,13 +61,13 @@ const declineSeries = () => {
     <AppLayout>
         <div class="max-w-6xl mx-auto p-6">
             <div class="mb-10">
-                <Link :href="route('admin.requests.series.index')" class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-orange-600 transition-colors uppercase tracking-widest">
+                <Link :href="route('admin.requests.series.index')" class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-primary transition-colors uppercase tracking-widest">
                     <ChevronLeft class="w-4 h-4" /> Back to Requests
                 </Link>
                 <div class="flex items-center justify-between mt-4">
                     <h1 class="text-4xl font-black uppercase tracking-tighter">Review Series</h1>
                     <div class="flex items-center gap-3">
-                        <button @click="declineSeries" class="px-6 py-3 bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-red-600/20">
+                        <button @click="declineSeries" class="px-6 py-3 bg-error/10 text-error hover:bg-error hover:text-button-content!  rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-error/20">
                             Decline Request
                         </button>
                     </div>
@@ -77,12 +77,12 @@ const declineSeries = () => {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Left: Series Info -->
                 <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-white dark:bg-[#161615] rounded-3xl border border-border-color p-6 shadow-sm">
-                        <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-600 mb-6 flex items-center gap-2">
+                    <div class="bg-primary-background rounded-3xl border border-border-color p-6 shadow-sm">
+                        <h2 class="text-xs font-black uppercase tracking-[0.2em] text-primary mb-6 flex items-center gap-2">
                              Series Overview
                         </h2>
 
-                        <div class="aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-gray-100 dark:bg-black border border-border-color">
+                        <div class="aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-muted-background dark:bg-primary-background border border-border-color">
                             <img :src="series.image_data" class="w-full h-full object-cover" />
                         </div>
 
@@ -98,7 +98,7 @@ const declineSeries = () => {
                             </div>
                             <div class="pt-4 border-t border-border-color flex items-center justify-between">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-muted-content">Custom Series</label>
-                                <span :class="series.custom ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'"
+                                <span :class="series.custom ? 'bg-primary/10 text-button-content' : 'bg-info/10 text-info'"
                                       class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
                                     {{ series.custom ? 'Yes' : 'No' }}
                                 </span>
@@ -106,10 +106,10 @@ const declineSeries = () => {
                         </div>
                     </div>
 
-                    <div class="bg-blue-600/5 border border-blue-600/20 rounded-3xl p-6">
+                    <div class="bg-info/5 border border-info/20 rounded-3xl p-6">
                         <div class="flex items-start gap-3">
-                            <Info class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                            <div class="text-xs text-blue-800 dark:text-blue-200 font-bold uppercase tracking-widest leading-loose">
+                            <Info class="w-5 h-5 text-info shrink-0 mt-0.5" />
+                            <div class="text-xs text-info dark:text-info font-bold uppercase tracking-widest leading-loose">
                                 As an admin, you can selectively approve clippers. Unselected items will be deleted.
                             </div>
                         </div>
@@ -118,12 +118,12 @@ const declineSeries = () => {
 
                 <!-- Right: Clippers Review -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-[#161615] rounded-3xl border border-border-color shadow-sm overflow-hidden">
-                        <div class="p-6 border-b border-border-color flex items-center justify-between bg-gray-50/50 dark:bg-black/20">
-                            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-orange-600">
+                    <div class="bg-primary-background rounded-3xl border border-border-color shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-border-color flex items-center justify-between bg-muted-background/50 dark:bg-primary-background/20">
+                            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-primary">
                                 Clippers ({{ selectedClippers.length }} / {{ series.clippers.length }} Selected)
                             </h2>
-                            <button @click="toggleAll" class="text-[10px] font-black uppercase tracking-widest text-muted-content hover:text-orange-600 transition-colors">
+                            <button @click="toggleAll" class="text-[10px] font-black uppercase tracking-widest text-muted-content hover:text-primary transition-colors">
                                 {{ allSelected ? 'Deselect All' : 'Select All' }}
                             </button>
                         </div>
@@ -133,12 +133,12 @@ const declineSeries = () => {
                                 <div v-for="clipper in series.clippers" :key="clipper.id"
                                      @click="selectedClippers.includes(clipper.id) ? selectedClippers = selectedClippers.filter(id => id !== clipper.id) : selectedClippers.push(clipper.id)"
                                      class="relative group cursor-pointer">
-                                    <div :class="selectedClippers.includes(clipper.id) ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-border-color opacity-60 hover:opacity-100'"
-                                         class="aspect-[1/4] rounded-xl overflow-hidden border-2 transition-all relative bg-gray-50 dark:bg-black">
+                                    <div :class="selectedClippers.includes(clipper.id) ? 'border-primary ring-2 ring-primary/20' : 'border-border-color opacity-60 hover:opacity-100'"
+                                         class="aspect-[1/4] rounded-xl overflow-hidden border-2 transition-all relative bg-muted-background dark:bg-primary-background">
                                         <img :src="clipper.image_data" class="w-full h-full object-cover" />
 
                                         <div v-if="selectedClippers.includes(clipper.id)"
-                                             class="absolute top-2 right-2 bg-orange-600 text-white rounded-full p-1 shadow-lg">
+                                             class="absolute top-2 right-2 bg-primary text-button-content rounded-full p-1 shadow-lg">
                                             <CheckCircle2 class="w-3.5 h-3.5" />
                                         </div>
                                         <div v-else class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -150,13 +150,13 @@ const declineSeries = () => {
                             </div>
                         </div>
 
-                        <div class="p-8 border-t border-border-color bg-gray-50/50 dark:bg-black/20 flex flex-col sm:flex-row gap-4">
-                            <button @click="acceptFull" class="flex-1 py-4 bg-orange-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-orange-700 transition-all shadow-lg shadow-orange-900/20 active:scale-95 flex items-center justify-center gap-2">
+                        <div class="p-8 border-t border-border-color bg-muted-background/50 dark:bg-primary-background/20 flex flex-col sm:flex-row gap-4">
+                            <button @click="acceptFull" class="flex-1 py-4 bg-primary text-button-content rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-button-content!  transition-all shadow-lg shadow-primary/20 active:scale-95 flex items-center justify-center gap-2">
                                 <CheckCircle2 class="w-4 h-4" /> Accept All
                             </button>
                             <button @click="acceptPartial"
                                     :disabled="selectedClippers.length === 0"
-                                    class="flex-1 py-4 bg-white dark:bg-black text-orange-600 border border-orange-600/30 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-orange-600 hover:text-white transition-all disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-orange-600 flex items-center justify-center gap-2">
+                                    class="flex-1 py-4 bg-primary-background text-primary border border-primary/30 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-button-content!  transition-all disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary flex items-center justify-center gap-2">
                                 Accept Selected
                             </button>
                         </div>

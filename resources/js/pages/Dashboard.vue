@@ -38,17 +38,17 @@ const isAdmin = computed(() => pageProps.auth.is_admin);
 const getStatConfig = (label: string) => {
     switch (label) {
         case 'Total Series':
-            return { icon: Library, color: 'text-cyan-600', bg: 'bg-cyan-500/10' };
+            return { icon: Library, color: 'text-info', bg: 'bg-info/10' };
         case 'Total Clippers':
-            return { icon: Flame, color: 'text-orange-600', bg: 'bg-orange-500/10' };
+            return { icon: Flame, color: 'text-primary', bg: 'bg-primary/10' };
         case 'My Clippers':
-            return { icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-500/10' };
+            return { icon: CheckCircle, color: 'text-info', bg: 'bg-info/10' };
         case 'My Series':
-            return { icon: ListCheck, color: 'text-purple-600', bg: 'bg-purple-500/10' };
+            return { icon: ListCheck, color: 'text-info', bg: 'bg-info/10' };
         case 'Completed Series':
-            return { icon: Trophy, color: 'text-amber-600', bg: 'bg-amber-500/10' };
+            return { icon: Trophy, color: 'text-warning', bg: 'bg-warning/10' };
         default:
-            return { icon: Layers, color: 'text-gray-600', bg: 'bg-gray-500/10' };
+            return { icon: Layers, color: 'text-muted-content', bg: 'bg-muted-background/10' };
     }
 };
 
@@ -97,7 +97,7 @@ const handleStatClick = (label: string) => {
             <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <div v-for="stat in stats" :key="stat.label"
                     @click="handleStatClick(stat.label)"
-                    class="group relative flex flex-col rounded-2xl border border-border-color bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-[#161615] cursor-pointer hover:border-orange-500/50">
+                    class="group relative flex flex-col rounded-2xl border border-border-color  p-6 shadow-sm transition-all hover:shadow-md bg-component-background cursor-pointer hover:border-primary/50">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-sm font-bold text-muted-content uppercase tracking-wider">{{ stat.label }}</span>
                         <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
@@ -110,16 +110,16 @@ const handleStatClick = (label: string) => {
 
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
                 <Link :href="route('series.index')"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all hover:border-orange-500/50 hover:shadow-md dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all hover:border-primary/50 hover:shadow-md bg-component-background">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-orange-500/10 text-orange-600">
+                            <div class="p-2 rounded-lg bg-primary/10 text-primary">
                                 <Library class="w-6 h-6" />
                             </div>
                             <h3 class="text-2xl font-black">Series Catalog</h3>
                         </div>
                         <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">View all series, check missing designs, and organize your sets.</p>
-                        <div class="mt-8 flex items-center font-bold text-orange-600 group-hover:gap-2 transition-all">
+                        <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
                             <span>Open Catalog</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -127,11 +127,11 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link :href="route('series.create')"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all dark:bg-[#161615]"
-                    :class="isAdmin ? 'hover:border-green-500/50' : 'hover:border-orange-500/50'">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all bg-component-background"
+                    :class="isAdmin ? 'hover:border-success/50' : 'hover:border-primary/50'">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
-                            <div :class="['p-2 rounded-lg', isAdmin ? 'bg-green-500/10 text-green-600' : 'bg-orange-500/10 text-orange-600']">
+                            <div :class="['p-2 rounded-lg', isAdmin ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary']">
                                 <PlusCircle v-if="isAdmin" class="w-6 h-6" />
                                 <Flame v-else class="w-6 h-6" />
                             </div>
@@ -141,7 +141,7 @@ const handleStatClick = (label: string) => {
                             {{ isAdmin ? 'Found a new series? Help the community by adding it to the database.' : 'Suggest a new series to be added to the system.' }}
                         </p>
                         <div class="mt-8 flex items-center font-bold group-hover:gap-2 transition-all"
-                             :class="isAdmin ? 'text-green-600' : 'text-orange-600'">
+                             :class="isAdmin ? 'text-success' : 'text-primary'">
                             <span>{{ isAdmin ? 'Register Series' : 'Submit Request' }}</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -149,23 +149,23 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link v-if="isAdmin && (pendingRequests?.series || pendingRequests?.clippers)" :href="route('admin.requests.series.index')"
-                    class="group relative overflow-hidden rounded-2xl border-2 border-orange-500 bg-orange-500/5 p-8 shadow-sm transition-all hover:shadow-md">
+                    class="group relative overflow-hidden rounded-2xl border-2 border-primary bg-primary/5 p-8 shadow-sm transition-all hover:shadow-md">
                     <div class="relative z-10">
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-lg bg-orange-500 text-white">
+                                <div class="p-2 rounded-lg bg-primary text-button-content">
                                     <ArrowRight class="w-6 h-6 -rotate-45" />
                                 </div>
                                 <h3 class="text-2xl font-black">Pending Requests</h3>
                             </div>
-                            <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-xs font-black">
+                            <span class="bg-primary text-button-content px-3 py-1 rounded-full text-xs font-black">
                                 {{ (pendingRequests?.series || 0) + (pendingRequests?.clippers || 0) }}
                             </span>
                         </div>
-                        <p class="text-orange-950 dark:text-orange-200 text-sm font-bold uppercase tracking-tight">
+                        <p class="text-primary dark:text-primary text-sm font-bold uppercase tracking-tight">
                             {{ pendingRequests?.series }} Series • {{ pendingRequests?.clippers }} Clippers
                         </p>
-                        <div class="mt-8 flex items-center font-bold text-orange-600 group-hover:gap-2 transition-all">
+                        <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
                             <span>Review Now</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -173,16 +173,16 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link :href="route('series.index', { filter: 'collected' })"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all hover:border-purple-500/50 hover:shadow-md dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all hover:border-info/50 hover:shadow-md bg-component-background">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-purple-500/10 text-purple-600">
+                            <div class="p-2 rounded-lg bg-info/10 text-info">
                                 <Layers class="w-6 h-6" />
                             </div>
                             <h3 class="text-2xl font-black">My Series</h3>
                         </div>
                         <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
-                        <div class="mt-8 flex items-center font-bold text-purple-600 group-hover:gap-2 transition-all">
+                        <div class="mt-8 flex items-center font-bold text-info group-hover:gap-2 transition-all">
                             <span>View Collection</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -190,16 +190,16 @@ const handleStatClick = (label: string) => {
                 </Link>
 
                 <Link :href="route('collection.clippers')"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color bg-white p-8 shadow-sm transition-all hover:border-blue-500/50 hover:shadow-md dark:bg-[#161615]">
+                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all hover:border-info/50 hover:shadow-md bg-component-background">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-blue-500/10 text-blue-600">
+                            <div class="p-2 rounded-lg bg-info/10 text-info">
                                 <CheckCircle class="w-6 h-6" />
                             </div>
                             <h3 class="text-2xl font-black">My Clippers</h3>
                         </div>
                         <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">A dedicated board view of every single clipper you own.</p>
-                        <div class="mt-8 flex items-center font-bold text-blue-600 group-hover:gap-2 transition-all">
+                        <div class="mt-8 flex items-center font-bold text-info group-hover:gap-2 transition-all">
                             <span>Open Board View</span>
                             <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -207,27 +207,27 @@ const handleStatClick = (label: string) => {
                 </Link>
             </div>
 
-            <div class="flex-1 rounded-2xl border border-border-color bg-white p-6 shadow-sm dark:bg-[#161615]">
+            <div class="flex-1 rounded-2xl border border-border-color  p-6 shadow-sm bg-component-background">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold">Recent Additions</h3>
                     <Link :href="route('series.index')"
-                        class="text-xs font-bold text-orange-600 uppercase hover:underline">
+                        class="text-xs font-bold text-primary uppercase hover:underline">
                         View All Series
                     </Link>
                 </div>
 
                 <div class="space-y-4">
                     <div v-for="item in recentSeries" :key="item.id"
-                        class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-muted-background dark:hover:bg-white/5 transition-colors">
 
                         <div
-                            class="h-12 w-16 rounded bg-white dark:bg-black overflow-hidden border border-border-color">
+                            class="h-12 w-16 rounded  overflow-hidden border border-border-color">
                             <img :src="item.image_data" :alt="item.name + 'Clipper Lighter Series'" class="h-full w-full object-contain" />
                         </div>
 
                         <div class="flex-1">
                             <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
-                                class="font-bold text-sm hover:text-orange-600 transition-colors">
+                                class="font-bold text-sm hover:text-primary transition-colors">
                                 {{ item.name }}
                             </Link>
                             <p class="text-[10px] text-muted-content uppercase tracking-tight">
@@ -236,7 +236,7 @@ const handleStatClick = (label: string) => {
                         </div>
 
                         <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
-                            class="text-[10px] font-black text-orange-600 uppercase border border-orange-600/20 px-3 py-1 rounded hover:bg-orange-600 hover:text-white transition-all">
+                            class="text-[10px] font-black text-primary uppercase border border-primary/20 px-3 py-1 rounded hover:bg-primary hover:text-button-content!  transition-all">
                             View Series
                         </Link>
                     </div>

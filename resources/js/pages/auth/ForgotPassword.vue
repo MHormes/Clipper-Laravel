@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Spinner } from '@/components/ui';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
@@ -24,7 +24,7 @@ defineProps<{
 
         <div
             v-if="status"
-            class="mb-6 rounded-xl bg-green-50 p-4 text-center text-sm font-semibold text-green-700 dark:bg-green-900/10 dark:text-green-400"
+            class="mb-6 rounded-xl bg-success p-4 text-center text-sm font-semibold text-success dark:bg-success/10 dark:text-success"
         >
             {{ status }}
         </div>
@@ -40,14 +40,14 @@ defineProps<{
                         autocomplete="off"
                         autofocus
                         placeholder="name@example.com"
-                        class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="mt-8 flex items-center justify-start">
                     <Button
-                        class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
+                        class="w-full py-6 rounded-xl bg-[var(--primary)] text-secondary-content font-bold text-lg shadow-lg shadow-primary/20 hover:bg-[var(--primary)] hover:scale-[1.02] transition-all active:scale-[0.98]"
                         :disabled="processing"
                         data-test="email-password-reset-link-button"
                     >
@@ -57,11 +57,11 @@ defineProps<{
                 </div>
             </Form>
 
-            <div class="text-center text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+            <div class="text-center text-sm font-medium text-[var(--muted-content)] dark:text-[var(--muted-content)]">
                 Remembered your password?
                 <TextLink 
                     :href="login()" 
-                    class="text-[#1b1b18] dark:text-[#EDEDEC] font-bold hover:text-[#f53003] transition-colors ml-1"
+                    class="text-[var(--primary-content)] dark:text-[var(--primary-content)] font-bold hover:text-[var(--primary)] transition-colors ml-1"
                 >
                     Back to log in
                 </TextLink>

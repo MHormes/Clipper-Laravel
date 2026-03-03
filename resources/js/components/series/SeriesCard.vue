@@ -20,17 +20,17 @@ const progressWidth = computed(() => ((props.item.collected_count || 0) / totalT
 
 <template>
     <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
-        class="group bg-white dark:bg-[#161615] rounded-2xl overflow-hidden border border-border-color shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
+        class="group bg-component-background rounded-2xl overflow-hidden border border-border-color shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
 
-        <div class="aspect-[4/3] relative overflow-hidden bg-white dark:bg-black border-b border-border-color">
+        <div class="aspect-[4/3] relative overflow-hidden bg-component-background border-b border-border-color">
             <img :src="item.image_data" class="w-full h-full object-contain" />
-            <div v-if="item.custom" class="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-md text-[10px] text-white font-bold rounded">
+            <div v-if="item.custom" class="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-md text-[10px] text-button-content font-bold rounded">
                 CUSTOM
             </div>
         </div>
 
         <div class="p-5">
-            <h3 class="font-bold text-lg truncate group-hover:text-orange-600 transition-colors">
+            <h3 class="font-bold text-lg truncate group-hover:text-primary transition-colors">
                 {{ item.name }}
             </h3>
 
@@ -39,12 +39,12 @@ const progressWidth = computed(() => ((props.item.collected_count || 0) / totalT
                     <span class="text-xs font-semibold text-muted-content uppercase tracking-widest">
                         {{ item.collected_count || 0 }} / {{ totalTarget }} Collected
                     </span>
-                    <span class="text-[10px] text-orange-600 font-bold group-hover:underline">VIEW →</span>
+                    <span class="text-[10px] text-primary font-bold group-hover:underline">VIEW →</span>
                 </div>
             </div>
 
-            <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-3">
-                <div class="bg-orange-500 h-full transition-all rounded-full" :style="{ width: `${progressWidth}%` }"></div>
+            <div class="w-full bg-muted-background dark:bg-muted-background h-1.5 rounded-full mt-3">
+                <div class="bg-primary h-full transition-all rounded-full" :style="{ width: `${progressWidth}%` }"></div>
             </div>
         </div>
     </Link>

@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { ref, computed, reactive } from 'vue';
-import { Users, ShieldCheck, Mail, Calendar, Trash2, Ban, CheckCircle, Search } from 'lucide-vue-next';
+import { Users, Mail, Calendar, Trash2, Ban, CheckCircle, Search } from 'lucide-vue-next';
 import { AppPageProps } from '@/types';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 
@@ -128,12 +128,14 @@ const formatDate = (dateString: string) => {
     <AppLayout :breadcrumbs="[{ title: 'Administration', href: '#' }, { title: 'Users', href: '#' }]">
         <div class="w-full max-w-7xl mx-auto p-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                <div>
-                    <h1 class="text-3xl font-black uppercase tracking-tight leading-tight flex items-center gap-3">
-                        <Users class="w-8 h-8 text-orange-600" />
-                        User Management
-                    </h1>
-                    <p class="text-muted-content text-sm mt-1">Manage platform users, roles, and account access.</p>
+                <div class="flex items-center gap-4">
+                    <div class="p-3 rounded-2xl bg-primary/10 text-primary">
+                        <Users class="w-8 h-8" />
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black uppercase tracking-tight leading-tight">User Management</h1>
+                        <p class="text-muted-content text-sm">Manage platform users, roles, and account access.</p>
+                    </div>
                 </div>
 
                 <div class="relative w-full md:w-96">
@@ -142,36 +144,39 @@ const formatDate = (dateString: string) => {
                         v-model="searchTerm"
                         type="text"
                         placeholder="Search users..."
-                        class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-black border border-border-color rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-sm shadow-sm"
+                        class="w-full pl-10 pr-4 py-2.5 bg-component-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm shadow-sm"
                     />
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-[#161615] rounded-3xl border border-border-color shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class="bg-component-background rounded-3xl border border-border-color shadow-sm overflow-hidden relative">
+                <!-- Decorative background accent -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
+
+                <div class="overflow-x-auto relative z-10">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50 dark:bg-white/[0.02] border-b border-border-color">
-                                <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-content">User</th>
-                                <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-content text-center">Role</th>
-                                <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-content text-center">Status</th>
-                                <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-content text-center">Joined</th>
-                                <th class="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-content text-right">Actions</th>
+                            <tr class="bg-muted-background/30 border-b border-border-color">
+                                <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-content">User</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-content text-center">Role</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-content text-center">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-content text-center">Joined</th>
+                                <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-content text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border-color">
                             <tr v-for="user in filteredUsers" :key="user.id"
-                                class="hover:bg-gray-50 dark:hover:bg-white/[0.01] transition-colors group"
+                                class="hover:bg-muted-background/20 transition-colors group"
                                 :class="{'opacity-60': !user.is_active}">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center text-orange-600 font-bold">
+                                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black">
                                             {{ user.name.charAt(0).toUpperCase() }}
                                         </div>
                                         <div>
-                                            <div class="font-bold text-base">{{ user.name }}</div>
+                                            <div class="font-black text-primary-content uppercase tracking-tight">{{ user.name }}</div>
                                             <div class="text-xs text-muted-content flex items-center gap-1">
-                                                <Mail class="w-3 h-3" />
+                                                <Mail class="w-3 h-3 opacity-50" />
                                                 {{ user.email }}
                                             </div>
                                         </div>
@@ -180,35 +185,35 @@ const formatDate = (dateString: string) => {
                                 <td class="px-6 py-4 text-center">
                                     <button
                                         @click="updateUserRole(user)"
-                                        class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
+                                        class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all"
                                         :class="user.role === 'admin'
-                                            ? 'bg-orange-600 text-white hover:bg-orange-700'
-                                            : 'bg-gray-100 dark:bg-white/5 text-muted-content hover:bg-gray-200 dark:hover:bg-white/10'">
+                                            ? 'bg-primary text-button-content hover:shadow-lg shadow-primary/20'
+                                            : 'bg-muted-background text-muted-content hover:bg-muted-background/50'">
                                         {{ user.role }}
                                     </button>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <button
                                         @click="toggleUserStatus(user)"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all"
                                         :class="user.is_active
-                                            ? 'text-green-600 bg-green-100 dark:bg-green-950/20 hover:bg-green-200 dark:hover:bg-green-950/40'
-                                            : 'text-red-600 bg-red-100 dark:bg-red-950/20 hover:bg-red-200 dark:hover:bg-red-950/40'">
+                                            ? 'text-success bg-success/10 border border-success/20 hover:bg-success hover:text-button-content!'
+                                            : 'text-error bg-error/10 border border-error/20 hover:bg-error hover:text-button-content!'">
                                         <CheckCircle v-if="user.is_active" class="w-3 h-3" />
                                         <Ban v-else class="w-3 h-3" />
                                         {{ user.is_active ? 'Active' : 'Disabled' }}
                                     </button>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="text-xs text-muted-content flex items-center justify-center gap-1 font-medium">
-                                        <Calendar class="w-3 h-3" />
+                                    <span class="text-xs text-muted-content flex items-center justify-center gap-1 font-bold">
+                                        <Calendar class="w-3 h-3 opacity-50" />
                                         {{ formatDate(user.created_at) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <button
                                         @click="deleteUser(user)"
-                                        class="p-2 text-muted-content hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
+                                        class="p-2 text-muted-content hover:text-error hover:bg-error/10 rounded-xl transition-all"
                                         title="Delete User"
                                         :disabled="user.id === page.props.auth.user.id"
                                         :class="{'opacity-20 cursor-not-allowed': user.id === page.props.auth.user.id}">
@@ -220,8 +225,8 @@ const formatDate = (dateString: string) => {
                             <tr v-if="filteredUsers.length === 0">
                                 <td colspan="5" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center gap-2 text-muted-content">
-                                        <Users class="w-12 h-12 opacity-20" />
-                                        <p class="font-bold">No users found matching your search.</p>
+                                        <Users class="w-12 h-12 opacity-10" />
+                                        <p class="font-black uppercase tracking-widest text-xs opacity-40">No users found</p>
                                     </div>
                                 </td>
                             </tr>

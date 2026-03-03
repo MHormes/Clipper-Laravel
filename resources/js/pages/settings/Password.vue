@@ -7,9 +7,9 @@ import { edit } from '@/routes/user-password';
 import { Form, Head } from '@inertiajs/vue3';
 
 import HeadingSmall from '@/components/HeadingSmall.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
 import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -38,10 +38,10 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         description="Ensure your account is using a long, random password to stay secure"
                         class="text-xl font-black tracking-tight"
                     />
-                    <div class="h-1 w-12 bg-[#f53003] rounded-full mt-2"></div>
+                    <div class="h-1 w-12 bg-[var(--primary)] rounded-full mt-2"></div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#161615]">
+                <div class="rounded-2xl border border-border-color  p-6 shadow-sm  bg-component-background">
                     <Form
                         v-bind="PasswordController.update.form()"
                         :options="{
@@ -62,7 +62,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                 id="current_password"
                                 name="current_password"
                                 type="password"
-                                class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#0c0c0c]"
+                                class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
                                 autocomplete="current-password"
                                 placeholder="••••••••"
                             />
@@ -76,7 +76,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                     id="password"
                                     name="password"
                                     type="password"
-                                    class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#0c0c0c]"
+                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
                                     autocomplete="new-password"
                                     placeholder="••••••••"
                                 />
@@ -88,7 +88,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                     id="password_confirmation"
                                     name="password_confirmation"
                                     type="password"
-                                    class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#0c0c0c]"
+                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
                                     autocomplete="new-password"
                                     placeholder="••••••••"
                                 />
@@ -100,7 +100,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         <div class="flex items-center gap-4 pt-2">
                             <Button
                                 :disabled="processing"
-                                class="rounded-xl bg-[#f53003] px-8 font-bold text-white hover:bg-[#ff4433] transition-all active:scale-95"
+                                class="rounded-xl bg-[var(--primary)] px-8 font-bold text-secondary-content hover:bg-[var(--primary)] transition-all active:scale-95"
                                 data-test="update-password-button"
                             >
                                 <Spinner v-if="processing" class="mr-2 h-4 w-4" />
@@ -115,7 +115,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             >
                                 <p
                                     v-show="recentlySuccessful"
-                                    class="text-sm font-semibold text-green-600 dark:text-green-400 flex items-center gap-1"
+                                    class="text-sm font-semibold text-success dark:text-success flex items-center gap-1"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                     Updated

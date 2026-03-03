@@ -11,8 +11,8 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui"
+import { Button } from "@/components/ui"
 import { Loader2 } from "lucide-vue-next"
 
 interface Props {
@@ -98,7 +98,7 @@ const handleOpenChange = (value: boolean) => {
 
 <template>
     <Dialog :open="open" @update:open="handleOpenChange">
-        <DialogContent class="sm:max-w-[425px]">
+        <DialogContent class="sm:max-w-[380px]">
             <DialogHeader>
                 <DialogTitle>{{ title }}</DialogTitle>
                 <DialogDescription>

@@ -4,7 +4,7 @@ import NoteModal from '@/components/modal/NoteModal.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import { AppPageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { CheckCheck, Heart, PencilLine } from 'lucide-vue-next';
+import { CheckCheck, Heart, PencilLine, User as UserIcon, Calendar, Library, CheckCircle } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { route } from 'ziggy-js';
 
@@ -27,6 +27,7 @@ interface Series {
     image_data: string;
     clippers: Clipper[];
     requester?: { name: string };
+    created_at: string;
 }
 
 const props = defineProps<{
@@ -86,43 +87,65 @@ const confirmDelete = () => {
 
     <AppLayout>
         <div class="max-w-7xl mx-auto p-6 space-y-8">
-            <div class="flex flex-col md:flex-row gap-8 items-start bg-white dark:bg-[#161615] p-8 rounded-3xl border border-border-color relative">
+            <!-- Series Header Card -->
+            <div class="flex flex-col md:flex-row gap-8 items-start bg-component-background p-8 rounded-3xl border border-border-color shadow-sm relative overflow-hidden">
+                <!-- Background Accent -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
-                <div class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-                    <img :src="series.image_data" :alt="series.name + 'Clipper Lighter Series'" class="w-full h-full object-cover" />
+                <div class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-border-color bg-primary-background">
+                    <img :src="series.image_data" :alt="series.name + ' Clipper Lighter Series'" class="w-full h-full object-cover" />
                 </div>
 
-                <div class="flex-1 space-y-6">
+                <div class="flex-1 space-y-6 relative z-10">
                     <div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3 flex-wrap">
                             <h1 class="text-4xl font-black uppercase tracking-tight">{{ series.name }}</h1>
-                            <span v-if="series.custom" class="px-3 py-1 bg-orange-100 text-orange-700 text-[10px] font-black rounded-full uppercase">Custom Set</span>
+                            <span v-if="series.custom" class="px-3 py-1 bg-primary/10 text-button-content text-[10px] font-black rounded-full uppercase border border-primary/20">Custom Set</span>
                         </div>
-                        <p class="text-sm text-muted-content font-medium">
-                            Added by <span class="text-primary-content font-bold">{{ series.requester?.name || 'System' }}</span>
-                        </p>
+                        
+                        <div class="flex items-center gap-4 mt-2">
+                            <div class="flex items-center gap-1.5 text-xs text-muted-content font-bold uppercase tracking-wider">
+                                <div class="p-1 rounded-md bg-muted-background">
+                                    <UserIcon class="w-3 h-3" />
+                                </div>
+                                <span>{{ series.requester?.name || 'System' }}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-xs text-muted-content font-bold uppercase tracking-wider">
+                                <div class="p-1 rounded-md bg-muted-background">
+                                    <Calendar class="w-3 h-3" />
+                                </div>
+                                <span>{{ new Date(series.created_at).getFullYear() }}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 border-t border-border-color pt-6">
-                        <div v-if="isAdmin">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">System Status</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-border-color pt-6">
+                        <div v-if="isAdmin" class="p-4 rounded-2xl bg-muted-background/30 border border-border-color/50">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">System Status</span>
+                                <Library class="w-4 h-4 text-info" />
+                            </div>
                             <p class="text-xl font-bold">{{ registeredCount }} / {{ series.custom ? registeredCount : 4 }} Registered</p>
-                            <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2">
-                                <div class="bg-blue-500 h-full transition-all" :style="{ width: `${(registeredCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }"></div>
+                            <div class="w-full bg-muted-background h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div class="bg-info h-full transition-all" :style="{ width: `${(registeredCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }"></div>
                             </div>
                         </div>
-                        <div>
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Your Collection</span>
-                            <p class="text-xl font-bold text-orange-600">{{ collectedCount }} / {{ series.custom ? registeredCount : 4 }} Owned</p>
-                            <div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full mt-2">
-                                <div class="bg-orange-500 h-full transition-all" :style="{ width: `${(collectedCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }"></div>
+                        <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-black text-primary uppercase tracking-widest opacity-70">Your Collection</span>
+                                <CheckCircle class="w-4 h-4 text-primary" />
+                            </div>
+                            <p class="text-xl font-bold text-primary">{{ collectedCount }} / {{ series.custom ? registeredCount : 4 }} Owned</p>
+                            <div class="w-full bg-primary/10 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div class="bg-primary h-full transition-all" :style="{ width: `${(collectedCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-4 grid grid-cols-2 gap-3">
-                        <button @click="toggleAll" class="w-full sm:w-auto px-6 py-3 rounded-xl font-black uppercase text-sm transition-all flex items-center justify-center gap-2 group/btn"
-                            :class="isFullyCollected ? 'bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white border border-red-600/20 shadow-sm' : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-600/20'">
+                    <!-- Action Buttons - RESTORED TO GRID -->
+                    <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button @click="toggleAll" class="w-full px-6 py-3 rounded-xl font-black uppercase text-sm transition-all flex items-center justify-center gap-2 group/btn"
+                            :class="isFullyCollected ? 'bg-error/10 text-error hover:bg-error hover:text-button-content!  border border-error/20 shadow-sm' : 'bg-primary text-button-content hover:bg-primary hover:text-button-content!  shadow-lg shadow-primary/20'">
                             <CheckCheck v-if="isFullyCollected" class="w-4 h-4" />
                             <Heart v-else class="w-4 h-4 fill-current group-hover/btn:scale-110 transition-transform" />
                             {{ isFullyCollected ? 'Uncollect Series' : 'Collect Complete Series' }}
@@ -130,37 +153,36 @@ const confirmDelete = () => {
 
                         <div class="grid grid-cols-2 gap-3">
                             <template v-if="isAdmin">
-                                <Link :href="route('series.edit', series.id)" class="flex items-center justify-center bg-orange-600 text-white text-sm font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg">
+                                <Link :href="route('series.edit', series.id)" class="flex items-center justify-center bg-primary text-button-content text-sm font-bold rounded-xl hover:bg-primary hover:text-button-content!  transition-all shadow-lg">
                                     Edit
                                 </Link>
-                                <button @click="showDeleteModal = true" class="text-center bg-red-600/10 text-red-600 text-sm font-bold rounded-xl hover:bg-red-600 hover:text-white transition-all border border-red-600/20 shadow-sm">
+                                <button @click="showDeleteModal = true" class="text-center bg-error/10 text-error text-sm font-bold rounded-xl hover:bg-error hover:text-button-content!  transition-all border border-error/20 shadow-sm">
                                     Delete
                                 </button>
                             </template>
                             <template v-else>
-                                <Link :href="route('series.request-clippers', series.id)" class="col-span-2 flex items-center justify-center bg-orange-600/10 text-orange-600 hover:bg-orange-600 hover:text-white text-sm font-bold rounded-xl transition-all border border-orange-600/20 shadow-sm">
+                                <Link :href="route('series.request-clippers', series.id)" class="col-span-2 flex items-center justify-center bg-primary/10 text-primary hover:bg-primary hover:text-button-content!  text-sm font-bold rounded-xl transition-all border border-primary/20 shadow-sm">
                                     Request Clippers
                                 </Link>
                             </template>
                         </div>
-
                     </div>
                 </div>
             </div>
 
+            <!-- Clippers Grid -->
             <div class="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-
                 <template v-for="n in (series.custom ? series.clippers.map(c => c.series_number) : [1, 2, 3, 4])" :key="n">
                     <div v-if="getClipperByNumber(n)" class="group">
-                        <div class="bg-white dark:bg-[#161615] p-1 sm:p-4 rounded-2xl border-2 border-border-color shadow-sm transition-all hover:border-orange-500 relative">
+                        <div class="bg-component-background p-1 sm:p-4 rounded-2xl border border-border-color shadow-sm transition-all hover:border-primary/50 relative">
                             <div class="flex justify-between items-center mb-4">
-                                <span class="hidden sm:block text-xs font-black text-gray-400 uppercase p-2">#{{ n }}</span>
+                                <span class="hidden sm:block text-xs font-black text-muted-content uppercase p-2">#{{ n }}</span>
 
                                 <div class="flex gap-1">
                                     <button
                                         v-if="isOwned(getClipperByNumber(n)!.id)"
                                         @click="openClipperDetails(getClipperByNumber(n)!)"
-                                        class="p-2 rounded-full bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-blue-500 transition-all"
+                                        class="p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all"
                                         title="Edit notes/location"
                                     >
                                         <PencilLine class="w-4 h-4" />
@@ -168,21 +190,24 @@ const confirmDelete = () => {
 
                                     <button @click="toggleCollection(getClipperByNumber(n)!.id)"
                                         class="p-2 rounded-full transition-all"
-                                        :class="isOwned(getClipperByNumber(n)!.id) ? 'text-red-500 bg-red-50 dark:bg-red-500/10' : 'text-gray-300 hover:text-orange-500 bg-gray-50 dark:bg-white/5'">
+                                        :class="isOwned(getClipperByNumber(n)!.id) ? 'text-error bg-error dark:bg-error/10' : 'text-muted-content hover:text-primary bg-muted-background'">
                                         <Heart class="w-5 h-5" :fill="isOwned(getClipperByNumber(n)!.id) ? 'currentColor' : 'none'" />
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="aspect-[1/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-900 bg-white dark:bg-black">
-                                <img :src="getClipperByNumber(n)!.image_data" :alt="series.name + ' #' + n + 'Clipper Lighter'" class="w-full h-full object-cover" />
+                            <div class="aspect-[1/4] rounded-xl overflow-hidden border border-border-color bg-primary-background group-hover:scale-[1.02] transition-transform duration-300">
+                                <img :src="getClipperByNumber(n)!.image_data" :alt="series.name + ' #' + n + ' Clipper Lighter'" class="w-full h-full object-cover" />
                             </div>
                         </div>
                     </div>
 
-                    <div v-else-if="!series.custom" class="h-full min-h-[320px] border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/5 opacity-40">
-                        <span class="text-xs font-bold uppercase text-gray-400 tracking-widest">#{{ n }} Missing</span>
-                        <Link v-if="isAdmin" :href="route('series.edit', series.id)" class="mt-4 text-[10px] font-bold text-orange-600 underline uppercase">Upload Design</Link>
+                    <div v-else-if="!series.custom" class="h-full min-h-[320px] border border-dashed border-border-color rounded-2xl flex flex-col items-center justify-center bg-muted-background/20 opacity-60">
+                        <div class="p-3 rounded-xl bg-muted-background mb-3">
+                            <Library class="w-6 h-6 text-muted-content opacity-20" />
+                        </div>
+                        <span class="text-xs font-bold uppercase text-muted-content tracking-widest">#{{ n }} Missing</span>
+                        <Link v-if="isAdmin" :href="route('series.edit', series.id)" class="mt-4 text-[10px] font-bold text-primary underline uppercase">Upload Design</Link>
                     </div>
                 </template>
             </div>

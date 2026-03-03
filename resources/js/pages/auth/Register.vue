@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui';
+import { Checkbox } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Spinner } from '@/components/ui';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
@@ -38,7 +38,7 @@ import { route } from 'ziggy-js';
                         autocomplete="name"
                         name="name"
                         placeholder="e.g. Jasper van den Berg"
-                        class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                     />
                     <InputError :message="errors.name" />
                 </div>
@@ -53,7 +53,7 @@ import { route } from 'ziggy-js';
                         autocomplete="email"
                         name="email"
                         placeholder="name@example.com"
-                        class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -69,7 +69,7 @@ import { route } from 'ziggy-js';
                             autocomplete="new-password"
                             name="password"
                             placeholder="••••••••"
-                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                         />
                     </div>
                     <div class="grid gap-2">
@@ -82,7 +82,7 @@ import { route } from 'ziggy-js';
                             autocomplete="new-password"
                             name="password_confirmation"
                             placeholder="••••••••"
-                            class="rounded-xl border-gray-200 focus:ring-[#f53003] focus:border-[#f53003] dark:bg-[#161615] dark:border-white/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
                         />
                     </div>
                 </div>
@@ -98,12 +98,12 @@ import { route } from 'ziggy-js';
                             name="terms" 
                             required
                             :tabindex="5" 
-                            class="border-gray-300 data-[state=checked]:bg-[#f53003] data-[state=checked]:border-[#f53003]"
+                            class="border-border-color data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
                         />
-                        <span class="text-[11px] text-[#706f6c] dark:text-[#A1A09A] leading-tight group-hover:text-black dark:group-hover:text-white transition-colors">
+                        <span class="text-[11px] text-[var(--muted-content)] dark:text-[var(--muted-content)] leading-tight group-hover:text-primary-content dark:group-hover:text-secondary-content transition-colors">
                             By registering, you agree to our 
-                            <TextLink :href="route('terms')" class="text-[#f53003] hover:underline">Terms</TextLink> and acknowledge our 
-                            <TextLink :href="route('privacy')" class="text-[#f53003] hover:underline">Privacy Policy</TextLink>.
+                            <TextLink :href="route('terms')" class="text-[var(--primary)] hover:underline">Terms</TextLink> and acknowledge our 
+                            <TextLink :href="route('privacy')" class="text-[var(--primary)] hover:underline">Privacy Policy</TextLink>.
                         </span>
                     </Label>
                     <InputError :message="errors.terms" class="ml-2" />
@@ -111,7 +111,7 @@ import { route } from 'ziggy-js';
 
                 <Button
                     type="submit"
-                    class="mt-2 w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
+                    class="mt-2 w-full py-6 rounded-xl bg-[var(--primary)] text-secondary-content font-bold text-lg shadow-lg shadow-primary/20 hover:bg-[var(--primary)] hover:scale-[1.02] transition-all active:scale-[0.98]"
                     tabindex="6"
                     :disabled="processing"
                     data-test="register-user-button"
@@ -121,11 +121,11 @@ import { route } from 'ziggy-js';
                 </Button>
             </div>
 
-            <div class="text-center text-sm font-medium text-[#706f6c] dark:text-[#A1A09A]">
+            <div class="text-center text-sm font-medium text-[var(--muted-content)] dark:text-[var(--muted-content)]">
                 Already have an account?
                 <TextLink
                     :href="login()"
-                    class="text-[#1b1b18] dark:text-[#EDEDEC] font-bold hover:text-[#f53003] transition-colors"
+                    class="text-[var(--primary-content)] dark:text-[var(--primary-content)] font-bold hover:text-[var(--primary)] transition-colors"
                     :tabindex="6"
                 >
                     Log in

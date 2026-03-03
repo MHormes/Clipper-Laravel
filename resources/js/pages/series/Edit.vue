@@ -30,7 +30,7 @@ const submit = (form: any) => {
                     <h1 class="text-3xl font-black uppercase tracking-tighter">Edit Series</h1>
                     <p class="text-[10px] text-muted-content font-mono">{{ series.id }}</p>
                 </div>
-                <Link :href="route('series.show', series.id)" class="text-sm font-bold text-orange-600 hover:underline">View Live Page</Link>
+                <Link :href="route('series.show', series.id)" class="text-sm font-bold text-primary hover:underline">View Live Page</Link>
             </div>
 
             <SeriesForm

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui';
+import { Spinner } from '@/components/ui';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
@@ -21,7 +21,7 @@ defineProps<{
 
         <div
             v-if="status === 'verification-link-sent'"
-            class="mb-6 rounded-xl bg-green-50 p-4 text-center text-sm font-semibold text-green-700 dark:bg-green-900/10 dark:text-green-400"
+            class="mb-6 rounded-xl bg-success p-4 text-center text-sm font-semibold text-success dark:bg-success/10 dark:text-success"
         >
             A fresh verification link has been sent to your email address.
         </div>
@@ -34,7 +34,7 @@ defineProps<{
             <Button 
                 type="submit"
                 :disabled="processing" 
-                class="w-full py-6 rounded-xl bg-[#f53003] text-white font-bold text-lg shadow-lg shadow-orange-500/20 hover:bg-[#ff4433] hover:scale-[1.02] transition-all active:scale-[0.98]"
+                class="w-full py-6 rounded-xl bg-[var(--primary)] text-secondary-content font-bold text-lg shadow-lg shadow-primary/20 hover:bg-[var(--primary)] hover:scale-[1.02] transition-all active:scale-[0.98]"
             >
                 <Spinner v-if="processing" class="mr-2" />
                 Resend Verification Email
@@ -44,7 +44,7 @@ defineProps<{
                 <TextLink
                     :href="logout()"
                     as="button"
-                    class="text-sm font-bold text-[#706f6c] hover:text-[#1b1b18] dark:text-[#A1A09A] dark:hover:text-white transition-colors"
+                    class="text-sm font-bold text-[var(--muted-content)] hover:text-[var(--primary-content)] dark:text-[var(--muted-content)] dark:hover:text-secondary-content transition-colors"
                 >
                     Log out of this account
                 </TextLink>

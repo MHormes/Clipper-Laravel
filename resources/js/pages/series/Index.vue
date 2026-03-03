@@ -44,11 +44,11 @@ const statusFilters = [
                 <div class="grid grid-cols-1 md:flex md:items-center md:gap-4 w-full lg:w-auto">
                     <div class="relative flex-1 lg:w-96 mb-2 md:mb-0">
                         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-content" />
-                        <input v-model="search" type="text" placeholder="Search series..." class="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-black border border-border-color rounded-xl focus:ring-2 focus:ring-orange-500 text-sm shadow-sm" />
+                        <input v-model="search" type="text" placeholder="Search series..." class="w-full pl-10 pr-10 py-2.5 bg-primary-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary text-sm shadow-sm" />
                         <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-content p-1"><X class="w-4 h-4" /></button>
                     </div>
 
-                    <Link v-if="canCreate" :href="route('series.create')" class="px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold text-sm hover:bg-orange-700 transition-all shadow-lg shadow-orange-900/20">
+                    <Link v-if="canCreate" :href="route('series.create')" class="px-5 py-2.5 bg-primary text-button-content rounded-xl font-bold text-sm hover:bg-primary hover:text-button-content!  transition-all shadow-lg shadow-primary/20">
                         + {{ isAdmin ? 'REGISTER NEW SERIES' : 'REQUEST NEW SERIES' }}
                     </Link>
                 </div>
@@ -60,14 +60,14 @@ const statusFilters = [
                         <!-- Series Origin Group -->
                         <div class="flex flex-col gap-2">
                             <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-content/60 px-1">Origin</span>
-                            <div class="flex items-center gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                            <div class="flex items-center gap-1 bg-muted-background p-1 rounded-xl">
                                 <button
                                     v-for="f in originFilters"
                                     :key="f.value"
                                     @click="type = f.value"
                                     :class="[
                                         'px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
-                                        type === f.value ? 'bg-orange-600 text-white shadow-sm' : 'text-muted-content hover:text-primary-content'
+                                        type === f.value ? 'bg-primary text-button-content shadow-sm' : 'text-muted-content hover:text-primary-content'
                                     ]"
                                 >
                                     {{ f.label }}
@@ -78,14 +78,14 @@ const statusFilters = [
                         <!-- Status Group -->
                         <div class="flex flex-col gap-2">
                             <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-content/60 px-1">Your Status</span>
-                            <div class="flex items-center gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                            <div class="flex items-center gap-1 bg-muted-background p-1 rounded-xl">
                                 <button
                                     v-for="f in statusFilters"
                                     :key="f.value"
                                     @click="filter = f.value"
                                     :class="[
                                         'px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
-                                        filter === f.value ? 'bg-orange-600 text-white shadow-sm' : 'text-muted-content hover:text-primary-content'
+                                        filter === f.value ? 'bg-primary text-button-content shadow-sm' : 'text-muted-content hover:text-primary-content'
                                     ]"
                                 >
                                     {{ f.label }}
@@ -100,7 +100,7 @@ const statusFilters = [
                         <SortButton label="Name" column="name" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />
                         <SortButton label="Date Added" column="created_at" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />
 
-                        <button v-if="isFiltered" @click="resetFilters" class="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold border border-dashed border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white ml-auto">
+                        <button v-if="isFiltered" @click="resetFilters" class="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold border border-dashed border-error/50 text-error hover:bg-error hover:text-button-content!  ml-auto">
                             <X class="w-3 h-3" /> Reset All
                         </button>
                     </div>
@@ -120,10 +120,10 @@ const statusFilters = [
                 />
             </div>
 
-            <div v-else class="w-full flex flex-col items-center justify-center py-24 bg-white dark:bg-[#161615] rounded-3xl border border-dashed border-border-color">
-                <Search class="w-16 h-16 text-gray-300 mb-6" />
+            <div v-else class="w-full flex flex-col items-center justify-center py-24 bg-component-background rounded-3xl border border-dashed border-border-color">
+                <Search class="w-16 h-16 text-muted-content mb-6" />
                 <h2 class="text-3xl font-black mb-3">No Results Found</h2>
-                <button @click="search = ''" class="px-8 py-4 bg-gray-100 dark:bg-white/5 rounded-2xl font-black transition-all">Reset Search</button>
+                <button @click="search = ''" class="px-8 py-4 bg-muted-background rounded-2xl font-black transition-all">Reset Search</button>
             </div>
 
             <Pagination :links="series.links" />

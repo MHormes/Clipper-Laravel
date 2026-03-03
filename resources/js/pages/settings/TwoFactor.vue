@@ -2,8 +2,8 @@
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import TwoFactorRecoveryCodes from '@/components/TwoFactorRecoveryCodes.vue';
 import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
@@ -56,26 +56,26 @@ onUnmounted(() => {
                         description="Add an extra layer of security to your account"
                         class="text-xl font-black tracking-tight"
                     />
-                    <div class="h-1 w-12 bg-[#f53003] rounded-full mt-2"></div>
+                    <div class="h-1 w-12 bg-[var(--primary)] rounded-full mt-2"></div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#161615]">
+                <div class="rounded-2xl border border-border-color  p-6 shadow-sm  bg-component-background">
                     
                     <div
                         v-if="!twoFactorEnabled"
                         class="flex flex-col items-start space-y-6 max-w-xl"
                     >
                         <div class="flex items-center gap-2">
-                            <Badge variant="outline" class="rounded-lg px-2 py-0.5 border-gray-200 text-gray-500 font-bold uppercase tracking-wider text-[10px]">
+                            <Badge variant="outline" class="rounded-lg px-2 py-0.5 border-border-color text-muted-content font-bold uppercase tracking-wider text-[10px]">
                                 Currently Disabled
                             </Badge>
                         </div>
 
                         <div class="flex gap-4">
-                            <div class="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 dark:bg-white/5">
+                            <div class="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted-background text-muted-content dark:bg-secondary-content/5">
                                 <Lock class="h-6 w-6" />
                             </div>
-                            <p class="text-sm leading-relaxed text-[#706f6c] dark:text-[#A1A09A]">
+                            <p class="text-sm leading-relaxed text-[var(--muted-content)] dark:text-[var(--muted-content)]">
                                 When two-factor authentication is enabled, you'll be prompted for a secure 6-digit PIN from your authenticator app (like Google Authenticator or 1Password) whenever you sign in.
                             </p>
                         </div>
@@ -84,7 +84,7 @@ onUnmounted(() => {
                             <Button
                                 v-if="hasSetupData"
                                 @click="showSetupModal = true"
-                                class="rounded-xl bg-[#f53003] px-6 font-bold text-white hover:bg-[#ff4433] transition-all hover:scale-[1.02] active:scale-95"
+                                class="rounded-xl bg-[var(--primary)] px-6 font-bold text-secondary-content hover:bg-[var(--primary)] transition-all hover:scale-[1.02] active:scale-95"
                             >
                                 <ShieldCheck class="mr-2 h-4 w-4" />
                                 Continue Setup
@@ -99,7 +99,7 @@ onUnmounted(() => {
                                 <Button 
                                     type="submit" 
                                     :disabled="processing"
-                                    class="rounded-xl bg-[#f53003] px-6 font-bold text-white hover:bg-[#ff4433] transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-orange-500/10"
+                                    class="rounded-xl bg-[var(--primary)] px-6 font-bold text-secondary-content hover:bg-[var(--primary)] transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/10"
                                 >
                                     <ShieldCheck class="mr-2 h-4 w-4" />
                                     Enable Security Layer
@@ -113,26 +113,26 @@ onUnmounted(() => {
                         class="flex flex-col items-start space-y-6 max-w-2xl"
                     >
                         <div class="flex items-center gap-2">
-                            <Badge class="rounded-lg px-2 py-0.5 bg-green-500/10 text-green-600 border-none font-bold uppercase tracking-wider text-[10px] dark:bg-green-500/20 dark:text-green-400">
+                            <Badge class="rounded-lg px-2 py-0.5 bg-success/10 text-success border-none font-bold uppercase tracking-wider text-[10px] dark:bg-success/20 dark:text-success">
                                 Active & Secure
                             </Badge>
                         </div>
 
-                        <p class="text-sm leading-relaxed text-[#706f6c] dark:text-[#A1A09A]">
+                        <p class="text-sm leading-relaxed text-[var(--muted-content)] dark:text-[var(--muted-content)]">
                             Your account is protected. You will be prompted for an authentication code when logging in from a new device.
                         </p>
 
-                        <div class="w-full rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-white/5 dark:bg-white/5">
+                        <div class="w-full rounded-xl border border-border-color bg-muted-background/50 p-4 dark:border-secondary-content/5 dark:bg-secondary-content/5">
                              <TwoFactorRecoveryCodes />
                         </div>
 
-                        <div class="pt-4 border-t border-gray-100 w-full dark:border-white/5">
+                        <div class="pt-4 border-t border-border-color w-full dark:border-secondary-content/5">
                             <Form v-bind="disable.form()" #default="{ processing }">
                                 <Button
                                     variant="ghost"
                                     type="submit"
                                     :disabled="processing"
-                                    class="text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                                    class="text-xs font-bold text-error hover:text-error hover:bg-error hover:text-button-content!  dark:hover:bg-error hover:text-button-content! /20"
                                 >
                                     <ShieldBan class="mr-2 h-3 w-3" />
                                     Disable Protection
