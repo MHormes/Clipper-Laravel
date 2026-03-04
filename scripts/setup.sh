@@ -2,7 +2,7 @@
 
 # 1. Bepaal het profiel (standaard 'local')
 PROFILE=${1:-local}
-ENV_SOURCE=".env.$PROFILE"
+ENV_SOURCE="../.env.$PROFILE"
 COMPOSE_SOURCE="docker-compose-$PROFILE.yml"
 
 echo "🌟 Gebruik profiel: $PROFILE"
