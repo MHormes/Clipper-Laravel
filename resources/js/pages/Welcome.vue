@@ -5,6 +5,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import AppLogo from '@/components/AppLogo.vue';
+import CursorCard from '@/components/CursorCard.vue';
 
 defineProps<{
     canRegister: boolean;
@@ -75,29 +76,38 @@ const stats = [
         <section class="bg-primary-background py-24">
             <div class="mx-auto max-w-7xl px-6">
                 <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-                    <div v-for="stat in stats" :key="stat.label" class="group rounded-3xl border border-border-color bg-component-background p-8 text-center transition hover:border-primary/30">
-                        <p class="text-5xl font-black text-primary">{{ stat.value }}</p>
-                        <p class="mt-2 font-bold uppercase tracking-widest text-[10px] text-muted-content opacity-70">{{ stat.label }}</p>
-                    </div>
+                    <CursorCard 
+                        v-for="stat in stats" 
+                        :key="stat.label" 
+                        className="rounded-3xl border border-border-color bg-component-background p-8 text-center hover:border-primary/30"
+                    >
+                        <p class="relative z-10 text-5xl font-black text-primary">{{ stat.value }}</p>
+                        <p class="relative z-10 mt-2 font-bold uppercase tracking-widest text-[10px] text-muted-content opacity-70">{{ stat.label }}</p>
+                    </CursorCard>
                 </div>
             </div>
         </section>
 
         <section class="py-24">
             <div class="mx-auto max-w-4xl px-6 text-center">
-                <div class="rounded-[3rem] bg-[var(--primary-content)] p-12 text-button-content shadow-2xl relative overflow-hidden dark:bg-[#1D0002]">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
-                    
+                <CursorCard
+                    className="rounded-[3rem] bg-[var(--primary-content)] p-12 text-button-content shadow-2xl dark:bg-[#1D0002]"
+                    lightColor="bg-white/10"
+                    lightSize="w-64 h-64"
+                >
                     <h2 class="text-4xl font-black uppercase tracking-tight relative z-10">Ready to finish that set?</h2>
                     <p class="mt-4 text-button-content/80 font-medium relative z-10">Join other collectors and get your collection organized today.</p>
                     <Link v-if="canRegister" :href="register()"
                         class="mt-8 inline-block rounded-full bg-primary px-10 py-4 font-black uppercase tracking-widest text-xs text-button-content transition hover:scale-105 shadow-xl shadow-black/20 relative z-10">
                         Create Free Account
                     </Link>
-                </div>
+                </CursorCard>
             </div>
         </section>
 
         <GlobalFooter />
     </div>
 </template>
+
+
+

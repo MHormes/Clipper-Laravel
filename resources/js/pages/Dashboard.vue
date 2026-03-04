@@ -4,6 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { computed } from 'vue';
+import CursorCard from '@/components/CursorCard.vue';
 import {
     Layers,
     Library,
@@ -95,115 +96,125 @@ const handleStatClick = (label: string) => {
         <div class="flex h-full flex-1 flex-col gap-8 p-8 max-w-7xl mx-auto w-full">
 
             <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                <div v-for="stat in stats" :key="stat.label"
+                <CursorCard v-for="stat in stats" :key="stat.label"
                     @click="handleStatClick(stat.label)"
-                    class="group relative flex flex-col rounded-2xl border border-border-color  p-6 shadow-sm transition-all hover:shadow-md bg-component-background cursor-pointer hover:border-primary/50">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-bold text-muted-content uppercase tracking-wider">{{ stat.label }}</span>
-                        <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
-                            <component :is="getStatConfig(stat.label).icon" :class="['w-5 h-5', getStatConfig(stat.label).color]" />
+                    className="flex flex-col rounded-2xl border border-border-color p-6 shadow-sm transition-all hover:shadow-md bg-component-background cursor-pointer hover:border-primary/50"
+                >
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold text-muted-content uppercase tracking-wider">{{ stat.label }}</span>
+                            <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
+                                <component :is="getStatConfig(stat.label).icon" :class="['w-5 h-5', getStatConfig(stat.label).color]" />
+                            </div>
                         </div>
+                        <span class="text-4xl font-black tracking-tight">{{ stat.value }}</span>
                     </div>
-                    <span class="text-4xl font-black tracking-tight">{{ stat.value }}</span>
-                </div>
+                </CursorCard>
             </div>
 
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-                <Link :href="route('series.index')"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all hover:border-primary/50 hover:shadow-md bg-component-background">
-                    <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-primary/10 text-primary">
-                                <Library class="w-6 h-6" />
-                            </div>
-                            <h3 class="text-2xl font-black">Series Catalog</h3>
-                        </div>
-                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">View all series, check missing designs, and organize your sets.</p>
-                        <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
-                            <span>Open Catalog</span>
-                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                    </div>
-                </Link>
-
-                <Link :href="route('series.create')"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all bg-component-background"
-                    :class="isAdmin ? 'hover:border-success/50' : 'hover:border-primary/50'">
-                    <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div :class="['p-2 rounded-lg', isAdmin ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary']">
-                                <PlusCircle v-if="isAdmin" class="w-6 h-6" />
-                                <Flame v-else class="w-6 h-6" />
-                            </div>
-                            <h3 class="text-2xl font-black">{{ isAdmin ? 'Add to System' : 'Request New Series' }}</h3>
-                        </div>
-                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">
-                            {{ isAdmin ? 'Found a new series? Help the community by adding it to the database.' : 'Suggest a new series to be added to the system.' }}
-                        </p>
-                        <div class="mt-8 flex items-center font-bold group-hover:gap-2 transition-all"
-                             :class="isAdmin ? 'text-success' : 'text-primary'">
-                            <span>{{ isAdmin ? 'Register Series' : 'Submit Request' }}</span>
-                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                    </div>
-                </Link>
-
-                <Link v-if="isAdmin && (pendingRequests?.series || pendingRequests?.clippers)" :href="route('admin.requests.series.index')"
-                    class="group relative overflow-hidden rounded-2xl border-2 border-primary bg-primary/5 p-8 shadow-sm transition-all hover:shadow-md">
-                    <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-lg bg-primary text-button-content">
-                                    <ArrowRight class="w-6 h-6 -rotate-45" />
+                <Link :href="route('series.index')" class="group">
+                    <CursorCard className="rounded-2xl border border-border-color p-8 shadow-sm transition-all hover:border-primary/50 hover:shadow-md bg-component-background">
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-2 rounded-lg bg-primary/10 text-primary">
+                                    <Library class="w-6 h-6" />
                                 </div>
-                                <h3 class="text-2xl font-black">Pending Requests</h3>
+                                <h3 class="text-2xl font-black">Series Catalog</h3>
                             </div>
-                            <span class="bg-primary text-button-content px-3 py-1 rounded-full text-xs font-black">
-                                {{ (pendingRequests?.series || 0) + (pendingRequests?.clippers || 0) }}
-                            </span>
+                            <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">View all series, check missing designs, and organize your sets.</p>
+                            <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
+                                <span>Open Catalog</span>
+                                <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                            </div>
                         </div>
-                        <p class="text-primary dark:text-primary text-sm font-bold uppercase tracking-tight">
-                            {{ pendingRequests?.series }} Series • {{ pendingRequests?.clippers }} Clippers
-                        </p>
-                        <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
-                            <span>Review Now</span>
-                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                    </div>
+                    </CursorCard>
                 </Link>
 
-                <Link :href="route('series.index', { filter: 'collected' })"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all hover:border-info/50 hover:shadow-md bg-component-background">
-                    <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-info/10 text-info">
-                                <Layers class="w-6 h-6" />
+                <Link :href="route('series.create')" class="group">
+                    <CursorCard 
+                        className="rounded-2xl border border-border-color p-8 shadow-sm transition-all bg-component-background"
+                        :class="isAdmin ? 'hover:border-success/50' : 'hover:border-primary/50'"
+                    >
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div :class="['p-2 rounded-lg', isAdmin ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary']">
+                                    <PlusCircle v-if="isAdmin" class="w-6 h-6" />
+                                    <Flame v-else class="w-6 h-6" />
+                                </div>
+                                <h3 class="text-2xl font-black">{{ isAdmin ? 'Add to System' : 'Request New Series' }}</h3>
                             </div>
-                            <h3 class="text-2xl font-black">My Series</h3>
+                            <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">
+                                {{ isAdmin ? 'Found a new series? Help the community by adding it to the database.' : 'Suggest a new series to be added to the system.' }}
+                            </p>
+                            <div class="mt-8 flex items-center font-bold group-hover:gap-2 transition-all"
+                                 :class="isAdmin ? 'text-success' : 'text-primary'">
+                                <span>{{ isAdmin ? 'Register Series' : 'Submit Request' }}</span>
+                                <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                            </div>
                         </div>
-                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
-                        <div class="mt-8 flex items-center font-bold text-info group-hover:gap-2 transition-all">
-                            <span>View Collection</span>
-                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                    </div>
+                    </CursorCard>
                 </Link>
 
-                <Link :href="route('collection.clippers')"
-                    class="group relative overflow-hidden rounded-2xl border border-border-color  p-8 shadow-sm transition-all hover:border-info/50 hover:shadow-md bg-component-background">
-                    <div class="relative z-10">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="p-2 rounded-lg bg-info/10 text-info">
-                                <CheckCircle class="w-6 h-6" />
+                <Link v-if="isAdmin && (pendingRequests?.series || pendingRequests?.clippers)" :href="route('admin.requests.series.index')" class="group">
+                    <CursorCard className="rounded-2xl border-2 border-primary bg-primary/5 p-8 shadow-sm transition-all hover:shadow-md">
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 rounded-lg bg-primary text-button-content">
+                                        <ArrowRight class="w-6 h-6 -rotate-45" />
+                                    </div>
+                                    <h3 class="text-2xl font-black">Pending Requests</h3>
+                                </div>
+                                <span class="bg-primary text-button-content px-3 py-1 rounded-full text-xs font-black">
+                                    {{ (pendingRequests?.series || 0) + (pendingRequests?.clippers || 0) }}
+                                </span>
                             </div>
-                            <h3 class="text-2xl font-black">My Clippers</h3>
+                            <p class="text-primary dark:text-primary text-sm font-bold uppercase tracking-tight">
+                                {{ pendingRequests?.series }} Series • {{ pendingRequests?.clippers }} Clippers
+                            </p>
+                            <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
+                                <span>Review Now</span>
+                                <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                            </div>
                         </div>
-                        <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">A dedicated board view of every single clipper you own.</p>
-                        <div class="mt-8 flex items-center font-bold text-info group-hover:gap-2 transition-all">
-                            <span>Open Board View</span>
-                            <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </CursorCard>
+                </Link>
+
+                <Link :href="route('series.index', { filter: 'collected' })" class="group">
+                    <CursorCard className="rounded-2xl border border-border-color p-8 shadow-sm transition-all hover:border-info/50 hover:shadow-md bg-component-background">
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-2 rounded-lg bg-info/10 text-info">
+                                    <Layers class="w-6 h-6" />
+                                </div>
+                                <h3 class="text-2xl font-black">My Series</h3>
+                            </div>
+                            <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">Track your progress and view your collected series.</p>
+                            <div class="mt-8 flex items-center font-bold text-info group-hover:gap-2 transition-all">
+                                <span>View Collection</span>
+                                <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                            </div>
                         </div>
-                    </div>
+                    </CursorCard>
+                </Link>
+
+                <Link :href="route('collection.clippers')" class="group">
+                    <CursorCard className="rounded-2xl border border-border-color p-8 shadow-sm transition-all hover:border-info/50 hover:shadow-md bg-component-background">
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="p-2 rounded-lg bg-info/10 text-info">
+                                    <CheckCircle class="w-6 h-6" />
+                                </div>
+                                <h3 class="text-2xl font-black">My Clippers</h3>
+                            </div>
+                            <p class="text-muted-content text-sm leading-relaxed max-w-[280px]">A dedicated board view of every single clipper you own.</p>
+                            <div class="mt-8 flex items-center font-bold text-info group-hover:gap-2 transition-all">
+                                <span>Open Board View</span>
+                                <ArrowRight class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </div>
+                    </CursorCard>
                 </Link>
             </div>
 
@@ -251,3 +262,4 @@ const handleStatClick = (label: string) => {
         </div>
     </AppLayout>
 </template>
+
