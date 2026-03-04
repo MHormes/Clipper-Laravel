@@ -218,46 +218,48 @@ const handleStatClick = (label: string) => {
                 </Link>
             </div>
 
-            <div class="flex-1 rounded-2xl border border-border-color  p-6 shadow-sm bg-component-background">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold">Recent Additions</h3>
-                    <Link :href="route('series.index')"
-                        class="text-xs font-bold text-primary uppercase hover:underline">
-                        View All Series
-                    </Link>
-                </div>
-
-                <div class="space-y-4">
-                    <div v-for="item in recentSeries" :key="item.id"
-                        class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-muted-background dark:hover:bg-white/5 transition-colors">
-
-                        <div
-                            class="h-12 w-16 rounded  overflow-hidden border border-border-color">
-                            <img :src="item.image_data" :alt="item.name + 'Clipper Lighter Series'" class="h-full w-full object-contain" />
-                        </div>
-
-                        <div class="flex-1">
-                            <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
-                                class="font-bold text-sm hover:text-primary transition-colors">
-                                {{ item.name }}
-                            </Link>
-                            <p class="text-[10px] text-muted-content uppercase tracking-tight">
-                                {{ item.clippers_count }} Design(s) • Added by {{ item.requester?.name || 'System' }}
-                            </p>
-                        </div>
-
-                        <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
-                            class="text-[10px] font-black text-primary uppercase border border-primary/20 px-3 py-1 rounded hover:bg-primary hover:text-button-content!  transition-all">
-                            View Series
+            <CursorCard className="flex-1 rounded-2xl border border-border-color p-6 shadow-sm bg-component-background">
+                <div class="relative z-10">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold">Recent Additions</h3>
+                        <Link :href="route('series.index')"
+                            class="text-xs font-bold text-primary uppercase hover:underline">
+                            View All Series
                         </Link>
                     </div>
 
-                    <div v-if="recentSeries.length === 0"
-                        class="text-center py-10 text-muted-content text-sm italic">
-                        No series added yet.
+                    <div class="space-y-4">
+                        <div v-for="item in recentSeries" :key="item.id"
+                            class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-muted-background dark:hover:bg-white/5 transition-colors bg-component-background/50 backdrop-blur-sm">
+
+                            <div
+                                class="h-12 w-16 rounded  overflow-hidden border border-border-color bg-component-background">
+                                <img :src="item.image_data" :alt="item.name + 'Clipper Lighter Series'" class="h-full w-full object-contain" />
+                            </div>
+
+                            <div class="flex-1">
+                                <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
+                                    class="font-bold text-sm hover:text-primary transition-colors">
+                                    {{ item.name }}
+                                </Link>
+                                <p class="text-[10px] text-muted-content uppercase tracking-tight">
+                                    {{ item.clippers_count }} Design(s) • Added by {{ item.requester?.name || 'System' }}
+                                </p>
+                            </div>
+
+                            <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
+                                class="text-[10px] font-black text-primary uppercase border border-primary/20 px-3 py-1 rounded hover:bg-primary hover:text-button-content!  transition-all">
+                                View Series
+                            </Link>
+                        </div>
+
+                        <div v-if="recentSeries.length === 0"
+                            class="text-center py-10 text-muted-content text-sm italic">
+                            No series added yet.
+                        </div>
                     </div>
                 </div>
-            </div>
+            </CursorCard>
 
         </div>
     </AppLayout>

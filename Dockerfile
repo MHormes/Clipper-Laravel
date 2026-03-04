@@ -35,6 +35,6 @@ RUN npm run build
 
 # 8. Set permissions AND make start.sh executable
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod +x /var/www/html/start.sh
+    && chmod +x /var/www/html/scripts/start.sh
 
-CMD ["/var/www/html/start.sh"]
+CMD ["/var/www/html/scripts/start.sh"]

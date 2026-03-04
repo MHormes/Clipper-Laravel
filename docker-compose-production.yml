@@ -81,7 +81,7 @@ services:
         condition: service_healthy
       clipper_storage_prod:
         condition: service_started
-    entrypoint: /bin/sh /var/www/html/start.sh
+    entrypoint: /bin/sh /var/www/html/scripts/start.sh
 
   clipper_tunnel_prod:
     image: cloudflare/cloudflared:latest

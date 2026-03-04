@@ -33,7 +33,7 @@ const formatDate = (date: string) => {
                     <ClipboardList class="w-8 h-8" />
                 </div>
                 <div>
-                    <h1 class="text-4xl font-black uppercase tracking-tighter">Series Requests</h1>
+                    <h1 class="text-4xl font-black uppercase tracking-tighter text-primary-content">Series Requests</h1>
                     <p class="text-muted-content font-bold uppercase tracking-widest text-xs mt-1">Review and approve new series submissions</p>
                 </div>
             </div>

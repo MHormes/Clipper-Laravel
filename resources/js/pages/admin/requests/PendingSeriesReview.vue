@@ -65,7 +65,7 @@ const declineSeries = () => {
                     <ChevronLeft class="w-4 h-4" /> Back to Requests
                 </Link>
                 <div class="flex items-center justify-between mt-4">
-                    <h1 class="text-4xl font-black uppercase tracking-tighter">Review Series</h1>
+                    <h1 class="text-4xl font-black uppercase tracking-tighter text-primary-content">Review Series</h1>
                     <div class="flex items-center gap-3">
                         <button @click="declineSeries" class="px-6 py-3 bg-error/10 text-error hover:bg-error hover:text-button-content!  rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-error/20">
                             Decline Request
@@ -77,7 +77,7 @@ const declineSeries = () => {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Left: Series Info -->
                 <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-primary-background rounded-3xl border border-border-color p-6 shadow-sm">
+                    <div class="bg-component-background rounded-3xl border border-border-color p-6 shadow-sm">
                         <h2 class="text-xs font-black uppercase tracking-[0.2em] text-primary mb-6 flex items-center gap-2">
                              Series Overview
                         </h2>
@@ -89,7 +89,7 @@ const declineSeries = () => {
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-[10px] font-black uppercase tracking-widest text-muted-content mb-1">Series Name</label>
-                                <p class="text-lg font-black uppercase tracking-tight">{{ series.name }}</p>
+                                <p class="text-lg font-black uppercase tracking-tight text-primary-content">{{ series.name }}</p>
                             </div>
                             <div class="pt-4 border-t border-border-color">
                                 <label class="block text-[10px] font-black uppercase tracking-widest text-muted-content mb-1">Requested By</label>
@@ -118,7 +118,7 @@ const declineSeries = () => {
 
                 <!-- Right: Clippers Review -->
                 <div class="lg:col-span-2">
-                    <div class="bg-primary-background rounded-3xl border border-border-color shadow-sm overflow-hidden">
+                    <div class="bg-component-background rounded-3xl border border-border-color shadow-sm overflow-hidden">
                         <div class="p-6 border-b border-border-color flex items-center justify-between bg-muted-background/50 dark:bg-primary-background/20">
                             <h2 class="text-xs font-black uppercase tracking-[0.2em] text-primary">
                                 Clippers ({{ selectedClippers.length }} / {{ series.clippers.length }} Selected)
@@ -156,7 +156,7 @@ const declineSeries = () => {
                             </button>
                             <button @click="acceptPartial"
                                     :disabled="selectedClippers.length === 0"
-                                    class="flex-1 py-4 bg-primary-background text-primary border border-primary/30 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-button-content!  transition-all disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary flex items-center justify-center gap-2">
+                                    class="flex-1 py-4 bg-component-background text-primary border border-primary/30 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-button-content!  transition-all disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary flex items-center justify-center gap-2">
                                 Accept Selected
                             </button>
                         </div>
