@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# Move to the root of the project
+cd "$(dirname "$0")/.."
+
 # 1. Bepaal het profiel (standaard 'local')
 PROFILE=${1:-local}
-ENV_SOURCE="../.env.$PROFILE"
-COMPOSE_SOURCE="../docker-compose-$PROFILE.yml"
+ENV_SOURCE=".env.$PROFILE"
+COMPOSE_SOURCE="docker-compose-$PROFILE.yml"
 
 echo "🌟 Gebruik profiel: $PROFILE"
 

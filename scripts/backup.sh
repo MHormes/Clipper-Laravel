@@ -2,7 +2,7 @@
 
 # 1. Configuratie laden
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$BASE_DIR/.env.production"
+ENV_FILE="$BASE_DIR/../.env.production"
 
 if [ -f "$ENV_FILE" ]; then
     echo "📖 Configuratie lezen uit $ENV_FILE..."
