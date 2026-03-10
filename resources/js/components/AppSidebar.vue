@@ -36,6 +36,14 @@ const mainNavItems = computed<NavItem[]>(() => {
         { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
         { title: 'All Series', href: '/series', icon: Library },
         {
+            title: 'Users',
+            icon: Users,
+            children: [
+                { title: 'Find Users', href: '/users', icon: Users },
+                { title: 'Following', href: '/users/following', icon: Users },
+            ],
+        },
+        {
             title: 'Collection',
             icon: ListCheck,
             children: [

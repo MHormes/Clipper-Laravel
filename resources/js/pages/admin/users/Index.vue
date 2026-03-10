@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { ref, computed, reactive } from 'vue';
-import { Users, Mail, Calendar, Trash2, Ban, CheckCircle, Search } from 'lucide-vue-next';
+import { Users, Mail, Calendar, Trash2, Ban, CheckCircle, Search, UserRoundSearch } from 'lucide-vue-next';
 import { AppPageProps } from '@/types';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 
@@ -211,14 +211,24 @@ const formatDate = (dateString: string) => {
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <button
-                                        @click="deleteUser(user)"
-                                        class="p-2 text-muted-content hover:text-error hover:bg-error/10 rounded-xl transition-all"
-                                        title="Delete User"
-                                        :disabled="user.id === page.props.auth.user.id"
-                                        :class="{'opacity-20 cursor-not-allowed': user.id === page.props.auth.user.id}">
-                                        <Trash2 class="w-5 h-5" />
-                                    </button>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <Link
+                                            :href="route('users.show', user.id)"
+                                            class="inline-flex items-center gap-2 px-3 py-2 text-xs font-black uppercase tracking-wider rounded-xl border border-border-color text-primary-content hover:border-primary/50 hover:text-primary transition-all"
+                                        >
+                                            <UserRoundSearch class="w-4 h-4" />
+                                            See Profile
+                                        </Link>
+
+                                        <button
+                                            @click="deleteUser(user)"
+                                            class="p-2 text-muted-content hover:text-error hover:bg-error/10 rounded-xl transition-all"
+                                            title="Delete User"
+                                            :disabled="user.id === page.props.auth.user.id"
+                                            :class="{'opacity-20 cursor-not-allowed': user.id === page.props.auth.user.id}">
+                                            <Trash2 class="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
 
