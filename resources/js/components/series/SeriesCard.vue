@@ -12,14 +12,16 @@ const props = defineProps<{
         clippers_count?: number; // Total possible
         collected_count?: number; // Count for progress
     };
+    href?: string;
 }>();
 
 const totalTarget = computed(() => (props.item.custom ? Math.max(props.item.clippers_count || 0, 1) : 4));
 const progressWidth = computed(() => ((props.item.collected_count || 0) / totalTarget.value) * 100);
+const targetHref = computed(() => props.href || route('series.show', { series: props.item.id, slug: (props.item as any).slug }));
 </script>
 
 <template>
-    <Link :href="route('series.show', { series: item.id, slug: (item as any).slug })"
+    <Link :href="targetHref"
         class="group bg-component-background rounded-2xl overflow-hidden border border-border-color shadow-sm hover:shadow-xl transition-all hover:-translate-y-1">
 
         <div class="aspect-[4/3] relative overflow-hidden bg-component-background border-b border-border-color">

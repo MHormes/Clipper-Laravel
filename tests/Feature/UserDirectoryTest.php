@@ -265,4 +265,60 @@ class UserDirectoryTest extends TestCase
             ->assertDontSee('Not Followed User')
             ->assertInertia(fn(Assert $page) => $page->component('users/Following'));
     }
+
+    public function test_viewing_series_from_other_users_profile_is_read_only(): void
+    {
+        $viewer = User::factory()->create();
+        $target = User::factory()->create(['name' => 'Target User']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $series = Series::factory()->create([
+            'requested_by' => $admin->id,
+            'accepted_by' => $admin->id,
+        ]);
+
+        $clipper = Clipper::factory()->create([
+            'series_id' => $series->id,
+            'requested_by' => $admin->id,
+            'accepted_by' => $admin->id,
+        ]);
+
+        $target->myCollection()->create(['clipper_id' => $clipper->id]);
+
+        $this->actingAs($viewer)
+            ->get(route('users.series.show', ['user' => $target->id, 'series' => $series->id, 'slug' => $series->slug]))
+            ->assertOk()
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('series/Show')
+                ->where('canManageCollection', false)
+                ->where('collectionOwnerName', 'Target User')
+                ->where('userCollection.' . $clipper->id . '.collected_at', now()->format('Y-m-d'))
+            );
+    }
+
+    public function test_viewing_series_from_own_profile_keeps_collection_controls_enabled(): void
+    {
+        $viewer = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $series = Series::factory()->create([
+            'requested_by' => $admin->id,
+            'accepted_by' => $admin->id,
+        ]);
+
+        Clipper::factory()->create([
+            'series_id' => $series->id,
+            'requested_by' => $admin->id,
+            'accepted_by' => $admin->id,
+        ]);
+
+        $this->actingAs($viewer)
+            ->get(route('users.series.show', ['user' => $viewer->id, 'series' => $series->id, 'slug' => $series->slug]))
+            ->assertOk()
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('series/Show')
+                ->where('canManageCollection', true)
+                ->where('collectionOwnerName', $viewer->name)
+            );
+    }
 }

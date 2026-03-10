@@ -34,11 +34,17 @@ const props = defineProps<{
     series: Series;
     // Map of clipper_id -> collection details
     userCollection: Record<number, CollectionDetails>;
+    canManageCollection?: boolean;
+    collectionOwnerName?: string;
+    profileUserId?: string | null;
 }>();
 
 // --- Auth & Admin ---
 const page = usePage<AppPageProps>();
 const isAdmin = computed(() => page.props.auth.is_admin);
+const canManageCollection = computed(() => !!props.canManageCollection);
+const collectionOwnerName = computed(() => props.collectionOwnerName || 'User');
+const isReadOnlyProfileView = computed(() => !canManageCollection.value && !!props.profileUserId);
 
 // --- Stats ---
 const registeredCount = computed(() => props.series.clippers.length);
@@ -62,10 +68,12 @@ const openClipperDetails = (clipper: Clipper) => {
 };
 
 const toggleCollection = (clipperId: number) => {
+    if (!canManageCollection.value) return;
     router.post(route('clippers.toggle', clipperId), {}, { preserveScroll: true });
 };
 
 const toggleAll = () => {
+    if (!canManageCollection.value) return;
     router.post(route('series.toggle-collection', props.series.id), {}, { preserveScroll: true });
 };
 
@@ -103,18 +111,30 @@ const confirmDelete = () => {
                             <span v-if="series.custom" class="px-3 py-1 bg-primary/10 text-button-content text-[10px] font-black rounded-full uppercase border border-primary/20">Custom Set</span>
                         </div>
                         
-                        <div class="flex items-center gap-4 mt-2">
-                            <div class="flex items-center gap-1.5 text-xs text-muted-content font-bold uppercase tracking-wider">
-                                <div class="p-1 rounded-md bg-muted-background">
-                                    <UserIcon class="w-3 h-3" />
+                        <div v-if="isReadOnlyProfileView" class="mt-3">
+                            <p class="text-sm font-bold text-muted-content">
+                                Currently viewing series for <span class="text-primary-content">{{ collectionOwnerName }}</span>
+                            </p>
+                        </div>
+
+                        <div v-else class="flex items-center gap-6 mt-3">
+                            <div class="flex items-start gap-2 text-xs">
+                                <div class="p-1 rounded-md bg-muted-background mt-0.5">
+                                    <UserIcon class="w-3 h-3 text-muted-content" />
                                 </div>
-                                <span>{{ series.requester?.name || 'System' }}</span>
+                                <div class="leading-tight">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Added By</p>
+                                    <p class="font-bold text-primary-content">{{ series.requester?.name || 'System' }}</p>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5 text-xs text-muted-content font-bold uppercase tracking-wider">
-                                <div class="p-1 rounded-md bg-muted-background">
-                                    <Calendar class="w-3 h-3" />
+                            <div class="flex items-start gap-2 text-xs">
+                                <div class="p-1 rounded-md bg-muted-background mt-0.5">
+                                    <Calendar class="w-3 h-3 text-muted-content" />
                                 </div>
-                                <span>{{ new Date(series.created_at).getFullYear() }}</span>
+                                <div class="leading-tight">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Added On</p>
+                                    <p class="font-bold text-primary-content">{{ new Date(series.created_at).getFullYear() }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -132,10 +152,14 @@ const confirmDelete = () => {
                         </div>
                         <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-black text-primary uppercase tracking-widest opacity-70">Your Collection</span>
+                                <span class="text-[10px] font-black text-primary uppercase tracking-widest opacity-70">
+                                    {{ canManageCollection ? 'Your Collection' : 'Collection Progress' }}
+                                </span>
                                 <CheckCircle class="w-4 h-4 text-primary" />
                             </div>
-                            <p class="text-xl font-bold text-primary">{{ collectedCount }} / {{ series.custom ? registeredCount : 4 }} Owned</p>
+                            <p class="text-xl font-bold text-primary">
+                                {{ collectedCount }} / {{ series.custom ? registeredCount : 4 }} {{ canManageCollection ? 'Owned' : 'Collected' }}
+                            </p>
                             <div class="w-full bg-primary/10 h-1.5 rounded-full mt-2 overflow-hidden">
                                 <div class="bg-primary h-full transition-all" :style="{ width: `${(collectedCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }"></div>
                             </div>
@@ -143,7 +167,7 @@ const confirmDelete = () => {
                     </div>
 
                     <!-- Action Buttons - RESTORED TO GRID -->
-                    <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div v-if="canManageCollection" class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <button @click="toggleAll" class="w-full px-6 py-3 rounded-xl font-black uppercase text-sm transition-all flex items-center justify-center gap-2 group/btn"
                             :class="isFullyCollected ? 'bg-error/10 text-error hover:bg-error hover:text-button-content!  border border-error/20 shadow-sm' : 'bg-primary text-button-content hover:bg-primary hover:text-button-content!  shadow-lg shadow-primary/20'">
                             <CheckCheck v-if="isFullyCollected" class="w-4 h-4" />
@@ -178,9 +202,9 @@ const confirmDelete = () => {
                             <div class="flex justify-between items-center mb-4">
                                 <span class="hidden sm:block text-xs font-black text-muted-content uppercase p-2">#{{ n }}</span>
 
-                                <div class="flex gap-1">
+                            <div class="flex gap-1">
                                     <button
-                                        v-if="isOwned(getClipperByNumber(n)!.id)"
+                                        v-if="canManageCollection && isOwned(getClipperByNumber(n)!.id)"
                                         @click="openClipperDetails(getClipperByNumber(n)!)"
                                         class="p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all"
                                         title="Edit notes/location"
@@ -188,11 +212,21 @@ const confirmDelete = () => {
                                         <PencilLine class="w-4 h-4" />
                                     </button>
 
-                                    <button @click="toggleCollection(getClipperByNumber(n)!.id)"
+                                    <button
+                                        v-if="canManageCollection"
+                                        @click="toggleCollection(getClipperByNumber(n)!.id)"
                                         class="p-2 rounded-full transition-all"
                                         :class="isOwned(getClipperByNumber(n)!.id) ? 'text-error bg-error dark:bg-error/10' : 'text-muted-content hover:text-primary bg-muted-background'">
                                         <Heart class="w-5 h-5" :fill="isOwned(getClipperByNumber(n)!.id) ? 'currentColor' : 'none'" />
                                     </button>
+
+                                    <div
+                                        v-else
+                                        class="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+                                        :class="isOwned(getClipperByNumber(n)!.id) ? 'bg-success/10 text-success border border-success/20' : 'bg-muted-background text-muted-content border border-border-color'"
+                                    >
+                                        {{ isOwned(getClipperByNumber(n)!.id) ? 'Owned' : 'Missing' }}
+                                    </div>
                                 </div>
                             </div>
 
@@ -214,6 +248,7 @@ const confirmDelete = () => {
         </div>
 
         <NoteModal
+            v-if="canManageCollection"
             :show="detailsModalOpen"
             :clipper="activeClipper"
             :initial-notes="activeClipper ? userCollection[activeClipper.id]?.notes : ''"

@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/users', [UserDirectoryController::class, 'index'])->name('users.index');
     Route::get('/users/following', [UserDirectoryController::class, 'following'])->name('users.following');
     Route::post('/users/{user}/toggle-follow', [UserDirectoryController::class, 'toggleFollow'])->name('users.toggle-follow');
+    Route::get('/users/{user}/series/{series}/{slug?}', [SeriesController::class, 'showFromProfile'])->name('users.series.show');
     Route::get('/users/{user}', [UserDirectoryController::class, 'show'])->name('users.show');
 
     //Clipper Management

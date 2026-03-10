@@ -214,6 +214,7 @@ const toggleFollow = () => {
                         <SeriesCard
                             v-for="item in series.data"
                             :key="item.id"
+                            :href="route('users.series.show', { user: profile.id, series: item.id, slug: (item as any).slug })"
                             :item="{ ...item, collected_count: item.collected_clippers_count, clippers_count: item.clippers_count }"
                         />
                     </div>

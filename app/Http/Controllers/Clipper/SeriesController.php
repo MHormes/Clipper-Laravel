@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use App\Models\Series;
+use App\Models\User;
 use App\Http\Requests\StoreSeriesRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -64,6 +65,44 @@ class SeriesController extends Controller
         return Inertia::render('series/Show', [
             'series' => $series,
             'userCollection' => $user ? $this->collectionService->getCollectedClippersForSeries($series, $user) : [],
+            'canManageCollection' => (bool) $user,
+            'collectionOwnerName' => $user?->name ?? 'Guest',
+            'profileUserId' => null,
+        ])->withViewData(
+            SeoMetadata::forSeries($series)->toArray()
+        );
+    }
+
+    public function showFromProfile(Request $request, User $user, Series $series, $slug = null)
+    {
+        $viewer = $request->user();
+        $isAdmin = $viewer && $viewer->isAdmin();
+
+        if ($series->accepted_by === null && !$isAdmin) {
+            abort(404);
+        }
+
+        if ($slug !== $series->slug) {
+            return to_route('users.series.show', [
+                'user' => $user->id,
+                'series' => $series->id,
+                'slug' => $series->slug,
+            ], 301);
+        }
+
+        $series->load([
+            'clippers' => fn($query) => $query->accepted(),
+            'requester:id,name',
+        ]);
+
+        $canManageCollection = $viewer && $viewer->id === $user->id;
+
+        return Inertia::render('series/Show', [
+            'series' => $series,
+            'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
+            'canManageCollection' => $canManageCollection,
+            'collectionOwnerName' => $user->name,
+            'profileUserId' => $user->id,
         ])->withViewData(
             SeoMetadata::forSeries($series)->toArray()
         );
