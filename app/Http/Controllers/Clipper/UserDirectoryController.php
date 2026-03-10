@@ -55,9 +55,11 @@ class UserDirectoryController extends Controller
                 'requestedSeries as accepted_series_contributions_count' => fn($query) => $query->accepted(),
                 'requestedClippers as accepted_clipper_contributions_count' => fn($query) => $query->accepted(),
             ])
-            ->when($search !== '', function ($query) use ($search) {
-                $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-            })
+            ->when(
+                $search === '',
+                fn($query) => $query->whereRaw('1 = 0'),
+                fn($query) => $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
+            )
             ->orderBy('name')
             ->paginate(20)
             ->withQueryString();

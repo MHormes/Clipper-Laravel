@@ -52,6 +52,21 @@ class UserDirectoryTest extends TestCase
             );
     }
 
+    public function test_user_directory_shows_no_results_without_search_term(): void
+    {
+        $viewer = User::factory()->create();
+        User::factory()->count(3)->create();
+
+        $this->actingAs($viewer)
+            ->get(route('users.index'))
+            ->assertOk()
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('users/Index')
+                ->where('users.total', 0)
+                ->where('users.data', [])
+            );
+    }
+
     public function test_user_directory_includes_collection_and_contribution_stats(): void
     {
         $viewer = User::factory()->create();

@@ -96,6 +96,12 @@ const confirmDelete = () => {
 
     <AppLayout>
         <div class="max-w-7xl mx-auto p-6 space-y-8">
+            <div v-if="isReadOnlyProfileView">
+                <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight">
+                    Currently Viewing For {{ collectionOwnerName }}
+                </h1>
+            </div>
+
             <!-- Series Header Card -->
             <div class="flex flex-col md:flex-row gap-8 items-start bg-component-background p-8 rounded-3xl border border-border-color shadow-sm relative overflow-hidden">
                 <!-- Background Accent -->
@@ -112,13 +118,7 @@ const confirmDelete = () => {
                             <span v-if="series.custom" class="px-3 py-1 bg-primary/10 text-button-content text-[10px] font-black rounded-full uppercase border border-primary/20">Custom Set</span>
                         </div>
                         
-                        <div v-if="isReadOnlyProfileView" class="mt-3">
-                            <p class="text-sm font-bold text-muted-content">
-                                Currently viewing series for <span class="text-primary-content">{{ collectionOwnerName }}</span>
-                            </p>
-                        </div>
-
-                        <div v-else class="flex items-center gap-6 mt-3">
+                        <div v-if="!isReadOnlyProfileView" class="flex items-center gap-6 mt-3">
                             <div class="flex items-start gap-2 text-xs">
                                 <div class="p-1 rounded-md bg-muted-background mt-0.5">
                                     <UserIcon class="w-3 h-3 text-muted-content" />

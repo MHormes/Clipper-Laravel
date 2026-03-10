@@ -4,7 +4,7 @@ import Pagination from '@/components/Pagination.vue';
 import UserCard from '@/components/users/UserCard.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { Search, Users, X } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { route } from 'ziggy-js';
 
 interface DirectoryUser {
@@ -28,6 +28,7 @@ const props = defineProps<{
 }>();
 
 const search = ref(props.filters?.search ?? '');
+const hasSearch = computed(() => search.value.trim().length > 0);
 
 watch(
     () => props.filters,
@@ -83,7 +84,7 @@ watch(search, () => {
                 </div>
             </div>
 
-            <div class="mb-6 flex items-center gap-2 px-1">
+            <div v-if="hasSearch" class="mb-6 flex items-center gap-2 px-1">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-content">
                     Showing <span class="text-primary-content">{{ users.total }}</span> users
                 </span>
@@ -96,8 +97,12 @@ watch(search, () => {
 
             <div v-else class="flex w-full flex-col items-center justify-center rounded-3xl border border-dashed border-border-color bg-component-background py-24">
                 <Users class="mb-5 size-14 text-muted-content" />
-                <h2 class="text-2xl font-black uppercase tracking-tight text-primary-content">No users found</h2>
-                <p class="mt-2 text-sm text-muted-content">Try a broader username search.</p>
+                <h2 class="text-2xl font-black uppercase tracking-tight text-primary-content">
+                    {{ hasSearch ? 'No users found' : 'Start typing to see results' }}
+                </h2>
+                <p class="mt-2 text-sm text-muted-content">
+                    {{ hasSearch ? 'Try a broader username search.' : 'Search by username to find collectors.' }}
+                </p>
             </div>
 
             <Pagination :links="users.links" />
