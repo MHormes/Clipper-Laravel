@@ -74,6 +74,42 @@ class CollectionService
     }
 
     /**
+     * Get all owned clippers that have valid coordinates for map rendering.
+     */
+    public function getMapPins(User $user): array
+    {
+        return $user->myCollection()
+            ->whereNotNull('location_bought')
+            ->whereHas('clipper', fn($query) => $query->accepted())
+            ->with(['clipper.series'])
+            ->get()
+            ->map(function (CollectedClipper $item) {
+                $coords = $this->parseCoordinates($item->location_bought);
+
+                if (!$coords || !$item->clipper || !$item->clipper->series) {
+                    return null;
+                }
+
+                return [
+                    'id' => $item->clipper->id,
+                    'lat' => $coords['lat'],
+                    'lon' => $coords['lon'],
+                    'image_data' => $item->clipper->image_data,
+                    'series' => [
+                        'id' => $item->clipper->series->id,
+                        'name' => $item->clipper->series->name,
+                        'slug' => $item->clipper->series->slug,
+                    ],
+                    'series_number' => $item->clipper->series_number,
+                    'location_bought' => $item->location_bought,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
      * Get a map of collected clipper details for a specific series.
      * Returns: { [clipper_id]: { notes: string, location_bought: string, ... } }
      */
@@ -164,5 +200,30 @@ class CollectionService
             'notes' => $data['notes'],
             'location_bought' => $data['location_bought'],
         ]);
+    }
+
+    private function parseCoordinates(?string $coordinates): ?array
+    {
+        if (blank($coordinates)) {
+            return null;
+        }
+
+        $parts = array_map('trim', explode(',', $coordinates));
+        if (count($parts) !== 2) {
+            return null;
+        }
+
+        $lat = filter_var($parts[0], FILTER_VALIDATE_FLOAT);
+        $lon = filter_var($parts[1], FILTER_VALIDATE_FLOAT);
+
+        if ($lat === false || $lon === false) {
+            return null;
+        }
+
+        if ($lat < -90 || $lat > 90 || $lon < -180 || $lon > 180) {
+            return null;
+        }
+
+        return ['lat' => (float) $lat, 'lon' => (float) $lon];
     }
 }

@@ -4,6 +4,7 @@ use App\Models\Series;
 use App\Models\User;
 use App\Models\Clipper;
 use App\Models\CollectedClipper;
+use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => 'admin']);
@@ -98,4 +99,35 @@ test('users can update clipper notes in their collection', function () {
         'notes' => 'Some cool notes',
         'location_bought' => 'Amsterdam'
     ]);
+});
+
+test('map view returns only clippers with valid coordinates as markers', function () {
+    $series = Series::factory()->create(['accepted_by' => $this->admin->id]);
+
+    $clipperWithCoords = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => $this->admin->id]);
+    $clipperInvalidCoords = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => $this->admin->id]);
+
+    CollectedClipper::create([
+        'user_id' => $this->user->id,
+        'clipper_id' => $clipperWithCoords->id,
+        'location_bought' => '52.3676, 4.9041',
+    ]);
+
+    CollectedClipper::create([
+        'user_id' => $this->user->id,
+        'clipper_id' => $clipperInvalidCoords->id,
+        'location_bought' => 'invalid-coords',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('mapview.index'))
+        ->assertOk()
+        ->assertInertia(fn(Assert $page) => $page
+            ->component('collection/map/Index')
+            ->where('markers.0.id', $clipperWithCoords->id)
+            ->where('markers.0.lat', 52.3676)
+            ->where('markers.0.lon', 4.9041)
+            ->where('markers.0.series.id', $series->id)
+            ->missing('markers.1')
+        );
 });

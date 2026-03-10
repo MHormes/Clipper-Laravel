@@ -21,7 +21,14 @@ class CollectionController extends Controller
      */
     public function mapview(Request $request)
     {
+        $user = $request->user();
+
         return Inertia::render('collection/map/Index', [
+            'markers' => $user ? $this->collectionService->getMapPins($user) : [],
+            'tileConfig' => [
+                'url' => config('services.maps.tile_url'),
+                'attribution' => config('services.maps.attribution'),
+            ],
         ])->withViewData(
             SeoMetadata::forMapView()->toArray()
         );

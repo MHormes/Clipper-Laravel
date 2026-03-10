@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'maps' => [
+        'tile_url' => env('MAP_TILE_URL', 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+        'attribution' => env('MAP_TILE_ATTRIBUTION', '&copy; OpenStreetMap contributors'),
+    ],
+
 ];
