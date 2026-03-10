@@ -125,31 +125,35 @@ const submit = () => {
                 <div v-if="!isEditing" class="space-y-6">
                     <div>
                         <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">My Notes</span>
-                        <p class="mt-1 text-primary-content font-medium whitespace-pre-wrap">
-                            {{ initialNotes || 'No notes added yet...' }}
-                        </p>
+                        <div class="mt-2 rounded-xl bg-component-background p-3">
+                            <p class="text-primary-content font-medium whitespace-pre-wrap">
+                                {{ initialNotes || 'No notes added yet...' }}
+                            </p>
+                        </div>
                     </div>
                     <div>
                         <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">Location Found</span>
-                        <div class="mt-1 flex flex-col gap-2">
-                            <div class="flex items-start gap-2">
-                                <MapPin class="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                                <div class="flex flex-col">
-                                    <TooltipProvider v-if="readableLocation" :delay-duration="300">
-                                        <Tooltip>
-                                            <TooltipTrigger as-child>
-                                                <p class="text-primary-content font-medium leading-tight line-clamp-2 cursor-help">
-                                                    {{ readableLocation }}
-                                                </p>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="bottom" class="max-w-[280px] bg-primary-background text-primary-content border-border-color shadow-2xl">
-                                                <p class="font-bold">{{ readableLocation }}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <p class="text-primary-content font-medium uppercase tracking-tighter" :class="{ 'text-[10px] text-success mt-1': readableLocation }">
-                                        {{ initialLocation || 'No location set...' }}
-                                    </p>
+                        <div class="mt-2 flex flex-col gap-2">
+                            <div class="rounded-xl bg-component-background p-3">
+                                <div class="flex items-start gap-2">
+                                    <MapPin class="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                                    <div class="flex flex-col">
+                                        <TooltipProvider v-if="readableLocation" :delay-duration="300">
+                                            <Tooltip>
+                                                <TooltipTrigger as-child>
+                                                    <p class="text-primary-content font-medium leading-tight line-clamp-2 cursor-help">
+                                                        {{ readableLocation }}
+                                                    </p>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="bottom" class="max-w-[280px] bg-primary-background text-primary-content border-border-color shadow-2xl">
+                                                    <p class="font-bold">{{ readableLocation }}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                        <p class="text-primary-content font-medium uppercase tracking-tighter" :class="{ 'text-[10px] text-success mt-1': readableLocation }">
+                                            {{ initialLocation || 'No location set...' }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -172,7 +176,7 @@ const submit = () => {
                     <div>
                         <label class="block text-[10px] font-black text-muted-content uppercase tracking-widest mb-1">Notes</label>
                         <textarea v-model="form.notes" rows="3"
-                            class="p-3 w-full bg-transparent border-border-color rounded-xl focus:ring-primary focus:border-primary text-primary-content text-sm placeholder:text-muted-content/50"
+                            class="p-3 w-full bg-component-background border border-border-color rounded-xl focus:ring-primary focus:border-primary text-primary-content text-sm placeholder:text-muted-content/50"
                             placeholder="Who did you get it from? Any funny memories?"></textarea>
                     </div>
 
@@ -183,7 +187,7 @@ const submit = () => {
                                 v-model="searchQuery"
                                 @input="handleSearchInput"
                                 type="text"
-                                class="p-3 pl-10 w-full bg-transparent border-border-color rounded-xl focus:ring-primary focus:border-primary text-primary-content text-sm placeholder:text-muted-content/50"
+                                class="p-3 pl-10 w-full bg-component-background border border-border-color rounded-xl focus:ring-primary focus:border-primary text-primary-content text-sm placeholder:text-muted-content/50"
                                 placeholder="Search city, shop or street..."
                             />
                             <div class="absolute left-3 top-1/2 -translate-y-1/2">
@@ -224,7 +228,7 @@ const submit = () => {
             </div>
 
             <button @click="$emit('close')"
-                class="w-full py-4 bg-muted/5 text-muted-content text-[10px] font-black uppercase tracking-widest border-t border-border-color hover:bg-muted/10 hover:text-primary-content transition-all">
+                class="w-full py-4 bg-component-background text-muted-content text-[10px] font-black uppercase tracking-widest border-t border-border-color hover:bg-muted-background hover:text-primary-content transition-all">
                 Close Modal
             </button>
         </div>
