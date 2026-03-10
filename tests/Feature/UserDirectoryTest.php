@@ -39,6 +39,19 @@ class UserDirectoryTest extends TestCase
             ->assertDontSee($matchingByEmailOnly->name);
     }
 
+    public function test_user_directory_hides_current_authenticated_user(): void
+    {
+        $viewer = User::factory()->create(['name' => 'Viewer User']);
+
+        $this->actingAs($viewer)
+            ->get(route('users.index', ['search' => 'viewer']))
+            ->assertOk()
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('users/Index')
+                ->where('users.total', 0)
+            );
+    }
+
     public function test_user_directory_includes_collection_and_contribution_stats(): void
     {
         $viewer = User::factory()->create();
@@ -156,6 +169,8 @@ class UserDirectoryTest extends TestCase
             ->assertInertia(fn(Assert $page) => $page
                 ->component('users/Show')
                 ->where('profile.name', 'Target User')
+                ->where('profile.following_count', 0)
+                ->where('profile.followers_count', 0)
                 ->where('series.data.0.name', 'Target Collected')
             );
     }
@@ -209,5 +224,45 @@ class UserDirectoryTest extends TestCase
                 ->where('series.data.0.name', 'Completed Official')
                 ->missing('series.data.1')
             );
+    }
+
+    public function test_user_can_follow_and_unfollow_another_user(): void
+    {
+        $viewer = User::factory()->create();
+        $target = User::factory()->create();
+
+        $this->actingAs($viewer)
+            ->post(route('users.toggle-follow', $target->id))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('user_follows', [
+            'follower_id' => $viewer->id,
+            'followed_id' => $target->id,
+        ]);
+
+        $this->actingAs($viewer)
+            ->post(route('users.toggle-follow', $target->id))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('user_follows', [
+            'follower_id' => $viewer->id,
+            'followed_id' => $target->id,
+        ]);
+    }
+
+    public function test_following_page_defaults_to_followed_users_only(): void
+    {
+        $viewer = User::factory()->create();
+        $followed = User::factory()->create(['name' => 'Followed User']);
+        $notFollowed = User::factory()->create(['name' => 'Not Followed User']);
+
+        $viewer->following()->attach($followed->id);
+
+        $this->actingAs($viewer)
+            ->get(route('users.following'))
+            ->assertOk()
+            ->assertSee('Followed User')
+            ->assertDontSee('Not Followed User')
+            ->assertInertia(fn(Assert $page) => $page->component('users/Following'));
     }
 }

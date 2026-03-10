@@ -13,6 +13,10 @@ interface Profile {
     collected_clippers_count: number;
     completed_series_count: number;
     contributions_count: number;
+    following_count: number;
+    followers_count: number;
+    can_follow: boolean;
+    is_following: boolean;
 }
 
 interface SeriesData {
@@ -78,6 +82,14 @@ watch(completedOnly, () => {
 });
 
 const initial = computed(() => props.profile.name.charAt(0).toUpperCase());
+
+const toggleFollow = () => {
+    router.post(
+        route('users.toggle-follow', props.profile.id),
+        {},
+        { preserveScroll: true, preserveState: true }
+    );
+};
 </script>
 
 <template>
@@ -104,6 +116,29 @@ const initial = computed(() => props.profile.name.charAt(0).toUpperCase());
                         <div class="min-w-0">
                             <h1 class="truncate text-xl font-black uppercase tracking-tight text-primary-content">{{ profile.name }}</h1>
                             <p class="text-xs text-muted-content uppercase tracking-widest font-bold">Collector Profile</p>
+                        </div>
+                    </div>
+
+                    <button
+                        v-if="profile.can_follow"
+                        type="button"
+                        @click="toggleFollow"
+                        class="mt-4 w-full px-4 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all border"
+                        :class="profile.is_following
+                            ? 'bg-primary-background text-primary-content border-border-color hover:border-primary/40'
+                            : 'bg-primary text-button-content border-primary hover:bg-primary hover:text-button-content!'"
+                    >
+                        {{ profile.is_following ? 'Unfollow' : 'Follow' }}
+                    </button>
+
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div class="rounded-xl border border-border-color bg-primary-background p-3">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Following</p>
+                            <p class="mt-1 text-xl font-black text-primary-content">{{ profile.following_count }}</p>
+                        </div>
+                        <div class="rounded-xl border border-border-color bg-primary-background p-3">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Followers</p>
+                            <p class="mt-1 text-xl font-black text-primary-content">{{ profile.followers_count }}</p>
                         </div>
                     </div>
 

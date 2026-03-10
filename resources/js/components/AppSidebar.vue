@@ -39,6 +39,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             title: 'Users',
             icon: Users,
             children: [
+                ...(user.value ? [{ title: 'View Public Profile', href: `/users/${user.value.id}`, icon: Users }] : []),
                 { title: 'Find Users', href: '/users', icon: Users },
                 { title: 'Following', href: '/users/following', icon: Users },
             ],

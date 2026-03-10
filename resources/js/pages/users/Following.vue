@@ -1,69 +1,106 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import Pagination from '@/components/Pagination.vue';
+import UserCard from '@/components/users/UserCard.vue';
+import { Head, router } from '@inertiajs/vue3';
+import { Search, Users, X } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 import { route } from 'ziggy-js';
-import { ArrowLeft, UserPlus } from 'lucide-vue-next';
+
+interface DirectoryUser {
+    id: string;
+    name: string;
+    created_at: string;
+    collected_clippers_count: number;
+    completed_series_count: number;
+    contributions_count: number;
+}
+
+const props = defineProps<{
+    users: {
+        data: DirectoryUser[];
+        links: Array<any>;
+        total: number;
+    };
+    filters?: {
+        search?: string;
+    };
+}>();
+
+const search = ref(props.filters?.search ?? '');
+
+watch(
+    () => props.filters,
+    (newFilters) => {
+        search.value = newFilters?.search ?? '';
+    },
+    { deep: true }
+);
+
+let timeout: ReturnType<typeof setTimeout> | null = null;
+watch(search, () => {
+    if (timeout) {
+        clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+        router.get(
+            route('users.following'),
+            { search: search.value },
+            { preserveState: true, preserveScroll: true, replace: true }
+        );
+    }, 300);
+});
 </script>
 
 <template>
     <Head title="Following" />
 
     <AppLayout>
-        <div class="w-full max-w-7xl mx-auto p-6">
-            <div class="mb-8">
-                <Link
-                    :href="route('users.index')"
-                    class="inline-flex items-center gap-2 text-sm font-bold text-muted-content hover:text-primary transition-colors"
-                >
-                    <ArrowLeft class="w-4 h-4" />
-                    BACK TO FIND USERS
-                </Link>
-            </div>
-
-            <div class="min-h-[600px] flex flex-col items-center justify-center bg-component-background rounded-3xl border border-dashed border-border-color shadow-sm p-12 text-center">
-                <div class="relative mb-8">
-                    <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
-                    <div class="relative p-8 rounded-full bg-muted-background text-primary">
-                        <UserPlus class="w-20 h-20" />
+        <div class="mx-auto w-full max-w-7xl p-6">
+            <div class="mb-8 grid grid-cols-1 items-center gap-6 lg:grid-cols-[1fr,auto]">
+                <div class="flex items-center gap-4">
+                    <div class="rounded-2xl bg-primary/10 p-3 text-primary">
+                        <Users class="size-8" />
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black uppercase tracking-tight">Following</h1>
+                        <p class="text-sm text-muted-content">Collectors you follow.</p>
                     </div>
                 </div>
 
-                <h1 class="text-4xl font-black uppercase tracking-tight mb-4 leading-tight text-primary-content">
-                    Following <br/>
-                    <span class="text-primary">In Development</span>
-                </h1>
-
-                <p class="text-muted-content text-lg max-w-md mx-auto mb-10">
-                    We are building follower features so you can track collectors you care about. This section will be available soon.
-                </p>
-
-                <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <Link
-                        :href="route('users.index')"
-                        class="px-8 py-4 bg-primary text-button-content hover:bg-primary hover:text-button-content! rounded-2xl font-black transition-all shadow-lg shadow-primary/20 active:scale-95"
-                    >
-                        RETURN TO FIND USERS
-                    </Link>
-
-                    <Link
-                        :href="route('dashboard')"
-                        class="px-8 py-4 bg-muted-background text-primary-content hover:bg-muted-background dark:hover:bg-secondary-content/10 rounded-2xl font-black transition-all"
-                    >
-                        RETURN TO DASHBOARD
-                    </Link>
+                <div class="relative w-full lg:w-96">
+                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-content" />
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Search followed users..."
+                        class="w-full pl-10 pr-10 py-2.5 bg-primary-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary text-sm shadow-sm"
+                    />
+                    <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-content p-1">
+                        <X class="w-4 h-4" />
+                    </button>
                 </div>
             </div>
+
+            <div class="mb-6 flex items-center gap-2 px-1">
+                <span class="text-[10px] font-black uppercase tracking-widest text-muted-content">
+                    Showing <span class="text-primary-content">{{ users.total }}</span> users
+                </span>
+                <div class="ml-2 h-px flex-1 bg-border-color/30"></div>
+            </div>
+
+            <div v-if="users.data.length > 0" class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <UserCard v-for="user in users.data" :key="user.id" :user="user" />
+            </div>
+
+            <div v-else class="flex w-full flex-col items-center justify-center rounded-3xl border border-dashed border-border-color bg-component-background py-24">
+                <Users class="mb-5 size-14 text-muted-content" />
+                <h2 class="text-2xl font-black uppercase tracking-tight text-primary-content">No followed users found</h2>
+                <p class="mt-2 text-sm text-muted-content">Follow users from the Find Users section.</p>
+            </div>
+
+            <Pagination :links="users.links" />
         </div>
     </AppLayout>
 </template>
-
-<style scoped>
-.bg-primary\/20 {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
-}
-</style>

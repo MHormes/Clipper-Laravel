@@ -6,15 +6,41 @@ use App\Http\Controllers\Controller;
 use App\Models\Clipper;
 use App\Models\CollectedClipper;
 use App\Models\User;
+use App\Models\Series;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
 class UserDirectoryController extends Controller
 {
-    public function following()
+    public function following(Request $request)
     {
-        return Inertia::render('users/Following');
+        $search = (string) $request->string('search')->trim();
+        $viewer = $request->user();
+
+        $users = $viewer->following()
+            ->select(['users.id', 'users.name', 'users.created_at'])
+            ->withCount('myCollection')
+            ->withCount([
+                'requestedSeries as accepted_series_contributions_count' => fn($query) => $query->accepted(),
+                'requestedClippers as accepted_clipper_contributions_count' => fn($query) => $query->accepted(),
+            ])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->whereRaw('LOWER(users.name) LIKE ?', ['%' . strtolower($search) . '%']);
+            })
+            ->orderBy('users.name')
+            ->paginate(20)
+            ->withQueryString();
+
+        $users->setCollection($this->transformDirectoryUsers($users->getCollection()));
+
+        return Inertia::render('users/Following', [
+            'users' => $users,
+            'filters' => [
+                'search' => $search,
+            ],
+        ]);
     }
 
     public function index(Request $request)
@@ -23,6 +49,7 @@ class UserDirectoryController extends Controller
 
         $users = User::query()
             ->select(['id', 'name', 'created_at'])
+            ->where('id', '!=', $request->user()->id)
             ->withCount('myCollection')
             ->withCount([
                 'requestedSeries as accepted_series_contributions_count' => fn($query) => $query->accepted(),
@@ -35,22 +62,7 @@ class UserDirectoryController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $completedByUserId = $this->resolveCompletedSeriesCounts(
-            $users->getCollection()->pluck('id')->all()
-        );
-
-        $users->setCollection(
-            $users->getCollection()->map(function (User $user) use ($completedByUserId) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'created_at' => $user->created_at,
-                    'collected_clippers_count' => $user->my_collection_count,
-                    'completed_series_count' => $completedByUserId[$user->id] ?? 0,
-                    'contributions_count' => (int) $user->accepted_series_contributions_count + (int) $user->accepted_clipper_contributions_count,
-                ];
-            })
-        );
+        $users->setCollection($this->transformDirectoryUsers($users->getCollection()));
 
         return Inertia::render('users/Index', [
             'users' => $users,
@@ -75,6 +87,8 @@ class UserDirectoryController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 ...$this->resolveProfileStats($user),
+                'can_follow' => $request->user()->id !== $user->id,
+                'is_following' => $request->user()->following()->where('followed_id', $user->id)->exists(),
             ],
             'series' => $series,
             'filters' => [
@@ -82,6 +96,27 @@ class UserDirectoryController extends Controller
                 'filter' => $filter,
             ],
         ]);
+    }
+
+    public function toggleFollow(Request $request, User $user): RedirectResponse
+    {
+        $viewer = $request->user();
+
+        if ($viewer->id === $user->id) {
+            return back();
+        }
+
+        $isFollowing = $viewer->following()
+            ->where('followed_id', $user->id)
+            ->exists();
+
+        if ($isFollowing) {
+            $viewer->following()->detach($user->id);
+        } else {
+            $viewer->following()->attach($user->id);
+        }
+
+        return back();
     }
 
     /**
@@ -152,6 +187,24 @@ class UserDirectoryController extends Controller
             ->all();
     }
 
+    private function transformDirectoryUsers($users)
+    {
+        $completedByUserId = $this->resolveCompletedSeriesCounts(
+            $users->pluck('id')->all()
+        );
+
+        return $users->map(function (User $user) use ($completedByUserId) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'created_at' => $user->created_at,
+                'collected_clippers_count' => $user->my_collection_count,
+                'completed_series_count' => $completedByUserId[$user->id] ?? 0,
+                'contributions_count' => (int) $user->accepted_series_contributions_count + (int) $user->accepted_clipper_contributions_count,
+            ];
+        });
+    }
+
     private function resolveProfileStats(User $user): array
     {
         $completed = $this->resolveCompletedSeriesCounts([$user->id]);
@@ -168,12 +221,14 @@ class UserDirectoryController extends Controller
             'collected_clippers_count' => $user->myCollection()->count(),
             'completed_series_count' => $completed[$user->id] ?? 0,
             'contributions_count' => $acceptedSeriesContributions + $acceptedClipperContributions,
+            'following_count' => $user->following()->count(),
+            'followers_count' => $user->followers()->count(),
         ];
     }
 
     private function getCollectedSeriesForUser(User $user, array $filters)
     {
-        $query = \App\Models\Series::accepted()
+        $query = Series::accepted()
             ->whereHas('clippers.collections', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
