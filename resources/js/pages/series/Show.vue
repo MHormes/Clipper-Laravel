@@ -23,6 +23,7 @@ interface CollectionDetails {
 interface Series {
     id: string;
     name: string;
+    slug?: string;
     custom: boolean;
     image_data: string;
     clippers: Clipper[];
@@ -190,6 +191,14 @@ const confirmDelete = () => {
                                 </Link>
                             </template>
                         </div>
+                    </div>
+                    <div v-else class="pt-4">
+                        <Link
+                            :href="route('series.show', { series: series.id, slug: series.slug })"
+                            class="inline-flex w-full items-center justify-center rounded-xl border border-primary/20 bg-primary px-6 py-3 text-sm font-black uppercase tracking-wide text-button-content transition-all hover:bg-primary hover:text-button-content! shadow-lg shadow-primary/20"
+                        >
+                            View Series for Yourself
+                        </Link>
                     </div>
                 </div>
             </div>
