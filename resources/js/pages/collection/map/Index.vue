@@ -25,6 +25,7 @@ interface MarkerItem {
     };
     series_number: number;
     location_bought: string;
+    note: string | null;
 }
 
 const props = defineProps<{
@@ -62,8 +63,13 @@ const buildPopupHtml = (marker: MarkerItem) => {
         slug: marker.series.slug,
     });
 
+    const noteHtml = marker.note
+        ? `<p class="map-popup-note">${escapeHtml(marker.note)}</p>`
+        : '';
+
     return `
         <div class="map-popup-image-only">
+            ${noteHtml}
             <img src="${escapeHtml(marker.image_data)}" alt="${escapeHtml(marker.series.name)} #${marker.series_number}" />
             <a href="${seriesUrl}" class="map-popup-link">Show Series</a>
         </div>
@@ -278,6 +284,14 @@ onBeforeUnmount(() => {
 
 :deep(.map-popup-image-only) {
     width: 70px;
+}
+
+:deep(.map-popup-note) {
+    margin: 0 0 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    color: var(--color-muted-content);
+    word-break: break-word;
 }
 
 :deep(.map-popup-image-only img) {

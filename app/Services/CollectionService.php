@@ -102,6 +102,7 @@ class CollectionService
                     ],
                     'series_number' => $item->clipper->series_number,
                     'location_bought' => $item->location_bought,
+                    'note' => $item->notes,
                 ];
             })
             ->filter()
