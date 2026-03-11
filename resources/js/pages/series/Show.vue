@@ -29,6 +29,7 @@ interface Series {
     clippers: Clipper[];
     requester?: { name: string };
     created_at: string;
+    last_updated_at: string;
 }
 
 const props = defineProps<{
@@ -39,6 +40,10 @@ const props = defineProps<{
     collectionOwnerName?: string;
     profileUserId?: string | null;
 }>();
+
+// --- Dates ---
+const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
 // --- Auth & Admin ---
 const page = usePage<AppPageProps>();
@@ -133,8 +138,17 @@ const confirmDelete = () => {
                                     <Calendar class="w-3 h-3 text-muted-content" />
                                 </div>
                                 <div class="leading-tight">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Added On</p>
-                                    <p class="font-bold text-primary-content">{{ new Date(series.created_at).getFullYear() }}</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Series Created</p>
+                                    <p class="font-bold text-primary-content">{{ formatDate(series.created_at) }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-2 text-xs">
+                                <div class="p-1 rounded-md bg-muted-background mt-0.5">
+                                    <Calendar class="w-3 h-3 text-muted-content" />
+                                </div>
+                                <div class="leading-tight">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Last Updated</p>
+                                    <p class="font-bold text-primary-content">{{ formatDate(series.last_updated_at) }}</p>
                                 </div>
                             </div>
                         </div>

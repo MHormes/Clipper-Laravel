@@ -55,15 +55,22 @@ class SeriesController extends Controller
             return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug], 301);
         }
 
-        if($user){
+        $lastUpdatedAt = $series->updated_at;
+
+        if ($user) {
             $series->load([
                 'clippers' => fn($q) => $q->accepted(),
-                'requester:id,name'
+                'requester:id,name',
             ]);
+
+            $clipperMax = $series->clippers->max('updated_at');
+            if ($clipperMax && $clipperMax->gt($lastUpdatedAt)) {
+                $lastUpdatedAt = $clipperMax;
+            }
         }
-        
+
         return Inertia::render('series/Show', [
-            'series' => $series,
+            'series' => array_merge($series->toArray(), ['last_updated_at' => $lastUpdatedAt]),
             'userCollection' => $user ? $this->collectionService->getCollectedClippersForSeries($series, $user) : [],
             'canManageCollection' => (bool) $user,
             'collectionOwnerName' => $user?->name ?? 'Guest',
@@ -97,8 +104,11 @@ class SeriesController extends Controller
 
         $canManageCollection = $viewer && $viewer->id === $user->id;
 
+        $dates = $series->clippers->pluck('updated_at')->push($series->updated_at)->filter();
+        $lastUpdatedAt = $dates->max();
+
         return Inertia::render('series/Show', [
-            'series' => $series,
+            'series' => array_merge($series->toArray(), ['last_updated_at' => $lastUpdatedAt]),
             'userCollection' => $this->collectionService->getCollectedClippersForSeries($series, $user),
             'canManageCollection' => $canManageCollection,
             'collectionOwnerName' => $user->name,
