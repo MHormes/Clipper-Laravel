@@ -219,13 +219,32 @@ onBeforeUnmount(() => {
                     </p>
                 </div>
 
-                <div v-else ref="mapEl" class="h-[70vh] min-h-[560px] rounded-2xl border border-border-color overflow-hidden"></div>
+                <div v-else ref="mapEl" class="relative z-0 h-[70vh] min-h-[560px] overflow-hidden rounded-2xl border border-border-color"></div>
             </div>
         </div>
     </AppLayout>
 </template>
 
 <style scoped>
+:deep(.leaflet-container) {
+    position: relative;
+    z-index: 0;
+}
+
+:deep(.leaflet-pane) {
+    z-index: 10;
+}
+
+:deep(.leaflet-top),
+:deep(.leaflet-bottom),
+:deep(.leaflet-control) {
+    z-index: 20;
+}
+
+:deep(.leaflet-popup-pane) {
+    z-index: 30;
+}
+
 :deep(.leaflet-control-attribution) {
     background: color-mix(in srgb, var(--color-component-background) 92%, transparent);
     color: var(--color-muted-content);
