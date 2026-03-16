@@ -26,6 +26,16 @@ const isProcessing = ref(false);
 const page = usePage<any>();
 const isClipperRequest = computed(() => props.mode === 'clipper-request');
 const isAdmin = computed(() => page.props.auth.is_admin);
+const showAutoAddCheckbox = computed(() =>
+    props.mode === 'request' ||
+    props.mode === 'clipper-request' ||
+    (isAdmin.value && (props.mode === 'create' || props.mode === 'edit'))
+);
+const autoAddLabel = computed(() =>
+    isAdmin.value && (props.mode === 'create' || props.mode === 'edit')
+        ? 'Add uploaded clippers to my collection automatically'
+        : 'Add accepted clippers to my collection automatically'
+);
 
 const getInitialClippers = () => {
     const isCustom = props.initialData?.custom;
@@ -64,6 +74,7 @@ const form = useForm({
     image: null as File | null,
     clippers: [] as any[],
     deleted_ids: [] as string[],
+    auto_add_to_collection: props.mode === 'request' || props.mode === 'clipper-request',
 });
 
 onMounted(() => {
@@ -312,6 +323,21 @@ const getSlotError = (index: number) => {
                     </p>
                 </div>
             </div>
+
+            <div
+                v-if="showAutoAddCheckbox"
+                class="relative z-10 mt-6 flex items-center gap-4 rounded-2xl border border-border-color/50 bg-muted-background/30 p-5"
+            >
+                <input
+                    id="auto_add_to_collection_clipper_request"
+                    v-model="form.auto_add_to_collection"
+                    type="checkbox"
+                    class="h-6 w-6 rounded-lg accent-primary"
+                />
+                <label for="auto_add_to_collection_clipper_request" class="text-sm font-bold cursor-pointer select-none">
+                    {{ autoAddLabel }}
+                </label>
+            </div>
         </div>
 
         <div class="space-y-6">
@@ -375,10 +401,26 @@ const getSlotError = (index: number) => {
         <div class="flex flex-col md:flex-row items-center justify-between border-t border-border-color pt-10 gap-8">
             <div class="flex items-start gap-4 max-w-lg">
                 <AlertCircle class="w-5 h-5 text-primary mt-1 shrink-0" />
-                <p class="text-xs text-muted-content font-bold leading-relaxed">
-                    By submitting images, you state that you are the owner of the images or have explicit permission to
-                    use them. Unauthorized use of copyrighted material is prohibited.
-                </p>
+                <div>
+                    <div
+                        v-if="showAutoAddCheckbox && !isClipperRequest"
+                        class="mb-4 flex items-center gap-4 rounded-2xl border border-border-color/50 bg-muted-background/30 p-5 text-sm font-bold"
+                    >
+                        <input
+                            id="auto_add_to_collection_request"
+                            v-model="form.auto_add_to_collection"
+                            type="checkbox"
+                            class="h-6 w-6 rounded-lg accent-primary"
+                        />
+                        <label for="auto_add_to_collection_request" class="cursor-pointer select-none">
+                            {{ autoAddLabel }}
+                        </label>
+                    </div>
+                    <p class="text-xs text-muted-content font-bold leading-relaxed">
+                        By submitting images, you state that you are the owner of the images or have explicit permission to
+                        use them. Unauthorized use of copyrighted material is prohibited.
+                    </p>
+                </div>
             </div>
             <button type="submit" :disabled="form.processing"
                 class="w-full md:w-auto px-12 py-5 bg-primary text-button-content rounded-xl font-bold hover:bg-primary hover:text-button-content!  disabled:opacity-50 shadow-xl transition-all active:scale-95">

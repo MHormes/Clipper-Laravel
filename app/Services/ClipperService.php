@@ -13,8 +13,10 @@ class ClipperService
     /**
      * Entry point for updating clippers within a series.
      */
-    public function syncClippers(Series $series, array $data, $userId, bool $isRequest = false): void
+    public function syncClippers(Series $series, array $data, $userId, bool $isRequest = false): array
     {
+        $processedClippers = [];
+
         // 1. Delete requested clippers
         if (!empty($data['deleted_ids'])) {
             $this->deleteClippersById($data['deleted_ids']);
@@ -22,9 +24,15 @@ class ClipperService
 
         // 2. Process the clippers array (Create or Update)
         if (isset($data['clippers']) && is_array($data['clippers'])) {
+            $autoAddToCollection = (bool) ($data['auto_add_to_collection'] ?? false);
+
             foreach ($data['clippers'] as $index => $clipperData) {
                 $slotNumber = $clipperData['series_number'] ?? ($index + 1);
-                $this->syncClipperSlot($series, $clipperData, (int)$slotNumber, $userId, $isRequest);
+                $clipper = $this->syncClipperSlot($series, $clipperData, (int)$slotNumber, $userId, $isRequest, $autoAddToCollection);
+
+                if ($clipper) {
+                    $processedClippers[] = $clipper;
+                }
             }
         }
 
@@ -32,31 +40,33 @@ class ClipperService
         if ($series->custom) {
             $this->reindexSeries($series);
         }
+
+        return $processedClippers;
     }
 
     /**
      * Determines if a slot needs a new Clipper or an Update to an existing one.
      */
-    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId, bool $isRequest = false): void
+    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId, bool $isRequest = false, bool $autoAddToCollection = false): ?Clipper
     {
         // If no new image is provided, we don't need to do anything for this slot
         if (!isset($clipperData['image']) || !($clipperData['image'] instanceof UploadedFile)) {
-            return;
+            return null;
         }
 
         $existingClipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
         if ($existingClipper) {
-            $this->updateClipper($existingClipper, $clipperData['image'], $userId, $isRequest);
-        } else {
-            $this->createClipper($series, $clipperData['image'], $slotNumber, $userId, $isRequest);
+            return $this->updateClipper($existingClipper, $clipperData['image'], $userId, $isRequest, $autoAddToCollection);
         }
+
+        return $this->createClipper($series, $clipperData['image'], $slotNumber, $userId, $isRequest, $autoAddToCollection);
     }
 
     /**
      * Create a single Clipper.
      */
-    public function createClipper(Series $series, UploadedFile $image, int $slotNumber, $userId, bool $isRequest = false): Clipper
+    public function createClipper(Series $series, UploadedFile $image, int $slotNumber, $userId, bool $isRequest = false, bool $autoAddToCollection = false): Clipper
     {
         $path = $this->imageService->uploadImage($image, 'clippers');
 
@@ -64,6 +74,7 @@ class ClipperService
             'series_number' => $slotNumber,
             'image_data'    => $path,
             'requested_by'  => $userId,
+            'auto_add_to_collection' => $isRequest ? $autoAddToCollection : false,
             'accepted_by'   => $isRequest ? null : $userId,
         ]);
     }
@@ -71,17 +82,21 @@ class ClipperService
     /**
      * Update a single Clipper and swap images.
      */
-    public function updateClipper(Clipper $clipper, UploadedFile $image, $userId, bool $isRequest = false): bool
+    public function updateClipper(Clipper $clipper, UploadedFile $image, $userId, bool $isRequest = false, bool $autoAddToCollection = false): Clipper
     {
         // Delete old physical file
         $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
 
         $newPath = $this->imageService->uploadImage($image, 'clippers');
 
-         return $clipper->update([
+         $clipper->update([
             'image_data' => $newPath,
+            'requested_by' => $isRequest ? $userId : $clipper->requested_by,
+            'auto_add_to_collection' => $isRequest ? $autoAddToCollection : $clipper->auto_add_to_collection,
             'accepted_by' => $isRequest ? null : $userId,
         ]);
+
+        return $clipper->refresh();
     }
 
     /**
@@ -114,13 +129,17 @@ class ClipperService
     /**
      * Batch create helper (for the initial Series creation).
      */
-    public function createClippersInBatch(Series $series, array $clippersData, $userId, bool $isRequest = false): void
+    public function createClippersInBatch(Series $series, array $clippersData, $userId, bool $isRequest = false, bool $autoAddToCollection = false): array
     {
+        $processedClippers = [];
+
         foreach ($clippersData as $index => $clipperData) {
             if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                $this->createClipper($series, $clipperData['image'], $index + 1, $userId, $isRequest);
+                $processedClippers[] = $this->createClipper($series, $clipperData['image'], $index + 1, $userId, $isRequest, $autoAddToCollection);
             }
         }
+
+        return $processedClippers;
     }
 
     /**

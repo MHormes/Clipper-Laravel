@@ -47,7 +47,12 @@ test('admins can decline series request', function () {
 
 test('admins can accept individual clipper request', function () {
     $series = Series::factory()->create(['accepted_by' => $this->admin->id]);
-    $pendingClipper = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => null]);
+    $pendingClipper = Clipper::factory()->create([
+        'series_id' => $series->id,
+        'requested_by' => $this->user->id,
+        'auto_add_to_collection' => true,
+        'accepted_by' => null,
+    ]);
 
     $this->actingAs($this->admin);
     
@@ -55,6 +60,10 @@ test('admins can accept individual clipper request', function () {
 
     $response->assertRedirect();
     $this->assertNotNull($pendingClipper->fresh()->accepted_by);
+    $this->assertDatabaseHas('collected_clippers', [
+        'user_id' => $this->user->id,
+        'clipper_id' => $pendingClipper->id,
+    ]);
 });
 
 test('admins can decline individual clipper request', function () {

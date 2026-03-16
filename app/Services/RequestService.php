@@ -21,10 +21,14 @@ class RequestService
     public function acceptSeriesFull(Series $series, User $adminUser): void
     {
         DB::transaction(function () use ($series, $adminUser) {
+            $pendingClippers = $series->clippers()->pending()->get();
+
             $series->update(['accepted_by' => $adminUser->id]);
-            
-            // Accept all pending clippers for this series
-            $series->clippers()->pending()->update(['accepted_by' => $adminUser->id]);
+
+            foreach ($pendingClippers as $clipper) {
+                $clipper->update(['accepted_by' => $adminUser->id]);
+                $this->autoAddRequestedClipperToCollection($clipper);
+            }
         });
     }
 
@@ -36,10 +40,14 @@ class RequestService
         DB::transaction(function () use ($series, $adminUser, $acceptedClipperIds) {
             $series->update(['accepted_by' => $adminUser->id]);
 
-            // Accept selected clippers
-            Clipper::whereIn('id', $acceptedClipperIds)
+            $acceptedClippers = Clipper::whereIn('id', $acceptedClipperIds)
                 ->where('series_id', $series->id)
-                ->update(['accepted_by' => $adminUser->id]);
+                ->get();
+
+            foreach ($acceptedClippers as $clipper) {
+                $clipper->update(['accepted_by' => $adminUser->id]);
+                $this->autoAddRequestedClipperToCollection($clipper);
+            }
 
             // Decline/Delete remaining pending clippers for this series
             $toDelete = $series->clippers()->pending()->get();
@@ -62,7 +70,10 @@ class RequestService
      */
     public function acceptClipper(Clipper $clipper, User $adminUser): void
     {
-        $clipper->update(['accepted_by' => $adminUser->id]);
+        DB::transaction(function () use ($clipper, $adminUser) {
+            $clipper->update(['accepted_by' => $adminUser->id]);
+            $this->autoAddRequestedClipperToCollection($clipper);
+        });
     }
 
     /**
@@ -71,5 +82,22 @@ class RequestService
     public function declineClipper(Clipper $clipper): void
     {
         $this->clipperService->deleteClipper($clipper);
+    }
+
+    protected function autoAddRequestedClipperToCollection(Clipper $clipper): void
+    {
+        if (!$clipper->auto_add_to_collection) {
+            return;
+        }
+
+        $requester = User::find($clipper->requested_by);
+
+        if (!$requester) {
+            return;
+        }
+
+        $requester->myCollection()->firstOrCreate([
+            'clipper_id' => $clipper->id,
+        ]);
     }
 }

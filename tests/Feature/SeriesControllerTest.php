@@ -105,6 +105,60 @@ test('admins can create series directly', function () {
     $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
 });
 
+test('admins can create series directly and add uploaded clippers to their collection', function () {
+    Storage::fake('public');
+
+    $this->actingAs($this->admin);
+
+    $response = $this->post(route('series.store'), [
+        'name' => 'Admin Collected Series',
+        'custom' => false,
+        'auto_add_to_collection' => true,
+        'image' => UploadedFile::fake()->image('series.jpg'),
+        'clippers' => [
+            ['image' => UploadedFile::fake()->image('clipper1.jpg'), 'series_number' => 1]
+        ]
+    ]);
+
+    $series = Series::where('name', 'Admin Collected Series')->firstOrFail();
+    $clipper = $series->clippers()->firstOrFail();
+
+    $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
+    $this->assertDatabaseHas('collected_clippers', [
+        'user_id' => $this->admin->id,
+        'clipper_id' => $clipper->id,
+    ]);
+});
+
+test('admins can add uploaded clippers to their collection while editing a series', function () {
+    Storage::fake('public');
+
+    $series = Series::factory()->create([
+        'accepted_by' => $this->admin->id,
+        'requested_by' => $this->admin->id,
+        'custom' => true,
+    ]);
+
+    $this->actingAs($this->admin);
+
+    $response = $this->put(route('series.update', $series), [
+        'name' => $series->name,
+        'custom' => true,
+        'auto_add_to_collection' => true,
+        'clippers' => [
+            ['image' => UploadedFile::fake()->image('clipper1.jpg'), 'series_number' => 1]
+        ]
+    ]);
+
+    $clipper = $series->fresh()->clippers()->firstOrFail();
+
+    $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
+    $this->assertDatabaseHas('collected_clippers', [
+        'user_id' => $this->admin->id,
+        'clipper_id' => $clipper->id,
+    ]);
+});
+
 test('non-admins cannot delete series', function () {
     $series = Series::factory()->create();
 

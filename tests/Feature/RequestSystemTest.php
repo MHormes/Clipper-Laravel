@@ -31,6 +31,7 @@ class RequestSystemTest extends TestCase
             ->post(route('series.store'), [
                 'name' => 'New Request Series',
                 'custom' => false,
+                'auto_add_to_collection' => true,
                 'image' => UploadedFile::fake()->image('series.jpg'),
                 'clippers' => [
                     ['image' => UploadedFile::fake()->image('clipper1.jpg')],
@@ -46,12 +47,18 @@ class RequestSystemTest extends TestCase
         $this->assertEquals($this->user->id, $series->requested_by);
         $this->assertCount(2, $series->clippers);
         $this->assertNull($series->clippers->first()->accepted_by);
+        $this->assertTrue($series->clippers->first()->auto_add_to_collection);
     }
 
     public function test_admin_can_accept_series_fully()
     {
         $series = Series::factory()->create(['requested_by' => $this->user->id, 'accepted_by' => null]);
-        $clippers = Clipper::factory()->count(2)->create(['series_id' => $series->id, 'accepted_by' => null]);
+        $clippers = Clipper::factory()->count(2)->create([
+            'series_id' => $series->id,
+            'requested_by' => $this->user->id,
+            'auto_add_to_collection' => true,
+            'accepted_by' => null,
+        ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('admin.requests.series.accept', $series->id), [
@@ -62,13 +69,31 @@ class RequestSystemTest extends TestCase
         $this->assertNotNull($series->refresh()->accepted_by);
         $this->assertEquals($this->admin->id, $series->accepted_by);
         $this->assertNotNull($clippers->first()->refresh()->accepted_by);
+        $this->assertDatabaseHas('collected_clippers', [
+            'user_id' => $this->user->id,
+            'clipper_id' => $clippers->first()->id,
+        ]);
+        $this->assertDatabaseHas('collected_clippers', [
+            'user_id' => $this->user->id,
+            'clipper_id' => $clippers->last()->id,
+        ]);
     }
 
     public function test_admin_can_accept_series_partially()
     {
         $series = Series::factory()->create(['requested_by' => $this->user->id, 'accepted_by' => null]);
-        $clipper1 = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => null]);
-        $clipper2 = Clipper::factory()->create(['series_id' => $series->id, 'accepted_by' => null]);
+        $clipper1 = Clipper::factory()->create([
+            'series_id' => $series->id,
+            'requested_by' => $this->user->id,
+            'auto_add_to_collection' => true,
+            'accepted_by' => null,
+        ]);
+        $clipper2 = Clipper::factory()->create([
+            'series_id' => $series->id,
+            'requested_by' => $this->user->id,
+            'auto_add_to_collection' => true,
+            'accepted_by' => null,
+        ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('admin.requests.series.accept', $series->id), [
@@ -81,9 +106,17 @@ class RequestSystemTest extends TestCase
         
         // Clipper 1 should be accepted
         $this->assertNotNull($clipper1->refresh()->accepted_by);
+        $this->assertDatabaseHas('collected_clippers', [
+            'user_id' => $this->user->id,
+            'clipper_id' => $clipper1->id,
+        ]);
         
         // Clipper 2 should be deleted
         $this->assertDatabaseMissing('clippers', ['id' => $clipper2->id]);
+        $this->assertDatabaseMissing('collected_clippers', [
+            'user_id' => $this->user->id,
+            'clipper_id' => $clipper2->id,
+        ]);
     }
 
     public function test_admin_can_decline_series_request()
@@ -105,6 +138,7 @@ class RequestSystemTest extends TestCase
 
         $response = $this->actingAs($this->user)
             ->post(route('series.store-clipper-request', $series->id), [
+                'auto_add_to_collection' => true,
                 'clippers' => [
                     ['image' => UploadedFile::fake()->image('req_clipper.jpg')]
                 ]
@@ -114,6 +148,7 @@ class RequestSystemTest extends TestCase
         $this->assertDatabaseHas('clippers', [
             'series_id' => $series->id,
             'requested_by' => $this->user->id,
+            'auto_add_to_collection' => true,
             'accepted_by' => null
         ]);
     }

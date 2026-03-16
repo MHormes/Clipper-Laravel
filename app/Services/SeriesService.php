@@ -7,13 +7,15 @@ use App\Models\Clipper;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use App\Models\CollectedClipper;
 
 class SeriesService
 {
 
-    public function __construct(protected ImageService $imageService, protected ClipperService $clipperService) {}
+    public function __construct(
+        protected ImageService $imageService,
+        protected ClipperService $clipperService,
+        protected CollectionService $collectionService
+    ) {}
 
     /**
      * Create a brand new series and its clippers.
@@ -34,7 +36,17 @@ class SeriesService
                 'accepted_by' => $isRequest ? null : $user->id,
             ]);
 
-            $this->clipperService->createClippersInBatch($series, $data['clippers'], $user->id, $isRequest);
+            $createdClippers = $this->clipperService->createClippersInBatch(
+                $series,
+                $data['clippers'],
+                $user->id,
+                $isRequest,
+                (bool) ($data['auto_add_to_collection'] ?? false)
+            );
+
+            if (!$isRequest && !empty($data['auto_add_to_collection'])) {
+                $this->addClippersToUserCollection($user, $createdClippers);
+            }
 
             return $series;
         });
@@ -61,7 +73,11 @@ class SeriesService
             $series->save();
 
             // Delegate all clipper logic to the ClipperService
-            $this->clipperService->syncClippers($series, $data, $user->id);
+            $processedClippers = $this->clipperService->syncClippers($series, $data, $user->id);
+
+            if (!empty($data['auto_add_to_collection'])) {
+                $this->addClippersToUserCollection($user, $processedClippers);
+            }
 
             return $series;
         });
@@ -184,5 +200,14 @@ class SeriesService
                 ? ($series->clippers_count > 0 && $series->collected_count >= $series->clippers_count)
                 : ($series->collected_count >= 4);
         })->count();
+    }
+
+    protected function addClippersToUserCollection(User $user, array $clippers): void
+    {
+        foreach ($clippers as $clipper) {
+            $user->myCollection()->firstOrCreate([
+                'clipper_id' => $clipper->id,
+            ]);
+        }
     }
 }
