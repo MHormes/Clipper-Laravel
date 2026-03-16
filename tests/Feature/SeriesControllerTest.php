@@ -113,20 +113,32 @@ test('admins can create series directly and add uploaded clippers to their colle
     $response = $this->post(route('series.store'), [
         'name' => 'Admin Collected Series',
         'custom' => false,
-        'auto_add_to_collection' => true,
         'image' => UploadedFile::fake()->image('series.jpg'),
         'clippers' => [
-            ['image' => UploadedFile::fake()->image('clipper1.jpg'), 'series_number' => 1]
+            [
+                'image' => UploadedFile::fake()->image('clipper1.jpg'),
+                'series_number' => 1,
+                'auto_add_to_collection' => true,
+            ],
+            [
+                'image' => UploadedFile::fake()->image('clipper2.jpg'),
+                'series_number' => 2,
+                'auto_add_to_collection' => false,
+            ],
         ]
     ]);
 
     $series = Series::where('name', 'Admin Collected Series')->firstOrFail();
-    $clipper = $series->clippers()->firstOrFail();
+    $clippers = $series->clippers()->orderBy('series_number')->get();
 
     $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
     $this->assertDatabaseHas('collected_clippers', [
         'user_id' => $this->admin->id,
-        'clipper_id' => $clipper->id,
+        'clipper_id' => $clippers[0]->id,
+    ]);
+    $this->assertDatabaseMissing('collected_clippers', [
+        'user_id' => $this->admin->id,
+        'clipper_id' => $clippers[1]->id,
     ]);
 });
 
@@ -144,18 +156,30 @@ test('admins can add uploaded clippers to their collection while editing a serie
     $response = $this->put(route('series.update', $series), [
         'name' => $series->name,
         'custom' => true,
-        'auto_add_to_collection' => true,
         'clippers' => [
-            ['image' => UploadedFile::fake()->image('clipper1.jpg'), 'series_number' => 1]
+            [
+                'image' => UploadedFile::fake()->image('clipper1.jpg'),
+                'series_number' => 1,
+                'auto_add_to_collection' => true,
+            ],
+            [
+                'image' => UploadedFile::fake()->image('clipper2.jpg'),
+                'series_number' => 2,
+                'auto_add_to_collection' => false,
+            ],
         ]
     ]);
 
-    $clipper = $series->fresh()->clippers()->firstOrFail();
+    $clippers = $series->fresh()->clippers()->orderBy('series_number')->get();
 
     $response->assertRedirect(route('series.show', ['series' => $series->id, 'slug' => $series->slug]));
     $this->assertDatabaseHas('collected_clippers', [
         'user_id' => $this->admin->id,
-        'clipper_id' => $clipper->id,
+        'clipper_id' => $clippers[0]->id,
+    ]);
+    $this->assertDatabaseMissing('collected_clippers', [
+        'user_id' => $this->admin->id,
+        'clipper_id' => $clippers[1]->id,
     ]);
 });
 

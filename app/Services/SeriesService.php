@@ -40,12 +40,11 @@ class SeriesService
                 $series,
                 $data['clippers'],
                 $user->id,
-                $isRequest,
-                (bool) ($data['auto_add_to_collection'] ?? false)
+                $isRequest
             );
 
-            if (!$isRequest && !empty($data['auto_add_to_collection'])) {
-                $this->addClippersToUserCollection($user, $createdClippers);
+            if (!$isRequest) {
+                $this->addSelectedClippersToUserCollection($user, $createdClippers, $data['clippers']);
             }
 
             return $series;
@@ -75,9 +74,7 @@ class SeriesService
             // Delegate all clipper logic to the ClipperService
             $processedClippers = $this->clipperService->syncClippers($series, $data, $user->id);
 
-            if (!empty($data['auto_add_to_collection'])) {
-                $this->addClippersToUserCollection($user, $processedClippers);
-            }
+            $this->addSelectedClippersToUserCollection($user, $processedClippers, $data['clippers'] ?? []);
 
             return $series;
         });
@@ -209,5 +206,25 @@ class SeriesService
                 'clipper_id' => $clipper->id,
             ]);
         }
+    }
+
+    protected function addSelectedClippersToUserCollection(User $user, array $processedClippers, array $clipperInputs): void
+    {
+        $selectedSlots = collect($clipperInputs)
+            ->filter(fn ($clipper) => !empty($clipper['auto_add_to_collection']))
+            ->map(fn ($clipper, $index) => (int) ($clipper['series_number'] ?? ($index + 1)))
+            ->values()
+            ->all();
+
+        if (empty($selectedSlots)) {
+            return;
+        }
+
+        $clippersToAdd = array_filter(
+            $processedClippers,
+            fn (Clipper $clipper) => in_array($clipper->series_number, $selectedSlots, true)
+        );
+
+        $this->addClippersToUserCollection($user, $clippersToAdd);
     }
 }

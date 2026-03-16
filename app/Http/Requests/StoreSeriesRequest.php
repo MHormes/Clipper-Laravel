@@ -36,7 +36,6 @@ class StoreSeriesRequest extends FormRequest
                 ($isUpdate || $isClipperRequest) ? Rule::unique('series')->ignore($seriesId) : 'unique:series,name'
             ],
             'custom' => 'boolean',
-            'auto_add_to_collection' => 'boolean',
             'image' => ($isUpdate || $isClipperRequest) ? 'nullable|image|max:10240' : 'required|image|max:10240',
             'clippers' => [
                 'array',
@@ -47,6 +46,7 @@ class StoreSeriesRequest extends FormRequest
             'clippers.*.image' => 'nullable|image|max:10240',
             'clippers.*.id' => 'nullable|string',
             'clippers.*.series_number' => 'nullable|integer|min:1',
+            'clippers.*.auto_add_to_collection' => 'boolean',
             'deleted_ids' => 'nullable|array',
             'deleted_ids.*' => 'string|exists:clippers,id'
         ];

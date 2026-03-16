@@ -11,6 +11,26 @@ interface BeforeInstallPromptEvent extends Event {
 export function useInstallPrompt() {
     const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
     const isInstalled = ref(false);
+    const isMobileDevice = ref(false);
+
+    const updateMobileDeviceState = () => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const navigatorWithUserAgentData = window.navigator as Navigator & {
+            userAgentData?: {
+                mobile?: boolean;
+            };
+        };
+
+        if (typeof navigatorWithUserAgentData.userAgentData?.mobile === 'boolean') {
+            isMobileDevice.value = navigatorWithUserAgentData.userAgentData.mobile;
+            return;
+        }
+
+        isMobileDevice.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(window.navigator.userAgent);
+    };
 
     const updateInstalledState = () => {
         if (typeof window === 'undefined') {
@@ -52,6 +72,7 @@ export function useInstallPrompt() {
     };
 
     onMounted(() => {
+        updateMobileDeviceState();
         updateInstalledState();
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -64,7 +85,7 @@ export function useInstallPrompt() {
     });
 
     return {
-        canInstall: computed(() => !isInstalled.value && deferredPrompt.value !== null),
+        canInstall: computed(() => isMobileDevice.value && !isInstalled.value && deferredPrompt.value !== null),
         isInstalled: computed(() => isInstalled.value),
         promptInstall,
     };

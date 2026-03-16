@@ -3,6 +3,16 @@ import { useInstallPrompt } from '@/composables/useInstallPrompt';
 import { Button } from '@/components/ui';
 import { Download } from 'lucide-vue-next';
 
+interface Props {
+    fullWidth?: boolean;
+    label?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+    fullWidth: false,
+    label: 'Download mobile app',
+});
+
 const { canInstall, promptInstall } = useInstallPrompt();
 </script>
 
@@ -10,12 +20,12 @@ const { canInstall, promptInstall } = useInstallPrompt();
     <Button
         v-if="canInstall"
         type="button"
-        variant="outline"
-        size="sm"
-        class="border-border-color bg-component-background text-primary-content hover:bg-muted-background"
+        variant="ghost"
+        class="text-primary-content hover:bg-muted-background"
+        :class="fullWidth ? 'flex w-full justify-start rounded-md px-3 py-2 text-sm font-normal' : 'flex w-full justify-center rounded-md px-0 py-2'"
         @click="promptInstall"
     >
         <Download class="size-4" />
-        <span class="hidden sm:inline">Install app</span>
+        <span :class="fullWidth ? 'truncate' : 'hidden sm:inline'">{{ label }}</span>
     </Button>
 </template>

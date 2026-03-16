@@ -15,6 +15,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { LayoutGrid, Map, Users, ClipboardCheck, ClipboardList, ListCheck, CheckCircle, Library, ChevronsUpDown, Settings, LogOut } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import AppLogoIcon from './AppLogoIcon.vue';
+import InstallAppButton from './InstallAppButton.vue';
 import UserInfo from '@/components/UserInfo.vue';
 import { useActiveUrl } from '@/composables/useActiveUrl';
 import { logout } from '@/routes';
@@ -122,6 +123,15 @@ const mainNavItems = computed<NavItem[]>(() => {
                     </Link>
                 </div>
             </div>
+        </div>
+
+        <div
+            class="px-2 pb-2"
+            :class="state === 'collapsed' ? 'px-1' : 'px-2'"
+        >
+            <InstallAppButton
+                :full-width="state !== 'collapsed' || isMobile"
+            />
         </div>
 
         <!-- Footer / User Menu -->

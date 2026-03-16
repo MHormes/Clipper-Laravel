@@ -11,7 +11,7 @@ const props = defineProps<{
         name: string;
         custom: boolean;
         image_data: string;
-        clippers: Array<{ id: string; series_number: number; image_data: string }>;
+        clippers: Array<{ id: string; series_number: number; image_data: string; auto_add_to_collection?: boolean }>;
     };
     submitLabel: string;
     mode?: 'create' | 'edit' | 'request' | 'clipper-request';
@@ -26,16 +26,22 @@ const isProcessing = ref(false);
 const page = usePage<any>();
 const isClipperRequest = computed(() => props.mode === 'clipper-request');
 const isAdmin = computed(() => page.props.auth.is_admin);
-const showAutoAddCheckbox = computed(() =>
+const shouldShowClipperSaveState = computed(() =>
     props.mode === 'request' ||
     props.mode === 'clipper-request' ||
     (isAdmin.value && (props.mode === 'create' || props.mode === 'edit'))
 );
 const autoAddLabel = computed(() =>
     isAdmin.value && (props.mode === 'create' || props.mode === 'edit')
-        ? 'Add uploaded clippers to my collection automatically'
-        : 'Add accepted clippers to my collection automatically'
+        ? 'Save this clipper to my collection'
+        : 'Save this clipper to my collection if it gets accepted'
 );
+const autoAddInfoText = computed(() =>
+    isAdmin.value && (props.mode === 'create' || props.mode === 'edit')
+        ? 'Every uploaded clipper will be submitted to the system. Only the clippers you check will also be added to your personal collection when you submit.'
+        : 'Every uploaded clipper will be submitted for admin review and can still be added to the system. Only the clippers you check will also be added to your personal collection if they are accepted.'
+);
+const defaultAutoAddToCollection = computed(() => props.mode === 'request' || props.mode === 'clipper-request');
 
 const getInitialClippers = () => {
     const isCustom = props.initialData?.custom;
@@ -46,7 +52,11 @@ const getInitialClippers = () => {
         return Array.from({ length: 4 }, (_, i) => {
             const slotNum = i + 1;
             const existing = existingClippers.find(c => c.series_number === slotNum);
-            return { id: existing?.id || null, image: null as File | null };
+            return {
+                id: existing?.id || null,
+                image: null as File | null,
+                auto_add_to_collection: Boolean(existing?.auto_add_to_collection ?? false),
+            };
         });
     }
 
@@ -63,7 +73,8 @@ const getInitialClippers = () => {
         return {
             id: existing?.id || null,
             image: null as File | null,
-            series_number: slotNum
+            series_number: slotNum,
+            auto_add_to_collection: Boolean(existing?.auto_add_to_collection ?? false),
         };
     });
 };
@@ -74,7 +85,6 @@ const form = useForm({
     image: null as File | null,
     clippers: [] as any[],
     deleted_ids: [] as string[],
-    auto_add_to_collection: props.mode === 'request' || props.mode === 'clipper-request',
 });
 
 onMounted(() => {
@@ -90,11 +100,18 @@ onMounted(() => {
 watch(() => form.custom, (isCustom) => {
     if (isCustom) {
         const filled = form.clippers.filter((c, i) => c.id || c.image || clipperPreviews.value[i]);
-        form.clippers = filled.length > 0 ? filled : [{ id: null, image: null, series_number: 1 }];
+        form.clippers = filled.length > 0
+            ? filled
+            : [{ id: null, image: null, series_number: 1, auto_add_to_collection: defaultAutoAddToCollection.value }];
         clipperPreviews.value = clipperPreviews.value.slice(0, form.clippers.length);
     } else {
         while (form.clippers.length < 4) {
-            form.clippers.push({ id: null, image: null, series_number: form.clippers.length + 1 });
+            form.clippers.push({
+                id: null,
+                image: null,
+                series_number: form.clippers.length + 1,
+                auto_add_to_collection: defaultAutoAddToCollection.value,
+            });
             clipperPreviews.value.push(null);
         }
         form.clippers = form.clippers.slice(0, 4);
@@ -166,7 +183,12 @@ const handleRemoveAction = (index: number) => {
 };
 
 const addSlot = () => {
-    form.clippers.push({ id: null, image: null, series_number: form.clippers.length + 1 });
+    form.clippers.push({
+        id: null,
+        image: null,
+        series_number: form.clippers.length + 1,
+        auto_add_to_collection: defaultAutoAddToCollection.value,
+    });
     clipperPreviews.value.push(null);
 };
 
@@ -207,6 +229,7 @@ const onCropDone = (blob: Blob) => {
         const clipper = form.clippers[index];
 
         clipper.image = file;
+        clipper.auto_add_to_collection = clipper.auto_add_to_collection ?? defaultAutoAddToCollection.value;
 
         // If we are re-uploading to a slot that was previously marked for deletion,
         // remove it from deleted_ids so the backend performs an UPDATE instead.
@@ -225,7 +248,28 @@ const getSlotError = (index: number) => {
     const errorKeyPrefix = `clippers.${index}`;
     return (form.errors as any)[`${errorKeyPrefix}.image`] ||
         (form.errors as any)[`${errorKeyPrefix}.series_number`] ||
+        (form.errors as any)[`${errorKeyPrefix}.auto_add_to_collection`] ||
         (form.errors as any)[errorKeyPrefix];
+};
+
+const shouldShowSlotSaveState = (clipper: any, index: number) => {
+    if (!shouldShowClipperSaveState.value) {
+        return false;
+    }
+
+    if (clipper.image) {
+        return true;
+    }
+
+    if (props.mode === 'edit' && clipper.id && clipperPreviews.value[index] && form.deleted_ids.includes(clipper.id.toString())) {
+        return true;
+    }
+
+    if (isClipperRequest.value && clipper.id && clipper.image) {
+        return true;
+    }
+
+    return false;
 };
 </script>
 
@@ -324,20 +368,6 @@ const getSlotError = (index: number) => {
                 </div>
             </div>
 
-            <div
-                v-if="showAutoAddCheckbox"
-                class="relative z-10 mt-6 flex items-center gap-4 rounded-2xl border border-border-color/50 bg-muted-background/30 p-5"
-            >
-                <input
-                    id="auto_add_to_collection_clipper_request"
-                    v-model="form.auto_add_to_collection"
-                    type="checkbox"
-                    class="h-6 w-6 rounded-lg accent-primary"
-                />
-                <label for="auto_add_to_collection_clipper_request" class="text-sm font-bold cursor-pointer select-none">
-                    {{ autoAddLabel }}
-                </label>
-            </div>
         </div>
 
         <div class="space-y-6">
@@ -346,6 +376,13 @@ const getSlotError = (index: number) => {
                     <Plus class="w-5 h-5" />
                 </div>
                 <h3 class="text-xl font-black uppercase tracking-widest text-primary-content">The Collection</h3>
+            </div>
+
+            <div
+                v-if="shouldShowClipperSaveState"
+                class="rounded-2xl border border-border-color/50 bg-muted-background/30 p-5"
+            >
+                <p class="text-sm font-bold text-primary-content">{{ autoAddInfoText }}</p>
             </div>
 
             <div class="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
@@ -381,6 +418,21 @@ const getSlotError = (index: number) => {
                         class="text-[9px] text-error font-bold mt-1 text-center leading-tight">
                         {{ getSlotError(index) }}
                     </p>
+
+                    <div
+                        v-if="shouldShowSlotSaveState(clipper, index)"
+                        class="mt-3 w-full rounded-xl border border-border-color/50 bg-muted-background/30 p-4"
+                    >
+                        <label :for="`clipper_auto_add_${index}`" class="flex flex-col gap-2 text-[10px] font-bold leading-tight text-primary-content cursor-pointer sm:flex-row sm:items-start">
+                            <input
+                                :id="`clipper_auto_add_${index}`"
+                                v-model="clipper.auto_add_to_collection"
+                                type="checkbox"
+                                class="h-4 w-4 rounded accent-primary sm:mt-0.5"
+                            />
+                            <span class="pl-0 sm:pl-0">{{ autoAddLabel }}</span>
+                        </label>
+                    </div>
                 </div>
 
                 <button v-if="form.custom" type="button" @click="addSlot"
@@ -402,20 +454,6 @@ const getSlotError = (index: number) => {
             <div class="flex items-start gap-4 max-w-lg">
                 <AlertCircle class="w-5 h-5 text-primary mt-1 shrink-0" />
                 <div>
-                    <div
-                        v-if="showAutoAddCheckbox && !isClipperRequest"
-                        class="mb-4 flex items-center gap-4 rounded-2xl border border-border-color/50 bg-muted-background/30 p-5 text-sm font-bold"
-                    >
-                        <input
-                            id="auto_add_to_collection_request"
-                            v-model="form.auto_add_to_collection"
-                            type="checkbox"
-                            class="h-6 w-6 rounded-lg accent-primary"
-                        />
-                        <label for="auto_add_to_collection_request" class="cursor-pointer select-none">
-                            {{ autoAddLabel }}
-                        </label>
-                    </div>
                     <p class="text-xs text-muted-content font-bold leading-relaxed">
                         By submitting images, you state that you are the owner of the images or have explicit permission to
                         use them. Unauthorized use of copyrighted material is prohibited.

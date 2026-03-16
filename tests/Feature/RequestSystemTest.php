@@ -31,11 +31,10 @@ class RequestSystemTest extends TestCase
             ->post(route('series.store'), [
                 'name' => 'New Request Series',
                 'custom' => false,
-                'auto_add_to_collection' => true,
                 'image' => UploadedFile::fake()->image('series.jpg'),
                 'clippers' => [
-                    ['image' => UploadedFile::fake()->image('clipper1.jpg')],
-                    ['image' => UploadedFile::fake()->image('clipper2.jpg')],
+                    ['image' => UploadedFile::fake()->image('clipper1.jpg'), 'auto_add_to_collection' => true],
+                    ['image' => UploadedFile::fake()->image('clipper2.jpg'), 'auto_add_to_collection' => false],
                 ]
             ]);
 
@@ -46,8 +45,9 @@ class RequestSystemTest extends TestCase
         $this->assertNull($series->accepted_by);
         $this->assertEquals($this->user->id, $series->requested_by);
         $this->assertCount(2, $series->clippers);
-        $this->assertNull($series->clippers->first()->accepted_by);
-        $this->assertTrue($series->clippers->first()->auto_add_to_collection);
+        $this->assertNull($series->clippers[0]->accepted_by);
+        $this->assertTrue($series->clippers[0]->auto_add_to_collection);
+        $this->assertFalse($series->clippers[1]->auto_add_to_collection);
     }
 
     public function test_admin_can_accept_series_fully()
@@ -138,9 +138,11 @@ class RequestSystemTest extends TestCase
 
         $response = $this->actingAs($this->user)
             ->post(route('series.store-clipper-request', $series->id), [
-                'auto_add_to_collection' => true,
                 'clippers' => [
-                    ['image' => UploadedFile::fake()->image('req_clipper.jpg')]
+                    [
+                        'image' => UploadedFile::fake()->image('req_clipper.jpg'),
+                        'auto_add_to_collection' => true,
+                    ]
                 ]
             ]);
 

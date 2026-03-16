@@ -24,11 +24,9 @@ class ClipperService
 
         // 2. Process the clippers array (Create or Update)
         if (isset($data['clippers']) && is_array($data['clippers'])) {
-            $autoAddToCollection = (bool) ($data['auto_add_to_collection'] ?? false);
-
             foreach ($data['clippers'] as $index => $clipperData) {
                 $slotNumber = $clipperData['series_number'] ?? ($index + 1);
-                $clipper = $this->syncClipperSlot($series, $clipperData, (int)$slotNumber, $userId, $isRequest, $autoAddToCollection);
+                $clipper = $this->syncClipperSlot($series, $clipperData, (int)$slotNumber, $userId, $isRequest);
 
                 if ($clipper) {
                     $processedClippers[] = $clipper;
@@ -47,12 +45,14 @@ class ClipperService
     /**
      * Determines if a slot needs a new Clipper or an Update to an existing one.
      */
-    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId, bool $isRequest = false, bool $autoAddToCollection = false): ?Clipper
+    protected function syncClipperSlot(Series $series, array $clipperData, int $slotNumber, $userId, bool $isRequest = false): ?Clipper
     {
         // If no new image is provided, we don't need to do anything for this slot
         if (!isset($clipperData['image']) || !($clipperData['image'] instanceof UploadedFile)) {
             return null;
         }
+
+        $autoAddToCollection = (bool) ($clipperData['auto_add_to_collection'] ?? false);
 
         $existingClipper = $series->clippers()->where('series_number', $slotNumber)->first();
 
@@ -129,13 +129,20 @@ class ClipperService
     /**
      * Batch create helper (for the initial Series creation).
      */
-    public function createClippersInBatch(Series $series, array $clippersData, $userId, bool $isRequest = false, bool $autoAddToCollection = false): array
+    public function createClippersInBatch(Series $series, array $clippersData, $userId, bool $isRequest = false): array
     {
         $processedClippers = [];
 
         foreach ($clippersData as $index => $clipperData) {
             if (isset($clipperData['image']) && $clipperData['image'] instanceof UploadedFile) {
-                $processedClippers[] = $this->createClipper($series, $clipperData['image'], $index + 1, $userId, $isRequest, $autoAddToCollection);
+                $processedClippers[] = $this->createClipper(
+                    $series,
+                    $clipperData['image'],
+                    $index + 1,
+                    $userId,
+                    $isRequest,
+                    (bool) ($clipperData['auto_add_to_collection'] ?? false)
+                );
             }
         }
 
