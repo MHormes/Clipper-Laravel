@@ -1,22 +1,57 @@
 <?php
 
+use App\Http\Controllers\Admin\RequestController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Clipper\CollectionController;
+use App\Http\Controllers\Clipper\DashboardController;
+use App\Http\Controllers\Clipper\SeriesController;
+use App\Http\Controllers\Clipper\UserDirectoryController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Http\Controllers\Clipper\SeriesController;
-use App\Http\Controllers\Clipper\DashboardController;
-use App\Http\Controllers\Clipper\CollectionController;
-use App\Http\Controllers\Clipper\UserDirectoryController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\RequestController; // Added for request management
-use App\Http\Controllers\SitemapController;
-use App\Support\SeoMetadata;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
+
+Route::get('/manifest.webmanifest', function () {
+    return response(
+        json_encode([
+            'name' => 'Clipper-MS',
+            'short_name' => 'Clipper-MS',
+            'description' => 'Track and manage your Clipper lighter collection.',
+            'start_url' => '/dashboard',
+            'scope' => '/',
+            'display' => 'standalone',
+            'orientation' => 'portrait',
+            'background_color' => 'rgb(250 250 250)',
+            'theme_color' => 'rgb(245 48 3)',
+            'icons' => [
+                [
+                    'src' => '/pwa-192x192.png',
+                    'sizes' => '192x192',
+                    'type' => 'image/png',
+                ],
+                [
+                    'src' => '/pwa-512x512.png',
+                    'sizes' => '512x512',
+                    'type' => 'image/png',
+                ],
+                [
+                    'src' => '/pwa-512x512.png',
+                    'sizes' => '512x512',
+                    'type' => 'image/png',
+                    'purpose' => 'maskable',
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        200,
+        ['Content-Type' => 'application/manifest+json']
+    );
+})->name('manifest');
 
 Route::get('/privacy', fn() => Inertia::render('Privacy'))->name('privacy');
 Route::get('/terms', fn() => Inertia::render('Terms'))->name('terms');

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { login, register } from '@/routes';
+import InstallAppButton from '@/components/InstallAppButton.vue';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import CursorCard from '@/components/CursorCard.vue';
 import GlobalFooter from '@/components/GlobalFooter.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { route } from 'ziggy-js';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
-import AppLogo from '@/components/AppLogo.vue';
-import CursorCard from '@/components/CursorCard.vue';
 
 defineProps<{
     canRegister: boolean;
@@ -32,6 +31,7 @@ const stats = [
                     <span class="text-xl font-black tracking-tighter">CLIPPER<span class="text-primary">-MS</span></span>
                 </div>
                 <div class="flex items-center gap-4">
+                    <InstallAppButton />
                     <Link :href="login()" class="text-sm font-medium hover:text-primary transition">
                         Log in
                     </Link>
