@@ -30,6 +30,7 @@ export function loadDotEnv(cwd = process.cwd()) {
     // If .env is missing, we log a warning but don't crash, 
     // as variables might be set via the system shell.
     console.warn("⚠️  No .env file found at " + envPath);
+    console.error(err);
     return;
   }
 

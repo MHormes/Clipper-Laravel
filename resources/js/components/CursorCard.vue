@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
     className?: string;
     lightColor?: string;
     lightSize?: string;
@@ -28,16 +28,11 @@ const handleMouseLeave = () => {
 </script>
 
 <template>
-    <div 
-        @mousemove="handleMouseMove"
-        @mouseleave="handleMouseLeave"
-        :class="['group relative overflow-hidden transition-all', className]"
-    >
+    <div @mousemove="handleMouseMove" @mouseleave="handleMouseLeave"
+        :class="['group relative overflow-hidden transition-all', className]">
         <!-- Light Shade Effect -->
-        <div 
-            :class="['absolute rounded-full blur-3xl pointer-events-none transition-opacity duration-500 ease-out', lightColor, lightSize, isHovering ? 'opacity-100' : 'opacity-0']"
-            :style="{ left: lightX, top: lightY, transform: 'translate(-50%, -50%)' }"
-        ></div>
+        <div :class="['absolute rounded-full blur-3xl pointer-events-none transition-opacity duration-500 ease-out', lightColor, lightSize, isHovering ? 'opacity-100' : 'opacity-0']"
+            :style="{ left: lightX, top: lightY, transform: 'translate(-50%, -50%)' }"></div>
 
         <slot />
     </div>

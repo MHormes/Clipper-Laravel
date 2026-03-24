@@ -85,8 +85,6 @@ function getRuntimeConfig() {
 function sleep(ms) { return new Promise((res) => setTimeout(res, ms)); }
 function normalizeText(input) { return input.replace(/\r\n/g, "\n"); }
 function sha1(value) { return createHash("sha1").update(value).digest("hex"); }
-function estimateTokens(value) { return Math.ceil(value.length / 4); }
-function languageForFile(filePath) { return path.extname(filePath).slice(1) || "php"; }
 
 function charIndexToLine(content, charIndex) {
   let line = 1;
