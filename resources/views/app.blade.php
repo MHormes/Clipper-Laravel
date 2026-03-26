@@ -59,6 +59,22 @@
 
     <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- Google tag (gtag.js) — Consent Mode v2: analytics blocked by default until user opts in (AVG/GDPR) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-49X7GJ790J"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        // Default to denied — analytics only fire after explicit user consent
+        gtag('consent', 'default', {
+            'analytics_storage': 'denied',
+            'wait_for_update': 500
+        });
+
+        gtag('js', new Date());
+        gtag('config', 'G-49X7GJ790J');
+    </script>
+
     @routes @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     @inertiaHead
 </head>

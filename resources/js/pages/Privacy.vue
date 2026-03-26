@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 </script>
 
 <template>
+
     <Head title="Privacy Policy - Clipper-MS" />
 
     <div class="min-h-screen bg-primary-background text-primary-content">
@@ -18,7 +19,7 @@ import { Head, Link } from '@inertiajs/vue3';
         <main class="mx-auto max-w-3xl px-6 py-16 lg:py-24">
             <h1 class="text-4xl font-black tracking-tighter lg:text-5xl uppercase">Privacy Policy</h1>
             <p class="mt-4 text-muted-content font-medium">
-                Last updated: January 2026 • Clipper-MS (Netherlands)
+                Last updated: March 2026 • Clipper-MS (Netherlands)
             </p>
 
             <div class="mt-12 space-y-16">
@@ -33,27 +34,54 @@ import { Head, Link } from '@inertiajs/vue3';
                     <ul class="mt-4 space-y-4 text-muted-content font-medium">
                         <li class="flex gap-3">
                             <span class="text-primary font-bold">01.</span>
-                            <span><strong>Account Credentials:</strong> Your email and a hashed version of your password.</span>
+                            <span><strong>Account Credentials:</strong> Your email and a hashed version of your
+                                password.</span>
                         </li>
                         <li class="flex gap-3">
                             <span class="text-primary font-bold">02.</span>
-                            <span><strong>Collection Data:</strong> Any information you explicitly enter about your collection, including <strong>purchase locations</strong> and <strong>personal notes</strong>.</span>
+                            <span><strong>Collection Data:</strong> Any information you explicitly enter about your
+                                collection, including <strong>purchase locations</strong> and <strong>personal
+                                    notes</strong>.</span>
                         </li>
                     </ul>
                     <p class="mt-6 text-sm italic border-l-2 border-primary pl-4 text-muted-content/80">
-                        Note: We do not use background GPS tracking. Location data is only saved when you manually type it into the "Location Bought" field.
+                        Note: We do not use background GPS tracking. Location data is only saved when you manually type
+                        it into the "Location Bought" field.
                     </p>
                 </section>
 
                 <section>
                     <div class="space-y-1">
-                        <h2 class="text-xl font-black uppercase tracking-tight">2. Functional Cookies Only</h2>
+                        <h2 class="text-xl font-black uppercase tracking-tight">2. Cookies & Analytics</h2>
                         <div class="h-1 w-12 bg-primary rounded-full"></div>
                     </div>
                     <p class="mt-6 leading-relaxed text-muted-content font-medium">
-                        We do not use tracking pixels, marketing cookies, or third-party analytics. 
-                        Our cookies are strictly <strong>functional</strong>, used solely to maintain your 
-                        authenticated session so you don't have to log in every time you refresh the page.
+                        We use two categories of cookies:
+                    </p>
+                    <ul class="mt-4 space-y-4 text-muted-content font-medium">
+                        <li class="flex gap-3">
+                            <span class="text-primary font-bold">01.</span>
+                            <span>
+                                <strong>Functional cookies:</strong> Strictly necessary to maintain your authenticated
+                                session so you remain logged in between page loads. These do not require consent and
+                                cannot be disabled without breaking the application.
+                            </span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="text-primary font-bold">02.</span>
+                            <span>
+                                <strong>Analytics cookies (Google Analytics):</strong> With your consent, we use
+                                Google Analytics to collect anonymous data about
+                                how visitors use Clipper-MS — such as pages visited, session duration, and device
+                                type. No personally identifiable information is sent to Google. This data helps
+                                us improve the application. You can withdraw your consent at any time by clearing
+                                your browser's local storage.
+                            </span>
+                        </li>
+                    </ul>
+                    <p class="mt-6 text-sm italic border-l-2 border-primary pl-4 text-muted-content/80">
+                        Analytics cookies are only placed after you explicitly accept via the cookie banner shown
+                        on your first visit. We do not use marketing cookies or tracking pixels.
                     </p>
                 </section>
 
@@ -63,13 +91,16 @@ import { Head, Link } from '@inertiajs/vue3';
                         <div class="h-1 w-12 bg-primary rounded-full"></div>
                     </div>
                     <p class="mt-6 leading-relaxed text-muted-content font-medium">
-                        Your data is stored on secure servers located within the European Economic Area (EEA). 
+                        Your data is stored on secure servers located within the European Economic Area (EEA).
                         We never sell or share your data with third parties.
                     </p>
                 </section>
 
-                <section class="rounded-3xl bg-warning/10 p-8 border border-warning/20 relative overflow-hidden text-warning shadow-sm">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-warning/20 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
+                <section
+                    class="rounded-3xl bg-warning/10 p-8 border border-warning/20 relative overflow-hidden text-warning shadow-sm">
+                    <div
+                        class="absolute top-0 right-0 w-64 h-64 bg-warning/20 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none">
+                    </div>
                     <div class="relative z-10">
                         <h2 class="text-xl font-black uppercase tracking-tight">4. Your GDPR Rights</h2>
                         <ul class="mt-4 space-y-2 list-disc list-inside font-bold opacity-90">
@@ -78,7 +109,8 @@ import { Head, Link } from '@inertiajs/vue3';
                             <li>Right to data portability.</li>
                         </ul>
                         <p class="mt-6 text-sm font-medium opacity-80">
-                            To exercise these rights, simply delete your account in settings or contact us via our support channel.
+                            To exercise these rights, simply delete your account in settings or contact us via our
+                            support channel.
                         </p>
                     </div>
                 </section>
@@ -86,7 +118,8 @@ import { Head, Link } from '@inertiajs/vue3';
         </main>
 
         <footer class="mt-20 py-12 text-center border-t border-border-color">
-            <p class="text-xs text-muted-content font-bold uppercase tracking-widest opacity-50">Clipper-MS operates under the jurisdiction of the Netherlands.</p>
+            <p class="text-xs text-muted-content font-bold uppercase tracking-widest opacity-50">Clipper-MS operates
+                under the jurisdiction of the Netherlands.</p>
         </footer>
     </div>
 </template>
