@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useConsent } from '@/composables/useConsent';
-import { Link } from '@inertiajs/vue3';
 
 const { hasDecided, accept, decline } = useConsent();
 </script>
@@ -29,16 +28,16 @@ const { hasDecided, accept, decline } = useConsent();
                     <p class="mt-1 text-xs text-muted-content leading-relaxed">
                         In addition to functional cookies, we use Google Analytics to gain anonymous insights into
                         how Clipper-MS is used. Your consent is required under the AVG/GDPR.
-                        <Link :href="route('privacy')" class="underline text-primary hover:opacity-80 transition ml-1">
+                        <a href="/privacy" class="underline text-primary hover:opacity-80 transition ml-1">
                             Read our privacy policy
-                        </Link>
+                        </a>
                     </p>
                 </div>
 
                 <div class="flex items-center gap-3 shrink-0">
                     <button
                         type="button"
-                        class="px-4 py-2 text-xs font-semibold rounded-lg border border-border-color text-muted-content bg-secondary-background hover:bg-muted-background transition"
+                        class="px-4 py-2 text-xs font-semibold rounded-lg border border-border-color text-black bg-white hover:bg-gray-100 transition"
                         @click="decline"
                     >
                         Decline
