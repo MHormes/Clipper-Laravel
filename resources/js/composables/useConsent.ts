@@ -9,9 +9,11 @@ const consent = ref<ConsentStatus>(
     typeof window !== 'undefined' ? (localStorage.getItem(CONSENT_KEY) as ConsentStatus) : null,
 );
 
+type GtagWindow = Window & { gtag?: (...args: unknown[]) => void };
+
 // If user already accepted in a previous session, grant analytics immediately
-if (consent.value === 'accepted' && typeof (window as Window & { gtag?: Function }).gtag === 'function') {
-    (window as Window & { gtag?: Function }).gtag!('consent', 'update', {
+if (consent.value === 'accepted' && typeof (window as GtagWindow).gtag === 'function') {
+    (window as GtagWindow).gtag!('consent', 'update', {
         analytics_storage: 'granted',
     });
 }
@@ -23,8 +25,8 @@ export function useConsent() {
         consent.value = 'accepted';
         localStorage.setItem(CONSENT_KEY, 'accepted');
 
-        if (typeof (window as Window & { gtag?: Function }).gtag === 'function') {
-            (window as Window & { gtag?: Function }).gtag!('consent', 'update', {
+        if (typeof (window as GtagWindow).gtag === 'function') {
+            (window as GtagWindow).gtag!('consent', 'update', {
                 analytics_storage: 'granted',
             });
         }
