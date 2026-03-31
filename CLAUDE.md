@@ -1,6 +1,17 @@
 # Clipper-Laravel Development Guidelines
 
-This document serves as the primary mandate for all development within the Clipper-Laravel project. Adherence to these guidelines is mandatory for maintaining consistency and code quality.
+This document is the **source of truth** for all development guidelines in this project. All other `.md` files either provide human-facing overviews or operational detail, and defer to this file on coding standards.
+
+## 📚 Project Documentation
+
+| File | Purpose |
+|------|---------|
+| `README.md` | Project overview, feature list, tech stack summary — human-facing entry point |
+| `docs/running-the-application.md` | Full guide for running locally (Herd + Vite, local Docker Compose) and in production (production Docker Compose), including server/laptop aliases and the backup cron job |
+| `docs/branch-protection.md` | How to configure GitHub branch protection rules for `main` and `development` |
+| `CLAUDE.md` *(this file)* | Coding standards, styling rules, naming conventions, and AI agent instructions |
+
+---
 
 ## 🧠 Local RAG Instructions
 
