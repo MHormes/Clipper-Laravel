@@ -64,10 +64,24 @@ const stats = [
                 
                 <div class="mt-16 flex-1 lg:mt-0 relative">
                     <div class="grid grid-cols-2 gap-4">
-                        <img src="/images/hero.png" 
-                             class="transform lg:-rotate-3 hover:rotate-0 transition duration-500" alt="Clipper 1" />
-                        <img src="/images/hero_2.png" 
-                             class="mt-12 transform lg:rotate-3 hover:rotate-0 transition duration-500" alt="Clipper 2" />
+                        <picture>
+                            <source srcset="/images/hero.webp" type="image/webp">
+                            <img src="/images/hero.png"
+                                 class="transform lg:-rotate-3 hover:rotate-0 transition duration-500"
+                                 alt="Clipper 1"
+                                 width="517"
+                                 height="482"
+                                 loading="lazy" />
+                        </picture>
+                        <picture>
+                            <source srcset="/images/hero_2.webp" type="image/webp">
+                            <img src="/images/hero_2.png"
+                                 class="mt-12 transform lg:rotate-3 hover:rotate-0 transition duration-500"
+                                 alt="Clipper 2"
+                                 width="516"
+                                 height="484"
+                                 loading="lazy" />
+                        </picture>
                     </div>
                 </div>
             </div>
