@@ -28,6 +28,9 @@ else
     echo "✅ Data already exists. Skipping seeder."
 fi
 
+echo "Starting SSR Node server..."
+node /var/www/html/bootstrap/ssr/ssr.mjs &
+
 echo "Clearing cache and starting Apache..."
 php artisan config:clear
 exec apache2-foreground

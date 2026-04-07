@@ -71,7 +71,7 @@ const stats = [
                                  alt="Clipper 1"
                                  width="517"
                                  height="482"
-                                 loading="lazy" />
+                                 fetchpriority="high" />
                         </picture>
                         <picture>
                             <source srcset="/images/hero_2.webp" type="image/webp">
@@ -79,8 +79,7 @@ const stats = [
                                  class="mt-12 transform lg:rotate-3 hover:rotate-0 transition duration-500"
                                  alt="Clipper 2"
                                  width="516"
-                                 height="484"
-                                 loading="lazy" />
+                                 height="484" />
                         </picture>
                     </div>
                 </div>
