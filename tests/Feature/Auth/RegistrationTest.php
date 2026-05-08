@@ -1,5 +1,8 @@
 <?php
 
+use App\Notifications\Auth\VerifyEmailNotification;
+use Illuminate\Support\Facades\Notification;
+
 test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));
 
@@ -7,6 +10,8 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register', function () {
+    Notification::fake();
+
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -17,4 +22,10 @@ test('new users can register', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('dashboard', absolute: false));
+
+    $user = \App\Models\User::where('email', 'test@example.com')->firstOrFail();
+
+    expect($user->hasVerifiedEmail())->toBeFalse();
+    expect($user->email)->toBe('test@example.com');
+    Notification::assertSentTimes(VerifyEmailNotification::class, 1);
 });

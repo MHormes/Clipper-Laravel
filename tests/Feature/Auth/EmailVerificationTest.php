@@ -76,6 +76,18 @@ test('verified user is redirected to dashboard from verification prompt', functi
     $response->assertRedirect(route('dashboard', absolute: false));
 });
 
+test('unverified users are redirected to the verification notice from app routes', function () {
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertRedirect(route('verification.notice'));
+
+    $this->actingAs($user)
+        ->get(route('series.index'))
+        ->assertRedirect(route('verification.notice'));
+});
+
 test('already verified user visiting verification link is redirected without firing event again', function () {
     $user = User::factory()->create();
 

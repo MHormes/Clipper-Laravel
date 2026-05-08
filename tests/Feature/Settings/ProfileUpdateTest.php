@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use App\Notifications\Auth\VerifyEmailNotification;
+use Illuminate\Support\Facades\Notification;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -13,6 +15,8 @@ test('profile page is displayed', function () {
 });
 
 test('profile information can be updated', function () {
+    Notification::fake();
+
     $user = User::factory()->create();
 
     $response = $this
@@ -24,13 +28,14 @@ test('profile information can be updated', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile.edit'));
+        ->assertRedirect(route('verification.notice'));
 
     $user->refresh();
 
     expect($user->name)->toBe('Test User');
     expect($user->email)->toBe('test@example.com');
     expect($user->email_verified_at)->toBeNull();
+    Notification::assertSentTo($user, VerifyEmailNotification::class);
 });
 
 test('email verification status is unchanged when the email address is unchanged', function () {
