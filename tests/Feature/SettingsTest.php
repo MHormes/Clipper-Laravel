@@ -1,7 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Notifications\Auth\VerifyEmailNotification;
+use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -15,6 +16,8 @@ test('users can view their profile settings', function () {
 });
 
 test('users can update their profile information', function () {
+    Notification::fake();
+
     $this->actingAs($this->user);
     
     $response = $this->patch(route('profile.update'), [
@@ -22,11 +25,13 @@ test('users can update their profile information', function () {
         'email' => 'updated@example.com',
     ]);
 
-    $response->assertRedirect(route('profile.edit'));
+    $response->assertRedirect(route('verification.notice'));
     $this->user->refresh();
 
     $this->assertEquals('Updated Name', $this->user->name);
     $this->assertEquals('updated@example.com', $this->user->email);
+    $this->assertNull($this->user->email_verified_at);
+    Notification::assertSentTo($this->user, VerifyEmailNotification::class);
 });
 
 test('users can delete their account', function () {
