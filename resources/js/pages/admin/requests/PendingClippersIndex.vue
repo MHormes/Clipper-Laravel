@@ -78,7 +78,7 @@ const formatDate = (date: string) => {
                         <div v-for="clipper in clippers" :key="clipper.id"
                              class="bg-component-background rounded-2xl border border-border-color overflow-hidden group/item shadow-sm hover:border-primary/30 transition-all">
 
-                            <div class="aspect-[1/4] relative bg-muted-background dark:bg-primary-background overflow-hidden border-b border-border-color">
+                            <div class="aspect-[1/4] relative bg-media-bg overflow-hidden border-b border-border-color">
                                 <img :src="clipper.image_data" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110" />
 
                                 <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent flex justify-center gap-2 translate-y-full group-hover/item:translate-y-0 transition-transform">

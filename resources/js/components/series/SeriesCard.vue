@@ -45,7 +45,7 @@ const targetHref = computed(() => props.href || route('series.show', { series: p
                 </div>
             </div>
 
-            <div class="w-full bg-muted-background dark:bg-muted-background h-1.5 rounded-full mt-3">
+            <div class="w-full bg-muted-background h-1.5 rounded-full mt-3">
                 <div class="bg-primary h-full transition-all rounded-full" :style="{ width: `${progressWidth}%` }"></div>
             </div>
         </div>

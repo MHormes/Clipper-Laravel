@@ -64,13 +64,13 @@ const user = page.props.auth.user;
                             <div class="grid gap-2">
                                 <Label for="name" class="text-sm font-bold tracking-tight">Full Name</Label>
                                 <div class="flex gap-3">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-[var(--primary)] dark:bg-primary/30">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-icon-bg)] text-[var(--primary)]">
                                         <span class="text-xs font-bold">{{ user.name.charAt(0).toUpperCase() }}</span>
                                     </div>
                                     <div class="grow">
                                         <Input
                                             id="name"
-                                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
+                                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)]"
                                             name="name"
                                             :default-value="user.name"
                                             required
@@ -87,7 +87,7 @@ const user = page.props.auth.user;
                                 <Input
                                     id="email"
                                     type="email"
-                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
+                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)]"
                                     name="email"
                                     :default-value="user.email"
                                     required
@@ -97,13 +97,13 @@ const user = page.props.auth.user;
                                 <InputError :message="errors.email" />
                             </div>
 
-                            <div v-if="mustVerifyEmail && !user.email_verified_at" class="rounded-xl bg-warning p-4 border border-warning dark:bg-warning/10 dark:border-warning/20">
-                                <p class="text-sm text-warning dark:text-warning">
+                            <div v-if="mustVerifyEmail && !user.email_verified_at" class="rounded-xl bg-[var(--alert-warning-bg)] p-4 border border-[var(--alert-warning-border)]">
+                                <p class="text-sm text-warning">
                                     Your email is unverified.
                                     <Link
                                         :href="send()"
                                         as="button"
-                                        class="font-bold underline decoration-amber-300 underline-offset-4 hover:text-warning dark:hover:text-warning"
+                                        class="font-bold underline decoration-amber-300 underline-offset-4 hover:text-warning"
                                     >
                                         Resend verification.
                                     </Link>
@@ -111,7 +111,7 @@ const user = page.props.auth.user;
 
                                 <div
                                     v-if="status === 'verification-link-sent'"
-                                    class="mt-2 text-xs font-bold text-success dark:text-success"
+                                    class="mt-2 text-xs font-bold text-success"
                                 >
                                     ✓ A new link has been sent.
                                 </div>
@@ -133,7 +133,7 @@ const user = page.props.auth.user;
                                     leave-active-class="transition ease-in-out"
                                     leave-to-class="opacity-0 -translate-x-1"
                                 >
-                                    <p v-show="recentlySuccessful" class="text-sm font-semibold text-success dark:text-success">
+                                    <p v-show="recentlySuccessful" class="text-sm font-semibold text-success">
                                         Saved.
                                     </p>
                                 </Transition>
@@ -143,7 +143,7 @@ const user = page.props.auth.user;
                 </div>
 
                 <div class="pt-4">
-                    <div class="rounded-2xl border border-error bg-error/30 p-6 dark:border-error/20 dark:bg-error/5">
+                    <div class="rounded-2xl border border-[var(--alert-error-border)] bg-[var(--alert-error-bg)] p-6">
                         <DeleteUser />
                     </div>
                 </div>

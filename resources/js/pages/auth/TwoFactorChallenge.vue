@@ -79,7 +79,7 @@ const code = ref<string>('');
                                         v-for="index in 6"
                                         :key="index"
                                         :index="index - 1"
-                                        class="h-12 w-10 rounded-xl border-border-color text-lg font-bold focus:ring-2 focus:ring-[var(--primary)] dark:border-secondary-content/10 bg-component-background"
+                                        class="h-12 w-10 rounded-xl border-border-color text-lg font-bold focus:ring-2 focus:ring-[var(--primary)] bg-component-background"
                                     />
                                 </InputOTPGroup>
                             </InputOTP>
@@ -120,7 +120,7 @@ const code = ref<string>('');
                             name="recovery_code"
                             type="text"
                             placeholder="Enter 8-character recovery code"
-                            class="rounded-xl border-border-color py-6 text-center font-mono uppercase tracking-widest focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                            class="rounded-xl border-border-color py-6 text-center font-mono uppercase tracking-widest focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                             :autofocus="showRecoveryInput"
                             required
                         />

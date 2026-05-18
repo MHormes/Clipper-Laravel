@@ -83,7 +83,7 @@ onBeforeUnmount(() => {
 
         <div
             v-if="status === 'verification-link-sent'"
-            class="mb-6 rounded-xl bg-success p-4 text-center text-sm font-semibold text-success dark:bg-success/10 dark:text-success"
+            class="mb-6 rounded-xl bg-[var(--alert-success-bg)] p-4 text-center text-sm font-semibold text-success"
         >
             A fresh verification link has been sent to your email address.
         </div>
@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
                 <TextLink
                     :href="logout()"
                     as="button"
-                    class="text-sm font-bold text-[var(--muted-content)] hover:text-[var(--primary-content)] dark:text-[var(--muted-content)] dark:hover:text-secondary-content transition-colors"
+                    class="text-sm font-bold text-muted-content hover:text-primary-content transition-colors"
                 >
                     Log out of this account
                 </TextLink>

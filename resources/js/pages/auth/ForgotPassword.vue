@@ -24,7 +24,7 @@ defineProps<{
 
         <div
             v-if="status"
-            class="mb-6 rounded-xl bg-success p-4 text-center text-sm font-semibold text-success dark:bg-success/10 dark:text-success"
+            class="mb-6 rounded-xl bg-[var(--alert-success-bg)] p-4 text-center text-sm font-semibold text-success"
         >
             {{ status }}
         </div>
@@ -40,7 +40,7 @@ defineProps<{
                         autocomplete="off"
                         autofocus
                         placeholder="name@example.com"
-                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -57,11 +57,11 @@ defineProps<{
                 </div>
             </Form>
 
-            <div class="text-center text-sm font-medium text-[var(--muted-content)] dark:text-[var(--muted-content)]">
+            <div class="text-center text-sm font-medium text-muted-content">
                 Remembered your password?
                 <TextLink 
                     :href="login()" 
-                    class="text-[var(--primary-content)] dark:text-[var(--primary-content)] font-bold hover:text-[var(--primary)] transition-colors ml-1"
+                    class="text-primary-content font-bold hover:text-[var(--primary)] transition-colors ml-1"
                 >
                     Back to log in
                 </TextLink>

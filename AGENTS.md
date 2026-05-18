@@ -27,6 +27,14 @@ This is the **Source of Truth** for all AI agent interactions. Consult this file
 All colors **must** use predefined theme variables in `resources/css/app.css`. 
 Use Tailwind classes: `text-primary`, `bg-primary-background`, `border-border-color`, etc.
 
+### No Tailwind `dark:` Prefix — Ever
+**Never use `dark:` Tailwind prefix in any component.** The app uses a `.dark` class on `<html>` and CSS custom properties in `app.css` to handle theming. All color switching must happen via CSS variables.
+
+- **Wrong**: `class="bg-white dark:bg-gray-900"` or `class="text-black dark:text-white"`
+- **Right**: `class="bg-component-background"` or `class="text-primary-content"`
+
+If a new color needs to differ between light/dark modes, add a new CSS variable to `resources/css/app.css` under both `:root` (light) and `.dark` (dark) sections, and register it in `@theme inline` with the `--color-` prefix. Available semantic variables: `--input-background`, `--alert-*-bg/border`, `--badge-success-bg`, `--primary-icon-bg`, `--hover-overlay`, `--hero-card-bg`, `--media-bg`, `--link-decoration`.
+
 ## 💻 General Coding Standards
 - **Commenting**:
     - Always place comments **above** the code.

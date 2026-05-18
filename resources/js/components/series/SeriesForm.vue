@@ -308,7 +308,7 @@ const shouldShowSlotSaveState = (clipper: any, index: number) => {
                         <label class="block text-[10px] font-black uppercase tracking-widest text-muted-content mb-3 opacity-70">Display
                             Name</label>
                         <input v-model="form.name" type="text" placeholder="e.g. Mandala 1" :disabled="isClipperRequest"
-                            class="w-full rounded-xl border-border-color dark:border-secondary-content/10 dark:bg-primary-background/50 p-4 text-lg font-bold outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:bg-muted-background" />
+                            class="w-full rounded-xl border-border-color bg-primary-background/50 p-4 text-lg font-bold outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:bg-muted-background" />
                         <p v-if="form.errors.name" class="text-error text-xs font-bold mt-2 flex items-center gap-1">
                             <AlertCircle class="w-3 h-3" /> {{ form.errors.name }}
                         </p>

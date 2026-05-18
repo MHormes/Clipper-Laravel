@@ -38,7 +38,7 @@ import { route } from 'ziggy-js';
                         autocomplete="name"
                         name="name"
                         placeholder="e.g. Jasper van den Berg"
-                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                     />
                     <InputError :message="errors.name" />
                 </div>
@@ -53,7 +53,7 @@ import { route } from 'ziggy-js';
                         autocomplete="email"
                         name="email"
                         placeholder="name@example.com"
-                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -69,7 +69,7 @@ import { route } from 'ziggy-js';
                             autocomplete="new-password"
                             name="password"
                             placeholder="••••••••"
-                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                         />
                     </div>
                     <div class="grid gap-2">
@@ -82,7 +82,7 @@ import { route } from 'ziggy-js';
                             autocomplete="new-password"
                             name="password_confirmation"
                             placeholder="••••••••"
-                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                         />
                     </div>
                 </div>
@@ -100,7 +100,7 @@ import { route } from 'ziggy-js';
                             :tabindex="5" 
                             class="border-border-color data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
                         />
-                        <span class="text-[11px] text-[var(--muted-content)] dark:text-[var(--muted-content)] leading-tight group-hover:text-primary-content dark:group-hover:text-secondary-content transition-colors">
+                        <span class="text-[11px] text-muted-content leading-tight group-hover:text-primary-content transition-colors">
                             By registering, you agree to our 
                             <TextLink :href="route('terms')" class="text-[var(--primary)] hover:underline">Terms</TextLink> and acknowledge our 
                             <TextLink :href="route('privacy')" class="text-[var(--primary)] hover:underline">Privacy Policy</TextLink>.
@@ -121,11 +121,11 @@ import { route } from 'ziggy-js';
                 </Button>
             </div>
 
-            <div class="text-center text-sm font-medium text-[var(--muted-content)] dark:text-[var(--muted-content)]">
+            <div class="text-center text-sm font-medium text-muted-content">
                 Already have an account?
                 <TextLink
                     :href="login()"
-                    class="text-[var(--primary-content)] dark:text-[var(--primary-content)] font-bold hover:text-[var(--primary)] transition-colors"
+                    class="text-primary-content font-bold hover:text-[var(--primary)] transition-colors"
                     :tabindex="6"
                 >
                     Log in

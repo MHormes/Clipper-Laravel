@@ -85,13 +85,13 @@ const reset = () => {
                     <h3 class="text-xl font-black uppercase tracking-tight">{{ title }}</h3>
                     <p class="text-[10px] text-muted-content font-bold uppercase tracking-widest mt-0.5">Adjust the crop to fit the required aspect ratio</p>
                 </div>
-                <button @click="handleCancel" class="p-2 hover:bg-muted-background dark:hover:bg-white/5 rounded-full transition-colors">
+                <button @click="handleCancel" class="p-2 hover:bg-[var(--hover-overlay)] rounded-full transition-colors">
                     <X class="w-6 h-6" />
                 </button>
             </div>
 
             <!-- Cropper Area -->
-            <div class="flex-1 bg-muted-background dark:bg-primary-background p-4 sm:p-8 overflow-hidden flex items-center justify-center min-h-[400px]">
+            <div class="flex-1 bg-media-bg p-4 sm:p-8 overflow-hidden flex items-center justify-center min-h-[400px]">
                 <Cropper
                     ref="cropperRef"
                     class="max-w-full max-h-full"
@@ -106,7 +106,7 @@ const reset = () => {
             </div>
 
             <!-- Footer -->
-            <div class="grid grid-cols-1 md:flex md:items-center md:justify-between px-6 py-4 border-t border-border-color bg-muted-background/50 dark:bg-secondary-content/2">
+            <div class="grid grid-cols-1 md:flex md:items-center md:justify-between px-6 py-4 border-t border-border-color bg-muted-background/50">
                 <div class="flex items-center gap-1">
                     <button
                         @click="reset"
@@ -146,7 +146,7 @@ const reset = () => {
                             max="180"
                             step="1"
                             @input="handleRotationSlide"
-                            class="w-32 h-1.5 bg-muted-background dark:bg-secondary-content/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                            class="w-32 h-1.5 bg-muted-background rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                         <span class="text-[10px] font-mono font-bold text-primary w-8 text-right">{{ rotation }}°</span>
                     </div>
@@ -155,7 +155,7 @@ const reset = () => {
                 <div class="mt-2 md:mt-0 flex gap-3">
                     <button
                         @click="handleCancel"
-                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-border-color hover:bg-muted-background dark:hover:bg-white/5 transition-all text-muted-content"
+                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-border-color hover:bg-[var(--hover-overlay)] transition-all text-muted-content"
                     >
                         Deny / Cancel
                     </button>

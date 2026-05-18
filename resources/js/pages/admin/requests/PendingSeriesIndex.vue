@@ -52,7 +52,7 @@ const formatDate = (date: string) => {
             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div v-for="item in series" :key="item.id"
                      class="bg-component-background rounded-3xl overflow-hidden border border-border-color hover:border-primary/50 transition-all group/card shadow-sm">
-                    <div class="aspect-[4/3] relative overflow-hidden bg-muted-background dark:bg-primary-background">
+                    <div class="aspect-[4/3] relative overflow-hidden bg-media-bg">
                         <img :src="item.image_data" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
                     </div>

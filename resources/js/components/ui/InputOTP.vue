@@ -48,7 +48,7 @@ export const InputOTPSlot = {
       'data-slot': 'input-otp-slot',
       'data-active': slot.value?.isActive,
       ...forwarded,
-      class: cn('data-[active=true]:border-primary-content data-[active=true]:ring-primary-content/50 data-[active=true]:aria-invalid:ring-error/20 dark:data-[active=true]:aria-invalid:ring-error/40 aria-invalid:border-error data-[active=true]:aria-invalid:border-error dark:bg-border-color/30 border-border-color relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]', props.class)
+      class: cn('data-[active=true]:border-primary-content data-[active=true]:ring-primary-content/50 data-[active=true]:aria-invalid:ring-error/30 aria-invalid:border-error data-[active=true]:aria-invalid:border-error bg-input-background border-border-color relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]', props.class)
     }, [
       slot.value?.char,
       slot.value?.hasFakeCaret && h('div', { class: 'pointer-events-none absolute inset-0 flex items-center justify-center' }, [

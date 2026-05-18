@@ -62,7 +62,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                 id="current_password"
                                 name="current_password"
                                 type="password"
-                                class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
+                                class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)]"
                                 autocomplete="current-password"
                                 placeholder="••••••••"
                             />
@@ -76,7 +76,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                     id="password"
                                     name="password"
                                     type="password"
-                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
+                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)]"
                                     autocomplete="new-password"
                                     placeholder="••••••••"
                                 />
@@ -88,7 +88,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                                     id="password_confirmation"
                                     name="password_confirmation"
                                     type="password"
-                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] dark:bg-[#0c0c0c]"
+                                    class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)]"
                                     autocomplete="new-password"
                                     placeholder="••••••••"
                                 />
@@ -115,7 +115,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             >
                                 <p
                                     v-show="recentlySuccessful"
-                                    class="text-sm font-semibold text-success dark:text-success flex items-center gap-1"
+                                    class="text-sm font-semibold text-success flex items-center gap-1"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                     Updated

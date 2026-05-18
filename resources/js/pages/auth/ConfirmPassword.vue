@@ -32,7 +32,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         autocomplete="current-password"
                         autofocus
                         placeholder="••••••••"
-                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                     />
 
                     <InputError :message="errors.password" />

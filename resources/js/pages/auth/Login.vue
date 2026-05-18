@@ -29,7 +29,7 @@ defineProps<{
 
         <div
             v-if="status"
-            class="mb-4 text-center text-sm font-semibold text-success dark:text-success"
+            class="mb-4 text-center text-sm font-semibold text-success"
         >
             {{ status }}
         </div>
@@ -52,7 +52,7 @@ defineProps<{
                         :tabindex="1"
                         autocomplete="email"
                         placeholder="name@example.com"
-                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -77,7 +77,7 @@ defineProps<{
                         :tabindex="2"
                         autocomplete="current-password"
                         placeholder="••••••••"
-                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                     />
                     <InputError :message="errors.password" />
                 </div>
@@ -90,7 +90,7 @@ defineProps<{
                             :tabindex="3" 
                             class="border-border-color data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
                         />
-                        <span class="text-sm text-[var(--muted-content)] dark:text-[var(--muted-content)] group-hover:text-primary-content dark:group-hover:text-secondary-content transition-colors">
+                        <span class="text-sm text-muted-content group-hover:text-primary-content transition-colors">
                             Keep me logged in
                         </span>
                     </Label>
@@ -105,7 +105,7 @@ defineProps<{
                             :tabindex="4" 
                             class="border-border-color data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
                         />
-                        <span class="text-sm text-[var(--muted-content)] dark:text-[var(--muted-content)] group-hover:text-primary-content dark:group-hover:text-secondary-content transition-colors">
+                        <span class="text-sm text-muted-content group-hover:text-primary-content transition-colors">
                             I agree to the <TextLink :href="route('terms')" class="text-[var(--primary)] hover:underline">Terms</TextLink> and <TextLink :href="route('privacy')" class="text-[var(--primary)] hover:underline">Privacy Policy</TextLink>
                         </span>
                     </Label>
@@ -124,14 +124,14 @@ defineProps<{
             </div>
 
             <div
-                class="text-center text-sm font-medium text-[var(--muted-content)] dark:text-[var(--muted-content)]"
+                class="text-center text-sm font-medium text-muted-content"
                 v-if="canRegister"
             >
                 Don't have an account?
                 <TextLink 
                     :href="register()" 
                     :tabindex="5" 
-                    class="text-[var(--primary-content)] dark:text-[var(--primary-content)] font-bold hover:text-[var(--primary)] transition-colors"
+                    class="text-primary-content font-bold hover:text-[var(--primary)] transition-colors"
                 >
                     Sign up free
                 </TextLink>

@@ -47,7 +47,7 @@ export const DropdownMenuItem = {
       'data-inset': props.inset ? '' : undefined,
       'data-variant': variant,
       ...forwardedProps,
-      class: cn('focus:bg-muted-background focus:text-primary-content data-[variant=destructive]:text-error data-[variant=destructive]:focus:bg-error/10 dark:data-[variant=destructive]:focus:bg-error/20 data-[variant=destructive]:focus:text-error data-[variant=destructive]:*:[svg]:!text-error [&_svg:not([class*=\'text-\'])]:text-muted-content relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4', props.class)
+      class: cn('focus:bg-muted-background focus:text-primary-content data-[variant=destructive]:text-error data-[variant=destructive]:focus:bg-error/15 data-[variant=destructive]:focus:text-error data-[variant=destructive]:*:[svg]:!text-error [&_svg:not([class*=\'text-\'])]:text-muted-content relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4', props.class)
     }, slots)
   }
 }

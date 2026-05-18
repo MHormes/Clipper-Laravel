@@ -82,7 +82,7 @@ const declineSeries = () => {
                              Series Overview
                         </h2>
 
-                        <div class="aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-muted-background dark:bg-primary-background border border-border-color">
+                        <div class="aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-media-bg border border-border-color">
                             <img :src="series.image_data" class="w-full h-full object-cover" />
                         </div>
 
@@ -109,7 +109,7 @@ const declineSeries = () => {
                     <div class="bg-info/5 border border-info/20 rounded-3xl p-6">
                         <div class="flex items-start gap-3">
                             <Info class="w-5 h-5 text-info shrink-0 mt-0.5" />
-                            <div class="text-xs text-info dark:text-info font-bold uppercase tracking-widest leading-loose">
+                            <div class="text-xs text-info font-bold uppercase tracking-widest leading-loose">
                                 As an admin, you can selectively approve clippers. Unselected items will be deleted.
                             </div>
                         </div>
@@ -119,7 +119,7 @@ const declineSeries = () => {
                 <!-- Right: Clippers Review -->
                 <div class="lg:col-span-2">
                     <div class="bg-component-background rounded-3xl border border-border-color shadow-sm overflow-hidden">
-                        <div class="p-6 border-b border-border-color flex items-center justify-between bg-muted-background/50 dark:bg-primary-background/20">
+                        <div class="p-6 border-b border-border-color flex items-center justify-between bg-muted-background/50">
                             <h2 class="text-xs font-black uppercase tracking-[0.2em] text-primary">
                                 Clippers ({{ selectedClippers.length }} / {{ series.clippers.length }} Selected)
                             </h2>
@@ -134,7 +134,7 @@ const declineSeries = () => {
                                      @click="selectedClippers.includes(clipper.id) ? selectedClippers = selectedClippers.filter(id => id !== clipper.id) : selectedClippers.push(clipper.id)"
                                      class="relative group cursor-pointer">
                                     <div :class="selectedClippers.includes(clipper.id) ? 'border-primary ring-2 ring-primary/20' : 'border-border-color opacity-60 hover:opacity-100'"
-                                         class="aspect-[1/4] rounded-xl overflow-hidden border-2 transition-all relative bg-muted-background dark:bg-primary-background">
+                                         class="aspect-[1/4] rounded-xl overflow-hidden border-2 transition-all relative bg-media-bg">
                                         <img :src="clipper.image_data" class="w-full h-full object-cover" />
 
                                         <div v-if="selectedClippers.includes(clipper.id)"
@@ -150,7 +150,7 @@ const declineSeries = () => {
                             </div>
                         </div>
 
-                        <div class="p-8 border-t border-border-color bg-muted-background/50 dark:bg-primary-background/20 flex flex-col sm:flex-row gap-4">
+                        <div class="p-8 border-t border-border-color bg-muted-background/50 flex flex-col sm:flex-row gap-4">
                             <button @click="acceptFull" class="flex-1 py-4 bg-primary text-button-content rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary hover:text-button-content!  transition-all shadow-lg shadow-primary/20 active:scale-95 flex items-center justify-center gap-2">
                                 <CheckCircle2 class="w-4 h-4" /> Accept All
                             </button>

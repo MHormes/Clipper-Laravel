@@ -41,7 +41,7 @@ const inputEmail = ref(props.email);
                         autocomplete="email"
                         v-model="inputEmail"
                         readonly
-                        class="rounded-xl border-border-color bg-muted-background/50 opacity-60 cursor-not-allowed bg-component-background dark:border-secondary-content/10"
+                        class="rounded-xl border-border-color bg-muted-background/50 opacity-60 cursor-not-allowed bg-component-background"
                     />
                     <InputError :message="errors.email" />
                 </div>
@@ -56,7 +56,7 @@ const inputEmail = ref(props.email);
                             autocomplete="new-password"
                             autofocus
                             placeholder="••••••••"
-                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                         />
                     </div>
 
@@ -68,7 +68,7 @@ const inputEmail = ref(props.email);
                             name="password_confirmation"
                             autocomplete="new-password"
                             placeholder="••••••••"
-                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background dark:border-secondary-content/10"
+                            class="rounded-xl border-border-color focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-component-background"
                         />
                     </div>
                 </div>

@@ -73,7 +73,7 @@ const { search, isFiltered } = useFilters('collection.clippers', props.filters);
                 </div>
 
                 <div v-else class="w-full h-full flex flex-col items-center justify-center py-24 bg-component-background rounded-3xl border border-dashed border-border-color shadow-sm">
-                    <div class="p-8 rounded-full bg-muted-background mb-6 text-muted-content dark:text-muted-content">
+                    <div class="p-8 rounded-full bg-muted-background mb-6 text-muted-content">
                         <component :is="isFiltered ? Search : Library" class="w-16 h-16" />
                     </div>
                     <h2 class="text-3xl font-black mb-3">{{ isFiltered ? 'No Results Found' : 'No Clippers Found' }}</h2>
