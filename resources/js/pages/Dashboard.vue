@@ -170,7 +170,7 @@ const handleStatClick = (label: string) => {
                                     {{ (pendingRequests?.series || 0) + (pendingRequests?.clippers || 0) }}
                                 </span>
                             </div>
-                            <p class="text-primary dark:text-primary text-sm font-bold uppercase tracking-tight">
+                            <p class="text-primary text-sm font-bold uppercase tracking-tight">
                                 {{ pendingRequests?.series }} Series • {{ pendingRequests?.clippers }} Clippers
                             </p>
                             <div class="mt-8 flex items-center font-bold text-primary group-hover:gap-2 transition-all">
@@ -230,7 +230,7 @@ const handleStatClick = (label: string) => {
 
                     <div class="space-y-4">
                         <div v-for="item in recentSeries" :key="item.id"
-                            class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-muted-background dark:hover:bg-white/5 transition-colors bg-component-background/50 backdrop-blur-sm">
+                            class="flex items-center gap-4 rounded-lg border border-border-color/50 p-4 hover:bg-[var(--hover-overlay)] transition-colors bg-component-background/50 backdrop-blur-sm">
 
                             <div
                                 class="h-12 w-16 rounded  overflow-hidden border border-border-color bg-component-background">

@@ -36,7 +36,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
                 <div class="rounded-2xl border border-border-color  p-6 shadow-sm  bg-component-background">
                     <div class="max-w-xl">
-                        <p class="mb-6 text-sm text-[var(--muted-content)] dark:text-[var(--muted-content)]">
+                        <p class="mb-6 text-sm text-muted-content">
                             Switch between light and dark modes, or let the app follow your system preference.
                         </p>
                         
@@ -44,11 +44,11 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     </div>
                 </div>
 
-                <div class="flex items-start gap-4 rounded-xl bg-primary/50 p-4 border border-primary dark:bg-primary/10 dark:border-primary/20">
+                <div class="flex items-start gap-4 rounded-xl bg-[var(--alert-primary-bg)] p-4 border border-[var(--alert-primary-border)]">
                     <div class="text-[var(--primary)] mt-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                     </div>
-                    <p class="text-xs leading-relaxed text-primary/80 dark:text-primary/80">
+                    <p class="text-xs leading-relaxed text-primary/80">
                         <strong>GDPR Note:</strong> Your appearance preference is stored locally to ensure a consistent experience without unnecessary tracking.
                     </p>
                 </div>

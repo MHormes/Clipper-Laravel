@@ -104,7 +104,7 @@ const stats = [
         <section class="py-24">
             <div class="mx-auto max-w-4xl px-6 text-center">
                 <CursorCard
-                    className="rounded-[3rem] bg-[var(--primary-content)] p-12 text-button-content shadow-2xl dark:bg-[#1D0002]"
+                    className="rounded-[3rem] bg-[var(--hero-card-bg)] p-12 text-button-content shadow-2xl"
                     lightColor="bg-white/10"
                     lightSize="w-64 h-64"
                 >

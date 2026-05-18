@@ -32,6 +32,21 @@
 
     --color-border-color: var(--border-color);
 
+    --color-input-background: var(--input-background);
+    --color-alert-success-bg: var(--alert-success-bg);
+    --color-alert-warning-bg: var(--alert-warning-bg);
+    --color-alert-warning-border: var(--alert-warning-border);
+    --color-alert-error-bg: var(--alert-error-bg);
+    --color-alert-error-border: var(--alert-error-border);
+    --color-alert-primary-bg: var(--alert-primary-bg);
+    --color-alert-primary-border: var(--alert-primary-border);
+    --color-badge-success-bg: var(--badge-success-bg);
+    --color-primary-icon-bg: var(--primary-icon-bg);
+    --color-hover-overlay: var(--hover-overlay);
+    --color-hero-card-bg: var(--hero-card-bg);
+    --color-media-bg: var(--media-bg);
+    --color-link-decoration: var(--link-decoration);
+
 }
 
 /*
@@ -86,6 +101,22 @@
     --info: rgb(59, 130, 246);
 
     --border-color: rgb(200, 200, 200);
+
+    /*theming tokens — light values*/
+    --input-background: rgb(255, 255, 255);
+    --alert-success-bg: var(--success);
+    --alert-warning-bg: var(--warning);
+    --alert-warning-border: var(--warning);
+    --alert-error-bg: rgba(255, 0, 0, 0.3);
+    --alert-error-border: var(--error);
+    --alert-primary-bg: rgba(245, 48, 3, 0.5);
+    --alert-primary-border: var(--primary);
+    --badge-success-bg: rgba(34, 197, 94, 0.1);
+    --primary-icon-bg: var(--primary);
+    --hover-overlay: rgba(0, 0, 0, 0.05);
+    --hero-card-bg: var(--primary-content);
+    --media-bg: var(--muted-background);
+    --link-decoration: rgb(212, 212, 212);
 }
 
 .dark {
@@ -110,6 +141,22 @@
     --info: rgb(59, 130, 246);
 
     --border-color: rgb(65, 65, 65);
+
+    /*theming tokens — dark values*/
+    --input-background: #0c0c0c;
+    --alert-success-bg: rgba(34, 197, 94, 0.1);
+    --alert-warning-bg: rgba(245, 158, 11, 0.1);
+    --alert-warning-border: rgba(245, 158, 11, 0.2);
+    --alert-error-bg: rgba(255, 0, 0, 0.05);
+    --alert-error-border: rgba(255, 0, 0, 0.2);
+    --alert-primary-bg: rgba(245, 48, 3, 0.1);
+    --alert-primary-border: rgba(245, 48, 3, 0.2);
+    --badge-success-bg: rgba(34, 197, 94, 0.2);
+    --primary-icon-bg: rgba(245, 48, 3, 0.3);
+    --hover-overlay: rgba(255, 255, 255, 0.05);
+    --hero-card-bg: #1D0002;
+    --media-bg: var(--primary-background);
+    --link-decoration: rgb(115, 115, 115);
 }
 
 @layer base {

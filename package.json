@@ -8,11 +8,7 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix",
-        "rag:index": "node scripts/rag/build-rag-index.mjs",
-        "rag:search": "node scripts/rag/search-rag-index.mjs",
-        "rag:query": "node scripts/rag/query-rag-index.mjs",
-        "rag:update": "RAG_RESUME=true node scripts/rag/build-rag-index.mjs"
+        "lint": "eslint . --fix"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
