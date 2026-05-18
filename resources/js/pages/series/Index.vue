@@ -34,7 +34,7 @@ const statusFilters = [
     <Head title="Series Catalog" />
 
     <AppLayout>
-        <div class="w-full max-w-7xl mx-auto p-6">
+        <div class="w-full max-w-7xl mx-auto p-3 sm:p-6">
             <div class="grid grid-cols-1 lg:grid-cols-[1fr,auto] items-center gap-6 mb-8">
                 <div>
                     <h1 class="text-3xl font-black uppercase tracking-tight">Series Catalog</h1>
@@ -60,14 +60,14 @@ const statusFilters = [
                         <!-- Series Origin Group -->
                         <div class="flex flex-col gap-2">
                             <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-content/60 px-1">Origin</span>
-                            <div class="flex items-center gap-1 bg-muted-background p-1 rounded-xl">
+                            <div class="flex flex-wrap justify-center items-center gap-x-1 gap-y-0.5 bg-border-color/30 p-1 rounded-xl">
                                 <button
                                     v-for="f in originFilters"
                                     :key="f.value"
                                     @click="type = f.value"
                                     :class="[
-                                        'px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
-                                        type === f.value ? 'bg-primary text-button-content shadow-sm' : 'text-muted-content hover:text-primary-content'
+                                        'px-2 sm:px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
+                                        type === f.value ? 'bg-primary text-button-content shadow-sm' : 'bg-muted-background text-muted-content hover:text-primary-content'
                                     ]"
                                 >
                                     {{ f.label }}
@@ -78,14 +78,14 @@ const statusFilters = [
                         <!-- Status Group -->
                         <div class="flex flex-col gap-2">
                             <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-content/60 px-1">Your Status</span>
-                            <div class="flex items-center gap-1 bg-muted-background p-1 rounded-xl">
+                            <div class="flex flex-wrap justify-center items-center gap-x-1 gap-y-0.5 bg-border-color/30 p-1 rounded-xl">
                                 <button
                                     v-for="f in statusFilters"
                                     :key="f.value"
                                     @click="filter = f.value"
                                     :class="[
-                                        'px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
-                                        filter === f.value ? 'bg-primary text-button-content shadow-sm' : 'text-muted-content hover:text-primary-content'
+                                        'px-2 sm:px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all',
+                                        filter === f.value ? 'bg-primary text-button-content shadow-sm' : 'bg-muted-background text-muted-content hover:text-primary-content'
                                     ]"
                                 >
                                     {{ f.label }}
@@ -94,7 +94,7 @@ const statusFilters = [
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 self-end">
+                    <div class="flex flex-wrap items-center gap-3 gap-y-2 self-end">
                         <span class="text-[10px] font-black uppercase tracking-widest text-muted-content mr-2">Sort By:</span>
 
                         <SortButton label="Name" column="name" :active-column="sortCol" :direction="sortDir" @toggle="toggleSort" />

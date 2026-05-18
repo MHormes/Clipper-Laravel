@@ -101,7 +101,7 @@ const confirmDelete = () => {
     </Head>
 
     <AppLayout>
-        <div class="max-w-7xl mx-auto p-6 space-y-8">
+        <div class="max-w-7xl mx-auto p-6 space-y-6">
             <div v-if="isReadOnlyProfileView">
                 <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight">
                     Currently Viewing For {{ collectionOwnerName }}
@@ -110,7 +110,7 @@ const confirmDelete = () => {
 
             <!-- Series Header Card -->
             <div
-                class="flex flex-col md:flex-row gap-8 items-start bg-component-background p-8 rounded-3xl border border-border-color shadow-sm relative overflow-hidden">
+                class="flex flex-col md:flex-row gap-8 items-start bg-component-background p-4 sm:p-8 rounded-3xl border border-border-color shadow-sm relative overflow-hidden">
                 <!-- Background Accent -->
                 <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
 
@@ -120,7 +120,7 @@ const confirmDelete = () => {
                         class="w-full h-full object-cover" />
                 </div>
 
-                <div class="flex-1 space-y-6 relative z-10">
+                <div class="flex-1 min-w-0 space-y-6 relative z-10">
                     <div>
                         <div class="flex items-center gap-3 flex-wrap">
                             <h1 class="text-4xl font-black uppercase tracking-tight">{{ series.name }}</h1>
@@ -129,7 +129,7 @@ const confirmDelete = () => {
                                 Set</span>
                         </div>
 
-                        <div v-if="!isReadOnlyProfileView" class="flex items-center gap-6 mt-3">
+                        <div v-if="!isReadOnlyProfileView" class="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3">
                             <div class="flex items-start gap-2 text-xs">
                                 <div class="p-1 rounded-md bg-muted-background mt-0.5">
                                     <UserIcon class="w-3 h-3 text-muted-content" />
@@ -174,7 +174,7 @@ const confirmDelete = () => {
                                 <Library class="w-4 h-4 text-info" />
                             </div>
                             <p class="text-xl font-bold">{{ registeredCount }} / {{ series.custom ? registeredCount : 4
-                            }} Registered</p>
+                                }} Registered</p>
                             <div class="w-full bg-muted-background h-1.5 rounded-full mt-2 overflow-hidden">
                                 <div class="bg-info h-full transition-all"
                                     :style="{ width: `${(registeredCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }">
@@ -247,9 +247,9 @@ const confirmDelete = () => {
                             class="bg-component-background p-1 sm:p-4 rounded-2xl border border-border-color shadow-sm transition-all hover:border-primary/50 relative">
                             <div class="flex justify-between mb-4">
                                 <span class="hidden sm:block text-xs font-black text-muted-content uppercase p-2">#{{ n
-                                }}</span>
+                                    }}</span>
 
-                                <div class="flex gap-1">
+                                <div class="flex gap-1" :class="{ 'flex-1 justify-center': !canManageCollection }">
                                     <button v-if="canManageCollection && isOwned(getClipperByNumber(n)!.id)"
                                         @click="openClipperDetails(getClipperByNumber(n)!)"
                                         class="p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all"
@@ -283,16 +283,13 @@ const confirmDelete = () => {
                     </div>
 
                     <div v-else-if="!series.custom"
-                        class="h-full min-h-[320px] border border-dashed border-border-color rounded-2xl flex flex-col items-center justify-center bg-muted-background/20 opacity-60">
-                        <div class="p-3 rounded-xl bg-muted-background mb-3">
-                            <Library class="w-6 h-6 text-muted-content opacity-20" />
+                        class="h-full border border-dashed border-border-color rounded-2xl flex flex-col items-center justify-center bg-muted-background/20 opacity-60">
+                        <div class="p-1 sm:p-3 rounded-xl bg-muted-background mb-2 sm:mb-3">
+                            <Library class="w-4 h-4 sm:w-6 sm:h-6 text-muted-content opacity-20" />
                         </div>
-                        <span class="text-xs font-bold uppercase text-muted-content tracking-widest text-center">#{{
-                            n }}
-                            Missing</span>
+                        <span class="text-[8px] sm:text-xs font-bold uppercase text-muted-content tracking-wide sm:tracking-widest text-center leading-tight">#{{ n }} Missing</span>
                         <Link v-if="isAdmin" :href="route('series.edit', series.id)"
-                            class="mt-4 text-[10px] font-bold text-primary underline uppercase text-center">Upload
-                            Design</Link>
+                            class="mt-2 sm:mt-4 text-[7px] sm:text-[10px] font-bold text-primary underline uppercase text-center">Upload Design</Link>
                     </div>
                 </template>
             </div>
