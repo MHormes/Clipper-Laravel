@@ -34,7 +34,7 @@ COPY . .
 
 # 7. Finalize Laravel & Build Assets
 RUN composer dump-autoload --optimize
-RUN pnpm run build
+RUN pnpm run build:ssr
 
 # 8. Set permissions AND make start.sh executable
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \

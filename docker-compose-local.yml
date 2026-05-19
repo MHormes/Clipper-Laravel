@@ -188,6 +188,7 @@ services:
   clipper_storage:
     image: quay.io/minio/aistor/minio:latest
     container_name: clipper_storage
+    hostname: clipper-storage
     restart: always
     ports:
       - "9000:9000"
@@ -199,6 +200,10 @@ services:
       - clipper_storage_data:/mnt/data
       - ./minio.license:/minio.license
     command: minio server /mnt/data --license /minio.license --console-address ":9001"
+    networks:
+      default:
+        aliases:
+          - clipper-storage
 
 volumes:
   clipper_db_data:
