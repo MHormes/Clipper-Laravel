@@ -48,7 +48,7 @@ echo "Seeding storage..."
 php artisan storage:seed --endpoint="${STORAGE_INTERNAL_URL}" || echo "⚠️  Storage seeding failed — app will start anyway."
 
 echo "Starting SSR Node server..."
-node /var/www/html/bootstrap/ssr/ssr.mjs &
+node /var/www/html/bootstrap/ssr/ssr.js &
 
 echo "Starting Apache..."
 exec apache2-foreground
