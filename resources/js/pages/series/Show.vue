@@ -249,19 +249,19 @@ const confirmDelete = () => {
                                 <span class="hidden sm:block text-xs font-black text-muted-content uppercase p-2">#{{ n
                                     }}</span>
 
-                                <div class="flex gap-1" :class="{ 'flex-1 justify-center': !canManageCollection }">
+                                <div class="flex gap-0.5 sm:gap-1" :class="{ 'flex-1 justify-center': !canManageCollection }">
                                     <button v-if="canManageCollection && isOwned(getClipperByNumber(n)!.id)"
                                         @click="openClipperDetails(getClipperByNumber(n)!)"
-                                        class="p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all"
+                                        class="p-1 sm:p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all"
                                         title="Edit notes/location">
-                                        <PencilLine class="w-4 h-4" />
+                                        <PencilLine class="w-3 h-3 sm:w-4 sm:h-4" />
                                     </button>
 
                                     <button v-if="canManageCollection"
                                         @click="toggleCollection(getClipperByNumber(n)!.id)"
-                                        class="p-2 rounded-full transition-all"
+                                        class="p-1 sm:p-2 rounded-full transition-all"
                                         :class="isOwned(getClipperByNumber(n)!.id) ? 'text-error bg-error/10' : 'text-muted-content hover:text-primary bg-muted-background'">
-                                        <Heart class="w-5 h-5"
+                                        <Heart class="w-4 h-4 sm:w-5 sm:h-5"
                                             :fill="isOwned(getClipperByNumber(n)!.id) ? 'currentColor' : 'none'" />
                                     </button>
 

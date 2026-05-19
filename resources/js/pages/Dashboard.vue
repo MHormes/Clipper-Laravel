@@ -98,12 +98,12 @@ const handleStatClick = (label: string) => {
             <div class="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <CursorCard v-for="stat in stats" :key="stat.label"
                     @click="handleStatClick(stat.label)"
-                    className="flex flex-col rounded-2xl border border-border-color p-6 shadow-sm transition-all hover:shadow-md bg-component-background cursor-pointer hover:border-primary/50"
+                    className="flex flex-col rounded-2xl border border-border-color p-4 sm:p-6 shadow-sm transition-all hover:shadow-md bg-component-background cursor-pointer hover:border-primary/50"
                 >
                     <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-muted-content uppercase tracking-wider">{{ stat.label }}</span>
-                            <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110', getStatConfig(stat.label).bg]">
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="text-sm font-bold text-muted-content uppercase tracking-wider min-w-0">{{ stat.label }}</span>
+                            <div :class="['p-2 rounded-lg transition-transform group-hover:scale-110 flex-shrink-0', getStatConfig(stat.label).bg]">
                                 <component :is="getStatConfig(stat.label).icon" :class="['w-5 h-5', getStatConfig(stat.label).color]" />
                             </div>
                         </div>
