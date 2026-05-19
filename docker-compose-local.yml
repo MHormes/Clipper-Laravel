@@ -76,6 +76,8 @@ services:
       - .:/var/www/html
       - /var/www/html/vendor
       - /var/www/html/node_modules
+      - /var/www/html/bootstrap/ssr
+      - /var/www/html/public/build
     depends_on:
       clipper_postgres:
         condition: service_healthy
@@ -156,6 +158,8 @@ services:
       - .:/var/www/html
       - /var/www/html/vendor
       - /var/www/html/node_modules
+      - /var/www/html/bootstrap/ssr
+      - /var/www/html/public/build
     depends_on:
       clipper_postgres:
         condition: service_healthy
@@ -192,12 +196,12 @@ services:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
     volumes:
-      - clipper_minio_data:/mnt/data
+      - clipper_storage_data:/mnt/data
       - ./minio.license:/minio.license
     command: minio server /mnt/data --license /minio.license --console-address ":9001"
 
 volumes:
   clipper_db_data:
     external: true
-  clipper_minio_data:
+  clipper_storage_data:
     external: true

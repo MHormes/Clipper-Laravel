@@ -28,6 +28,21 @@ else
     echo "✅ Data already exists. Skipping seeder."
 fi
 
+# STORAGE SEEDING LOGIC
+# Wait for AIStor/S3 to be reachable, then seed if bucket is empty.
+echo "Waiting for storage (${AWS_ENDPOINT})..."
+until php -r "
+    \$opts = ['http' => ['timeout' => 2, 'ignore_errors' => true]];
+    \$ctx = stream_context_create(\$opts);
+    \$r = @file_get_contents('${AWS_ENDPOINT}/minio/health/live', false, \$ctx);
+    exit(\$r !== false ? 0 : 1);
+"; do
+  sleep 2
+done
+
+echo "Seeding storage..."
+php artisan storage:seed
+
 echo "Starting SSR Node server..."
 node /var/www/html/bootstrap/ssr/ssr.mjs &
 

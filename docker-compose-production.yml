@@ -197,12 +197,12 @@ services:
       MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
     volumes:
-      - clipper_minio_data_prod:/mnt/data
+      - clipper_storage_data_prod:/mnt/data
       - ./minio.license:/minio.license
     command: minio server /mnt/data --license /minio.license --console-address ":9001"
 
 volumes:
   clipper_db_data_prod:
     external: true
-  clipper_minio_data_prod:
+  clipper_storage_data_prod:
     external: true

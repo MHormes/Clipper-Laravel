@@ -10,7 +10,7 @@ Run after server OS updates are done (see global `update_guide.md`). Do all step
 
 - PHP base image (`FROM php:x-apache`) in `Dockerfile` — check latest patch: https://hub.docker.com/_/php/tags
 - For minor/major PHP bumps: also update the `"php"` version constraint in the `require` block of `composer.json`, run `composer update` locally, commit updated `composer.lock` (both files are in the project root)
-- Node.js installed via apt — no version pinned, no action needed
+- Node.js v22 installed via NodeSource — bump the `setup_22.x` line in `Dockerfile` when upgrading major versions (required by pnpm 11+)
 - pnpm version pinned via `packageManager` in `package.json` — bump there when upgrading pnpm
 
 **`docker-compose-production.yml`** — check for updates:
