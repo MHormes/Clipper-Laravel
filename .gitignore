@@ -12,6 +12,7 @@
 /resources/js/wayfinder
 /vendor
 .DS_Store
+minio.license
 .env
 .env.backup
 .env.production

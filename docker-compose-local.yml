@@ -182,7 +182,7 @@ services:
       retries: 5
 
   clipper_storage:
-    image: minio/minio
+    image: quay.io/minio/aistor/minio:latest
     container_name: clipper_storage
     restart: always
     ports:
@@ -192,8 +192,9 @@ services:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
     volumes:
-      - clipper_minio_data:/data
-    command: server /data --console-address ":9001"
+      - clipper_minio_data:/mnt/data
+      - ./minio.license:/minio.license
+    command: minio server /mnt/data --license /minio.license --console-address ":9001"
 
 volumes:
   clipper_db_data:

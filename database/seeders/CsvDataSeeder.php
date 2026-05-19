@@ -27,6 +27,7 @@ class CsvDataSeeder extends Seeder
             'series' => 'series.csv',
             'clippers' => 'clippers.csv',
             'collected_clippers' => 'collected_clippers.csv',
+            'user_follows' => 'user_follows.csv',
         ];
 
         foreach ($tables as $table => $fileName) {

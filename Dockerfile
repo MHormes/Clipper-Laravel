@@ -18,20 +18,20 @@ RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-av
 WORKDIR /var/www/html
 
 # 4. Copy ONLY dependency manifests
-COPY composer.json composer.lock package.json package-lock.json ./
+COPY composer.json composer.lock package.json pnpm-lock.yaml ./
 
 # 5. Install Dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 # Omdat we nu ook tests willen runnen, installeren we ook de dev-dependencies
 RUN composer install --no-scripts --no-autoloader
-RUN npm install
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 # 6. Copy the rest of the application
 COPY . .
 
 # 7. Finalize Laravel & Build Assets
 RUN composer dump-autoload --optimize
-RUN npm run build
+RUN pnpm run build
 
 # 8. Set permissions AND make start.sh executable
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
