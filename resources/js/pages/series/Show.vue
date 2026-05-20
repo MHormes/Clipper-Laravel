@@ -245,31 +245,38 @@ const confirmDelete = () => {
                     <div v-if="getClipperByNumber(n)" class="group">
                         <div
                             class="bg-component-background p-1 sm:p-4 rounded-2xl border border-border-color shadow-sm transition-all hover:border-primary/50 relative">
-                            <div class="flex justify-between mb-4">
-                                <span class="hidden sm:block text-xs font-black text-muted-content uppercase p-2">#{{ n
+                            <div class="flex items-center mb-4">
+                                <span class="hidden md:block text-xs font-black text-muted-content uppercase p-2">#{{ n
                                     }}</span>
 
-                                <div class="flex gap-0.5 sm:gap-1" :class="{ 'flex-1 justify-center': !canManageCollection }">
-                                    <button v-if="canManageCollection && isOwned(getClipperByNumber(n)!.id)"
-                                        @click="openClipperDetails(getClipperByNumber(n)!)"
-                                        class="p-1 sm:p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all"
-                                        title="Edit notes/location">
-                                        <PencilLine class="w-3 h-3 sm:w-4 sm:h-4" />
-                                    </button>
-
-                                    <button v-if="canManageCollection"
+                                <!-- canManageCollection: spread on small (pencil left, heart right), grouped on md+ -->
+                                <div v-if="canManageCollection"
+                                    class="flex-1 flex flex-row-reverse flex-wrap items-center justify-between gap-2 md:flex-none md:flex-row md:ml-auto md:justify-end md:gap-1">
+                                    <!-- Heart first in DOM: right side on small (row-reverse), top if stacking -->
+                                    <button
                                         @click="toggleCollection(getClipperByNumber(n)!.id)"
-                                        class="p-1 sm:p-2 rounded-full transition-all"
+                                        class="p-2 rounded-full transition-all"
                                         :class="isOwned(getClipperByNumber(n)!.id) ? 'text-error bg-error/10' : 'text-muted-content hover:text-primary bg-muted-background'">
-                                        <Heart class="w-4 h-4 sm:w-5 sm:h-5"
+                                        <Heart class="w-6 h-6 md:w-5 md:h-5"
                                             :fill="isOwned(getClipperByNumber(n)!.id) ? 'currentColor' : 'none'" />
                                     </button>
-
-                                    <div v-else
-                                        class="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest "
-                                        :class="isOwned(getClipperByNumber(n)!.id) ? 'bg-success/10 text-success border border-success/20' : 'bg-muted-background text-muted-content border border-border-color'">
-                                        {{ isOwned(getClipperByNumber(n)!.id) ? 'Owned' : 'Missing' }}
+                                    <!-- Pencil second in DOM: left side on small (row-reverse), below heart if stacking; first on md+ via order -->
+                                    <button v-if="isOwned(getClipperByNumber(n)!.id)"
+                                        @click="openClipperDetails(getClipperByNumber(n)!)"
+                                        class="p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all md:order-first"
+                                        title="Edit notes/location">
+                                        <PencilLine class="w-5 h-5 md:w-4 md:h-4" />
+                                    </button>
+                                    <!-- Invisible spacer: keeps uncollected cards same height as collected (stacked) cards below md -->
+                                    <div v-else class="p-2 md:hidden invisible" aria-hidden="true">
+                                        <div class="w-5 h-5" />
                                     </div>
+                                </div>
+
+                                <div v-else
+                                    class="mx-auto px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+                                    :class="isOwned(getClipperByNumber(n)!.id) ? 'bg-success/10 text-success border border-success/20' : 'bg-muted-background text-muted-content border border-border-color'">
+                                    {{ isOwned(getClipperByNumber(n)!.id) ? 'Owned' : 'Missing' }}
                                 </div>
                             </div>
 
