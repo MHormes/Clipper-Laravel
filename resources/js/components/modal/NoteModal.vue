@@ -8,6 +8,7 @@ import {
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
+    Skeleton,
 } from '@/components/ui';
 
 const props = defineProps<{
@@ -27,6 +28,7 @@ const searchResults = ref<any[]>([]);
 const selectedCoords = ref<string | null>(props.initialLocation as string | null);
 const readableLocation = ref<string | null>(null);
 const isFetchingReadable = ref(false);
+const isInitialLoading = ref(false);
 
 const form = useForm({
     notes: props.initialNotes ?? '',
@@ -66,12 +68,14 @@ const selectLocation = (result: any) => {
 const fetchReadableLocation = async (coords: string | null | undefined) => {
     if (!coords) {
         readableLocation.value = null;
+        isInitialLoading.value = false;
         return;
     }
 
     const [lat, lon] = coords.split(',').map(c => c.trim());
     if (!lat || !lon) {
         readableLocation.value = null;
+        isInitialLoading.value = false;
         return;
     }
 
@@ -88,6 +92,7 @@ const fetchReadableLocation = async (coords: string | null | undefined) => {
         readableLocation.value = null;
     } finally {
         isFetchingReadable.value = false;
+        isInitialLoading.value = false;
     }
 };
 
@@ -99,7 +104,14 @@ watch(() => props.show, (val) => {
         form.location_bought = props.initialLocation ?? '';
         searchQuery.value = '';
         selectedCoords.value = props.initialLocation as string | null;
-        fetchReadableLocation(props.initialLocation as string | null);
+        
+        if (props.initialLocation) {
+            isInitialLoading.value = true;
+            fetchReadableLocation(props.initialLocation as string | null);
+        } else {
+            isInitialLoading.value = false;
+            readableLocation.value = null;
+        }
     }
 });
 
@@ -122,7 +134,22 @@ const submit = () => {
                     Clipper Details
                 </h3>
 
-                <div v-if="!isEditing" class="space-y-6">
+                <div v-if="isInitialLoading" class="space-y-6">
+                    <div>
+                        <Skeleton class="h-3 w-20 mb-2" />
+                        <Skeleton class="h-16 w-full rounded-xl" />
+                    </div>
+                    <div>
+                        <Skeleton class="h-3 w-32 mb-2" />
+                        <div class="space-y-2">
+                            <Skeleton class="h-20 w-full rounded-xl" />
+                            <Skeleton class="h-3 w-24" />
+                        </div>
+                    </div>
+                    <Skeleton class="h-12 w-full rounded-xl" />
+                </div>
+
+                <div v-else-if="!isEditing" class="space-y-6">
                     <div>
                         <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">My Notes</span>
                         <div class="mt-2 rounded-xl bg-component-background p-3">
