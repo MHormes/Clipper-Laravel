@@ -7,6 +7,7 @@ use App\Models\Clipper;
 use App\Models\CollectedClipper;
 use App\Models\User;
 use App\Models\Series;
+use App\Services\SeriesService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,7 @@ use Inertia\Inertia;
 
 class UserDirectoryController extends Controller
 {
+    public function __construct(protected SeriesService $seriesService) {}
     public function following(Request $request)
     {
         $search = (string) $request->string('search')->trim();
@@ -209,8 +211,6 @@ class UserDirectoryController extends Controller
 
     private function resolveProfileStats(User $user): array
     {
-        $completed = $this->resolveCompletedSeriesCounts([$user->id]);
-
         $acceptedSeriesContributions = $user->requestedSeries()
             ->accepted()
             ->count();
@@ -221,7 +221,7 @@ class UserDirectoryController extends Controller
 
         return [
             'collected_clippers_count' => $user->myCollection()->count(),
-            'completed_series_count' => $completed[$user->id] ?? 0,
+            'completed_series_count' => $this->seriesService->countCompletedSeries($user),
             'contributions_count' => $acceptedSeriesContributions + $acceptedClipperContributions,
             'following_count' => $user->following()->count(),
             'followers_count' => $user->followers()->count(),
@@ -246,21 +246,8 @@ class UserDirectoryController extends Controller
         }
 
         if (($filters['filter'] ?? 'all') === 'completed') {
-            $query->where(function ($query) use ($user) {
-                $query->where(function ($query) use ($user) {
-                    $query->where('series.custom', false)
-                        ->whereHas('clippers', function ($query) use ($user) {
-                            $query->accepted()->whereHas('collections', fn($subQuery) => $subQuery->where('user_id', $user->id));
-                        }, '>=', 4);
-                })
-                ->orWhere(function ($query) use ($user) {
-                    $query->where('series.custom', true)
-                        ->whereHas('clippers', fn($subQuery) => $subQuery->accepted())
-                        ->whereDoesntHave('clippers', function ($subQuery) use ($user) {
-                            $subQuery->accepted()->whereDoesntHave('collections', fn($innerQuery) => $innerQuery->where('user_id', $user->id));
-                        });
-                });
-            });
+            $completedIds = $this->seriesService->getCompletedSeriesIds($user);
+            $query->whereIn('series.id', empty($completedIds) ? [''] : $completedIds);
         }
 
         return $query
