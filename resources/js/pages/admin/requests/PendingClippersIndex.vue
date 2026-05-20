@@ -2,7 +2,10 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
+import { ref } from 'vue';
 import { Clock, Check, X, ClipboardCheck } from 'lucide-vue-next';
+import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
+import DeclineModal from '@/components/modal/DeclineModal.vue';
 
 defineProps<{
     groupedClippers: Record<string, Array<{
@@ -16,18 +19,35 @@ defineProps<{
     }>>;
 }>();
 
-const form = useForm({});
+const form = useForm({
+    decline_reason: '' as string,
+});
+
+const showAcceptModal = ref(false);
+const showDeclineModal = ref(false);
+const pendingActionId = ref<string | null>(null);
 
 const acceptClipper = (id: string) => {
-    if (confirm('Accept this clipper?')) {
-        form.post(route('admin.requests.clippers.accept', id));
-    }
+    pendingActionId.value = id;
+    showAcceptModal.value = true;
+};
+
+const confirmAccept = () => {
+    if (!pendingActionId.value) return;
+    form.post(route('admin.requests.clippers.accept', pendingActionId.value));
+    showAcceptModal.value = false;
 };
 
 const declineClipper = (id: string) => {
-    if (confirm('Decline and delete this clipper request?')) {
-        form.delete(route('admin.requests.clippers.decline', id));
-    }
+    pendingActionId.value = id;
+    showDeclineModal.value = true;
+};
+
+const confirmDecline = (reason: string) => {
+    if (!pendingActionId.value) return;
+    form.decline_reason = reason;
+    form.delete(route('admin.requests.clippers.decline', pendingActionId.value));
+    showDeclineModal.value = false;
 };
 
 const formatDate = (date: string) => {
@@ -105,5 +125,26 @@ const formatDate = (date: string) => {
                 </div>
             </div>
         </div>
+
+        <ConfirmationModal
+            :open="showAcceptModal"
+            title="Accept Clipper"
+            description="Are you sure you want to accept this clipper request?"
+            confirmText="Accept"
+            @confirm="confirmAccept"
+            @cancel="showAcceptModal = false"
+            @update:open="showAcceptModal = $event"
+            :loading="form.processing"
+        />
+
+        <DeclineModal
+            :open="showDeclineModal"
+            title="Decline Clipper Request"
+            description="This will permanently delete this clipper request. This action cannot be undone."
+            @confirm="confirmDecline"
+            @cancel="showDeclineModal = false"
+            @update:open="showDeclineModal = $event"
+            :loading="form.processing"
+        />
     </AppLayout>
 </template>

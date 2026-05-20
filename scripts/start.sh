@@ -14,7 +14,8 @@ if [ ! -d "vendor" ] || [ ! -f "vendor/autoload.php" ]; then
     composer install --no-interaction --prefer-dist --optimize-autoloader
 fi
 
-echo "Database is up - executing migrations..."
+echo "Database is up - clearing config cache and executing migrations..."
+php artisan config:clear
 php artisan migrate --force
 
 # SMART SEEDING LOGIC
@@ -28,9 +29,26 @@ else
     echo "✅ Data already exists. Skipping seeder."
 fi
 
-echo "Starting SSR Node server..."
-node /var/www/html/bootstrap/ssr/ssr.mjs &
+# STORAGE SEEDING LOGIC
+# Derive the internal storage container URL from DB_HOST (clipper_postgres → clipper_storage).
+STORAGE_HOST=$(echo "$DB_HOST" | sed 's/postgres/storage/' | tr '_' '-')
+STORAGE_INTERNAL_URL="http://${STORAGE_HOST}:9000"
 
-echo "Clearing cache and starting Apache..."
-php artisan config:clear
+echo "Waiting for storage (${STORAGE_INTERNAL_URL})..."
+until php -r "
+    \$opts = ['http' => ['timeout' => 2, 'ignore_errors' => true]];
+    \$ctx = stream_context_create(\$opts);
+    \$r = @file_get_contents('${STORAGE_INTERNAL_URL}/minio/health/live', false, \$ctx);
+    exit(\$r !== false ? 0 : 1);
+"; do
+  sleep 2
+done
+
+echo "Seeding storage..."
+php artisan storage:seed --endpoint="${STORAGE_INTERNAL_URL}" || echo "⚠️  Storage seeding failed — app will start anyway."
+
+echo "Starting SSR Node server..."
+node /var/www/html/bootstrap/ssr/ssr.js &
+
+echo "Starting Apache..."
 exec apache2-foreground

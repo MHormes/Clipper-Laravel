@@ -12,10 +12,29 @@ class UserController extends Controller
     /**
      * Display a listing of the users.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $allowedSorts = ['name', 'role', 'is_active', 'created_at'];
+        $sortCol = in_array($request->sortCol, $allowedSorts) ? $request->sortCol : 'name';
+        $sortDir = $request->sortDir === 'desc' ? 'desc' : 'asc';
+        $search  = $request->search ?? '';
+
+        $users = User::query()
+            ->when($search, fn($q) => $q->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            }))
+            ->orderBy($sortCol, $sortDir)
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('admin/users/Index', [
-            'users' => User::orderBy('name')->get()
+            'users'   => $users,
+            'filters' => [
+                'search'  => $search,
+                'sortCol' => $request->sortCol ?? '',
+                'sortDir' => $request->sortDir ?? '',
+            ],
         ]);
     }
 

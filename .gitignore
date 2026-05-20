@@ -12,6 +12,7 @@
 /resources/js/wayfinder
 /vendor
 .DS_Store
+minio.license
 .env
 .env.backup
 .env.production
@@ -22,6 +23,7 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+package-lock.json
 /auth.json
 /.fleet
 /.idea
@@ -33,3 +35,4 @@ docker/minio_data/.minio.sys/buckets/.bloomcycle.bin/xl.meta
 docker/minio_data/.minio.sys/buckets/.usage.json/xl.meta
 /backups
 /database/data
+.claude

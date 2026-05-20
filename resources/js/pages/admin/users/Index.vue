@@ -2,10 +2,13 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { ref, computed, reactive } from 'vue';
+import { reactive } from 'vue';
 import { Users, Mail, Calendar, Trash2, Ban, CheckCircle, Search, UserRoundSearch } from 'lucide-vue-next';
 import { AppPageProps } from '@/types';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
+import SortButton from '@/components/SortButton.vue';
+import Pagination from '@/components/Pagination.vue';
+import { useFilters } from '@/util/useFilters';
 
 const page = usePage<AppPageProps>();
 
@@ -18,17 +21,25 @@ interface User {
     created_at: string;
 }
 
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
 const props = defineProps<{
-    users: User[];
+    users: {
+        data: User[];
+        links: PaginationLink[];
+    };
+    filters: {
+        search: string;
+        sortCol: string;
+        sortDir: string;
+    };
 }>();
 
-const searchTerm = ref('');
-const filteredUsers = computed(() => {
-    return props.users.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.value.toLowerCase())
-    );
-});
+const { search, sortCol, sortDir, toggleSort } = useFilters('admin.users.index', props.filters);
 
 const modalState = reactive({
     isOpen: false,
@@ -141,12 +152,19 @@ const formatDate = (dateString: string) => {
                 <div class="relative w-full md:w-96">
                     <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-content" />
                     <input
-                        v-model="searchTerm"
+                        v-model="search"
                         type="text"
                         placeholder="Search users..."
                         class="w-full pl-10 pr-4 py-2.5 bg-component-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm shadow-sm"
                     />
                 </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+                <SortButton label="Name"   column="name"       :activeColumn="sortCol" :direction="sortDir" @toggle="toggleSort" />
+                <SortButton label="Role"   column="role"       :activeColumn="sortCol" :direction="sortDir" @toggle="toggleSort" />
+                <SortButton label="Status" column="is_active"  :activeColumn="sortCol" :direction="sortDir" @toggle="toggleSort" />
+                <SortButton label="Joined" column="created_at" :activeColumn="sortCol" :direction="sortDir" @toggle="toggleSort" />
             </div>
 
             <div class="bg-component-background rounded-3xl border border-border-color shadow-sm overflow-hidden relative">
@@ -165,7 +183,7 @@ const formatDate = (dateString: string) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border-color">
-                            <tr v-for="user in filteredUsers" :key="user.id"
+                            <tr v-for="user in users.data" :key="user.id"
                                 class="hover:bg-muted-background/20 transition-colors group"
                                 :class="{'opacity-60': !user.is_active}">
                                 <td class="px-6 py-4">
@@ -232,7 +250,7 @@ const formatDate = (dateString: string) => {
                                 </td>
                             </tr>
 
-                            <tr v-if="filteredUsers.length === 0">
+                            <tr v-if="users.data.length === 0">
                                 <td colspan="5" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center gap-2 text-muted-content">
                                         <Users class="w-12 h-12 opacity-10" />
@@ -244,6 +262,8 @@ const formatDate = (dateString: string) => {
                     </table>
                 </div>
             </div>
+
+            <Pagination :links="users.links" />
         </div>
 
         <ConfirmationModal

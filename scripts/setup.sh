@@ -75,7 +75,7 @@ toggle_maintenance() {
     fi
 }
 
-# 4. Omgevingsvariabelen laden (nodig voor de volumes en MinIO checks in dit script)
+# 4. Omgevingsvariabelen laden (nodig voor de volumes en AIStor checks in dit script)
 export $(grep -v '^#' "$ENV_FILE" | xargs)
 
 toggle_maintenance "on"
@@ -88,10 +88,10 @@ docker compose -f "$COMPOSE_FILE" down
 echo "📦 Volumes controleren..."
 if [ "$PROFILE" = "local" ]; then
     docker volume create clipper_db_data > /dev/null
-    docker volume create clipper_minio_data > /dev/null
+    docker volume create clipper_storage_data > /dev/null
 else
     docker volume create clipper_db_data_prod > /dev/null
-    docker volume create clipper_minio_data_prod > /dev/null
+    docker volume create clipper_storage_data_prod > /dev/null
 fi
 
 # 6. Start Containers
@@ -103,20 +103,21 @@ echo "🔒 Rechten herstellen voor Laravel storage..."
 # We zoeken de container die op dat moment draait
 CONTAINER_APP=$(docker ps --format "{{.Names}}" | grep "_app")
 if [ ! -z "$CONTAINER_APP" ]; then
-    docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-    docker exec -u root "$CONTAINER_APP" chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-    docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/public/build
+    # MSYS_NO_PATHCONV=1 prevents Git Bash on Windows from mangling /var/www/html paths
+    MSYS_NO_PATHCONV=1 docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    MSYS_NO_PATHCONV=1 docker exec -u root "$CONTAINER_APP" chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    MSYS_NO_PATHCONV=1 docker exec -u root "$CONTAINER_APP" chown -R www-data:www-data /var/www/html/public/build
     echo "✅ Rechten gefixt in $CONTAINER_APP"
 else
     echo "⚠️ Waarschuwing: App container niet gevonden voor permissie-fix."
 fi
 
-# 7. Wachten op MinIO
-echo "⏳ Wachten op MinIO (10s)..."
+# 7. Wachten op AIStor
+echo "⏳ Wachten op AIStor (10s)..."
 sleep 10
 
 # 8. Configure Bucket
-echo "🪣 MinIO bucket configureren..."
+echo "🪣 AIStor bucket configureren..."
 if [ "$PROFILE" = "local" ]; then
     CONTAINER_NAME="clipper_storage"
 else

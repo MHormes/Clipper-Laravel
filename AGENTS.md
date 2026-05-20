@@ -6,7 +6,7 @@ This is the **Source of Truth** for all AI agent interactions. Consult this file
 - **Navigation Rule**: Consult `RIG.json` first for architectural dependencies. Do not guess paths.
 - **Map Maintenance**: If you change the project structure (adding/moving/deleting files), your final step must be to run:
   ```bash
-  npx repomix --style json --no-files --output RIG.json
+  pnpm dlx repomix --style json --no-files --output RIG.json
   ```
 
 ## 📜 Operational Protocols

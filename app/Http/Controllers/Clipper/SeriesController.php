@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Clipper;
 
+use App\Enums\EmailNotificationCategory;
+use App\Notifications\Requests\NewClipperRequestNotification;
 use App\Services\ClipperService;
+use App\Services\EmailNotificationService;
 use App\Services\SeriesService;
 use App\Services\CollectionService;
 use App\Support\SeoMetadata;
@@ -17,7 +20,12 @@ use Illuminate\Support\Facades\Log;
 
 class SeriesController extends Controller
 {
-    public function __construct(protected ClipperService $clipperService, protected SeriesService $seriesService, protected CollectionService $collectionService) {}
+    public function __construct(
+        protected ClipperService $clipperService,
+        protected SeriesService $seriesService,
+        protected CollectionService $collectionService,
+        protected EmailNotificationService $emailNotificationService
+    ) {}
 
     /**
     * Show the form for creating a new series.
@@ -177,7 +185,15 @@ class SeriesController extends Controller
      */
     public function storeClipperRequest(StoreSeriesRequest $request, Series $series): RedirectResponse
     {
-        $this->clipperService->syncClippers($series, $request->validated(), $request->user()->id, true);
+        $clippers = $this->clipperService->syncClippers($series, $request->validated(), $request->user()->id, true);
+
+        $clipperCount = is_array($clippers) ? count($clippers) : 0;
+        if ($clipperCount > 0) {
+            $this->emailNotificationService->notifyAdmins(
+                EmailNotificationCategory::NewClipperRequest,
+                new NewClipperRequestNotification($series, $request->user(), $clipperCount)
+            );
+        }
 
         return to_route('series.show', ['series' => $series->id, 'slug' => $series->slug])
             ->with('success', 'Your clipper requests have been submitted and are pending review.');

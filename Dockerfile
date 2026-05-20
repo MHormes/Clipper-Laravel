@@ -1,8 +1,11 @@
 FROM php:8.4-apache
 
 # 1. Install system dependencies (libzip-dev toegevoegd voor de PHP zip extensie)
-RUN apt-get update && apt-get install -y \
-    libpng-dev libonig-dev libxml2-dev libzip-dev zip curl unzip libpq-dev nodejs npm \
+# Node 22 via NodeSource — required by pnpm 11
+RUN apt-get update && apt-get install -y curl \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y \
+    libpng-dev libonig-dev libxml2-dev libzip-dev zip curl unzip libpq-dev nodejs \
     netcat-openbsd git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -18,20 +21,20 @@ RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-av
 WORKDIR /var/www/html
 
 # 4. Copy ONLY dependency manifests
-COPY composer.json composer.lock package.json package-lock.json ./
+COPY composer.json composer.lock package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 5. Install Dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 # Omdat we nu ook tests willen runnen, installeren we ook de dev-dependencies
 RUN composer install --no-scripts --no-autoloader
-RUN npm install
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 # 6. Copy the rest of the application
 COPY . .
 
 # 7. Finalize Laravel & Build Assets
 RUN composer dump-autoload --optimize
-RUN npm run build
+RUN pnpm run build:ssr
 
 # 8. Set permissions AND make start.sh executable
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \

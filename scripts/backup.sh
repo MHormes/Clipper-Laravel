@@ -35,8 +35,8 @@ for TABLE in $TABLES; do
     docker exec $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c "COPY $TABLE TO STDOUT WITH (FORMAT CSV, HEADER);" > "$BACKUP_DIR/csv/$TABLE.csv"
 done
 
-# --- 2. MinIO Bucket downloaden ---
-echo "📦 MinIO bucket downloaden (clipper-ms)..."
+# --- 2. AIStor Bucket downloaden ---
+echo "📦 AIStor bucket downloaden (clipper-ms)..."
 docker exec $S3_CONTAINER sh -c "mc alias set local http://localhost:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} > /dev/null && mc mirror local/clipper-ms /tmp/backup_mirror"
 docker cp $S3_CONTAINER:/tmp/backup_mirror/. "$BACKUP_DIR/storage/"
 docker exec $S3_CONTAINER rm -rf /tmp/backup_mirror

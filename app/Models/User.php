@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EmailNotificationCategory;
 use App\Notifications\Auth\VerifyEmailNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -32,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role',
         'is_active',
+        'email_preferences',
     ];
 
     /**
@@ -57,7 +59,23 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'email_preferences' => 'array',
         ];
+    }
+
+    public function getIsActiveAttribute(mixed $value): bool
+    {
+        return !in_array($value, [0, false, '0', 'f', 'false', 'no', 'off', null, ''], true);
+    }
+
+    public function wantsEmailFor(EmailNotificationCategory $category): bool
+    {
+        return ($this->email_preferences ?? [])[$category->value] ?? true;
+    }
+
+    public function emailPreferencesWithDefaults(): array
+    {
+        return array_merge(EmailNotificationCategory::defaults(), $this->email_preferences ?? []);
     }
 
 

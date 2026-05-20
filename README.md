@@ -22,7 +22,7 @@ Clipper-MS is a Clipper lighter management system — a community databank of ex
 | Styling  | Tailwind CSS v4 · Bootstrap        |
 | Build    | Vite                               |
 | Database | PostgreSQL 17 (SQLite in dev)      |
-| Storage  | MinIO (S3-compatible)              |
+| Storage  | AIStor (S3-compatible)             |
 | Hosting  | Docker · Cloudflare Tunnel         |
 
 ## License

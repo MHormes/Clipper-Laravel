@@ -65,9 +65,9 @@ class RequestController extends Controller
     /**
      * Decline a series request.
      */
-    public function declineSeries(Series $series): RedirectResponse
+    public function declineSeries(Request $request, Series $series): RedirectResponse
     {
-        $this->requestService->declineSeriesRequest($series);
+        $this->requestService->declineSeriesRequest($series, $request->input('decline_reason') ?? '');
 
         return to_route('admin.requests.series.index')
             ->with('success', 'Series request declined.');
@@ -96,9 +96,9 @@ class RequestController extends Controller
     /**
      * Decline an individual clipper request.
      */
-    public function declineClipper(Clipper $clipper): RedirectResponse
+    public function declineClipper(Request $request, Clipper $clipper): RedirectResponse
     {
-        $this->requestService->declineClipper($clipper);
+        $this->requestService->declineClipper($clipper, $request->input('decline_reason') ?? '');
 
         return back()->with('success', 'Clipper request declined.');
     }

@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\EmailNotificationCategory;
 use App\Models\Series;
 use App\Models\Clipper;
 use App\Models\User;
+use App\Notifications\Requests\NewSeriesRequestNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
 
@@ -14,7 +16,8 @@ class SeriesService
     public function __construct(
         protected ImageService $imageService,
         protected ClipperService $clipperService,
-        protected CollectionService $collectionService
+        protected CollectionService $collectionService,
+        protected EmailNotificationService $emailNotificationService
     ) {}
 
     /**
@@ -22,7 +25,7 @@ class SeriesService
      */
     public function createSeriesWithClippers($user, array $data, bool $isRequest = false)
     {
-        return DB::transaction(function () use ($user, $data, $isRequest) {
+        $series = DB::transaction(function () use ($user, $data, $isRequest) {
             $seriesPath = null;
             if (isset($data['image'])) {
                 $seriesPath = $this->imageService->uploadImage($data['image'], 'series');
@@ -49,6 +52,15 @@ class SeriesService
 
             return $series;
         });
+
+        if ($isRequest) {
+            $this->emailNotificationService->notifyAdmins(
+                EmailNotificationCategory::NewSeriesRequest,
+                new NewSeriesRequestNotification($series, $user)
+            );
+        }
+
+        return $series;
     }
 
     /**
@@ -142,23 +154,8 @@ class SeriesService
             // Collected None: Show series where user has 0 clippers
             $query->whereDoesntHave('clippers.collections', fn($q) => $q->where('user_id', $user->id));
         } elseif ($filter === 'completed') {
-            $query->where(function ($q) use ($user) {
-                // Official Series (custom = 0): User has collected 4 or more clippers
-                $q->where(function ($q) use ($user) {
-                    $q->where('series.custom', false)
-                        ->whereHas('clippers', function ($q) use ($user) {
-                            $q->accepted()->whereHas('collections', fn($q) => $q->where('user_id', $user->id));
-                        }, '>=', 4);
-                })
-                // Custom Series (custom = 1): User has collected ALL accepted clippers (min 1)
-                ->orWhere(function ($q) use ($user) {
-                    $q->where('series.custom', true)
-                        ->whereHas('clippers', fn($q) => $q->accepted())
-                        ->whereDoesntHave('clippers', function ($q) use ($user) {
-                            $q->accepted()->whereDoesntHave('collections', fn($q) => $q->where('user_id', $user->id));
-                        });
-                });
-            });
+            $completedIds = $this->getCompletedSeriesIds($user);
+            $query->whereIn('series.id', empty($completedIds) ? [''] : $completedIds);
         }
 
         $query->orderBy($column, $direction);
@@ -179,24 +176,59 @@ class SeriesService
     }
 
     /**
-     * Count the number of completed series for a user.
-     * Used as stats on the dashboard.
+     * Get pending series requests for a specific user.
      */
-    public function countCompletedSeries(User $user): int
+    public function getPendingSeriesRequestsForUser(User $user)
     {
-        $seriesStats = Series::accepted()
+        return Series::pending()
+            ->where('requested_by', $user->id)
+            ->with(['requester', 'clippers'])
+            ->withCount('clippers')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * Shared logic for determining which series are completed for a user.
+     * Official series: >= 4 collected accepted clippers.
+     * Custom series: all accepted clippers collected (min 1).
+     */
+    private function resolveCompletedSeriesStats(User $user)
+    {
+        return Series::accepted()
+            ->select(['id', 'custom'])
             ->withCount(['clippers' => fn($q) => $q->accepted()])
             ->withCount(['clippers as collected_count' => function ($query) use ($user) {
                 $query->accepted()->whereHas('collections', function ($q) use ($user) {
                     $q->where('user_id', $user->id);
                 });
             }])->get();
+    }
 
-        return $seriesStats->filter(function ($series) {
-            return $series->custom 
-                ? ($series->clippers_count > 0 && $series->collected_count >= $series->clippers_count)
-                : ($series->collected_count >= 4);
-        })->count();
+    private function isSeriesCompleted($series): bool
+    {
+        return $series->custom
+            ? ($series->clippers_count > 0 && $series->collected_count >= $series->clippers_count)
+            : ($series->collected_count >= 4);
+    }
+
+    public function getCompletedSeriesIds(User $user): array
+    {
+        return $this->resolveCompletedSeriesStats($user)
+            ->filter(fn($s) => $this->isSeriesCompleted($s))
+            ->pluck('id')
+            ->all();
+    }
+
+    /**
+     * Count the number of completed series for a user.
+     * Used as stats on the dashboard.
+     */
+    public function countCompletedSeries(User $user): int
+    {
+        return $this->resolveCompletedSeriesStats($user)
+            ->filter(fn($s) => $this->isSeriesCompleted($s))
+            ->count();
     }
 
     protected function addClippersToUserCollection(User $user, array $clippers): void

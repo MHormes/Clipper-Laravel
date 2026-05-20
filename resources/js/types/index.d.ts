@@ -39,6 +39,7 @@ export interface User {
     is_active: boolean;
     avatar?: string;
     email_verified_at: string | null;
+    email_preferences: Record<string, boolean> | null;
     created_at: string;
     updated_at: string;
 }

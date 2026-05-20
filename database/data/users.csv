@@ -1,2 +1,0 @@
-"id","name","email","email_verified_at","password","remember_token","created_at","updated_at","two_factor_secret","two_factor_recovery_codes","two_factor_confirmed_at","role","is_active"
-"019bb7be-fec4-7390-a7e1-63b1a0c1067f","Maarten Hormes","maarten.hormes@gmail.com","2026-01-11 16:04:04","$2y$12$ahAc4seKL3Ht8VU9rkrvGup2Qrg6I62WBHvsEtNYbDwjqP3j.1GrO","KYZeAhLLz9IBeuKxnMzOGzS7uknkhpOZPC8vftUBDG14dr5ssDtCXJjDwkTo","2026-01-13 14:25:06","2026-01-13 14:25:06",,,,"admin","true"

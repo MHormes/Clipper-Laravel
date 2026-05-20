@@ -2,9 +2,14 @@
 
 namespace App\Services;
 
+use App\Enums\EmailNotificationCategory;
 use App\Models\Series;
 use App\Models\Clipper;
 use App\Models\User;
+use App\Notifications\Requests\ClipperRequestAcceptedNotification;
+use App\Notifications\Requests\ClipperRequestDeclinedNotification;
+use App\Notifications\Requests\SeriesRequestAcceptedNotification;
+use App\Notifications\Requests\SeriesRequestDeclinedNotification;
 use Illuminate\Support\Facades\DB;
 
 class RequestService
@@ -12,7 +17,8 @@ class RequestService
     public function __construct(
         protected SeriesService $seriesService,
         protected ClipperService $clipperService,
-        protected ImageService $imageService
+        protected ImageService $imageService,
+        protected EmailNotificationService $emailNotificationService
     ) {}
 
     /**
@@ -20,6 +26,8 @@ class RequestService
      */
     public function acceptSeriesFull(Series $series, User $adminUser): void
     {
+        $requesterId = $series->requested_by;
+
         DB::transaction(function () use ($series, $adminUser) {
             $pendingClippers = $series->clippers()->pending()->get();
 
@@ -30,6 +38,15 @@ class RequestService
                 $this->autoAddRequestedClipperToCollection($clipper);
             }
         });
+
+        $requester = User::find($requesterId);
+        if ($requester) {
+            $this->emailNotificationService->notifyUser(
+                $requester,
+                EmailNotificationCategory::SeriesAccepted,
+                new SeriesRequestAcceptedNotification($series)
+            );
+        }
     }
 
     /**
@@ -37,6 +54,8 @@ class RequestService
      */
     public function acceptSeriesPartial(Series $series, User $adminUser, array $acceptedClipperIds): void
     {
+        $requesterId = $series->requested_by;
+
         DB::transaction(function () use ($series, $adminUser, $acceptedClipperIds) {
             $series->update(['accepted_by' => $adminUser->id]);
 
@@ -55,14 +74,34 @@ class RequestService
                 $this->clipperService->deleteClipper($clipper);
             }
         });
+
+        $requester = User::find($requesterId);
+        if ($requester) {
+            $this->emailNotificationService->notifyUser(
+                $requester,
+                EmailNotificationCategory::SeriesAccepted,
+                new SeriesRequestAcceptedNotification($series)
+            );
+        }
     }
 
     /**
      * Decline a series request (delete everything).
      */
-    public function declineSeriesRequest(Series $series): void
+    public function declineSeriesRequest(Series $series, string $reason = ''): void
     {
+        $requester = User::find($series->requested_by);
+        $seriesName = $series->name;
+
         $this->seriesService->deleteSeries($series);
+
+        if ($requester) {
+            $this->emailNotificationService->notifyUser(
+                $requester,
+                EmailNotificationCategory::SeriesDeclined,
+                new SeriesRequestDeclinedNotification($seriesName, $reason)
+            );
+        }
     }
 
     /**
@@ -70,18 +109,43 @@ class RequestService
      */
     public function acceptClipper(Clipper $clipper, User $adminUser): void
     {
+        $requesterId = $clipper->requested_by;
+        $clipper->load('series');
+        $series = $clipper->series;
+
         DB::transaction(function () use ($clipper, $adminUser) {
             $clipper->update(['accepted_by' => $adminUser->id]);
             $this->autoAddRequestedClipperToCollection($clipper);
         });
+
+        $requester = User::find($requesterId);
+        if ($requester && $series) {
+            $this->emailNotificationService->notifyUser(
+                $requester,
+                EmailNotificationCategory::ClipperAccepted,
+                new ClipperRequestAcceptedNotification($series)
+            );
+        }
     }
 
     /**
      * Decline/Delete an individual clipper request.
      */
-    public function declineClipper(Clipper $clipper): void
+    public function declineClipper(Clipper $clipper, string $reason = ''): void
     {
+        $requester = User::find($clipper->requested_by);
+        $clipper->load('series');
+        $seriesName = $clipper->series?->name ?? '';
+
         $this->clipperService->deleteClipper($clipper);
+
+        if ($requester && $seriesName) {
+            $this->emailNotificationService->notifyUser(
+                $requester,
+                EmailNotificationCategory::ClipperDeclined,
+                new ClipperRequestDeclinedNotification($seriesName, $reason)
+            );
+        }
     }
 
     protected function autoAddRequestedClipperToCollection(Clipper $clipper): void
