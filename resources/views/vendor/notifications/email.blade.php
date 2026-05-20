@@ -43,6 +43,12 @@
 {{ config('app.name') }}
 @endif
 
+<br>
+<small style="color: #737373;">
+    @lang('You are receiving this email because of your notification settings.')
+    <a href="{{ url('/settings/notifications') }}" style="color: #737373; text-decoration: underline;">@lang('Manage notification preferences')</a>
+</small>
+
 {{-- Subcopy --}}
 @isset($actionText)
 <x-slot:subcopy>
