@@ -11,8 +11,11 @@ class ClipperRequestDeclinedNotification extends Notification implements ShouldQ
 {
     use Queueable;
 
-    // Receives string, not model — clipper is deleted before this fires
-    public function __construct(private readonly string $seriesName) {}
+    // Receives strings, not model — clipper is deleted before this fires
+    public function __construct(
+        private readonly string $seriesName,
+        private readonly string $reason = ''
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -21,10 +24,13 @@ class ClipperRequestDeclinedNotification extends Notification implements ShouldQ
 
     public function toMail(object $notifiable): MailMessage
     {
+        $reason = $this->reason ?: 'No reason was provided';
+
         return (new MailMessage)
             ->subject("Your clipper request was not accepted")
             ->greeting('Clipper request update')
             ->line("Your clipper request for **{$this->seriesName}** was not accepted at this time.")
+            ->line("**Reason for decline:** {$reason}")
             ->line('If you have questions, please contact an administrator.');
     }
 }

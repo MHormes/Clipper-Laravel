@@ -88,7 +88,7 @@ class RequestService
     /**
      * Decline a series request (delete everything).
      */
-    public function declineSeriesRequest(Series $series): void
+    public function declineSeriesRequest(Series $series, string $reason = ''): void
     {
         $requester = User::find($series->requested_by);
         $seriesName = $series->name;
@@ -99,7 +99,7 @@ class RequestService
             $this->emailNotificationService->notifyUser(
                 $requester,
                 EmailNotificationCategory::SeriesDeclined,
-                new SeriesRequestDeclinedNotification($seriesName)
+                new SeriesRequestDeclinedNotification($seriesName, $reason)
             );
         }
     }
@@ -131,7 +131,7 @@ class RequestService
     /**
      * Decline/Delete an individual clipper request.
      */
-    public function declineClipper(Clipper $clipper): void
+    public function declineClipper(Clipper $clipper, string $reason = ''): void
     {
         $requester = User::find($clipper->requested_by);
         $clipper->load('series');
@@ -143,7 +143,7 @@ class RequestService
             $this->emailNotificationService->notifyUser(
                 $requester,
                 EmailNotificationCategory::ClipperDeclined,
-                new ClipperRequestDeclinedNotification($seriesName)
+                new ClipperRequestDeclinedNotification($seriesName, $reason)
             );
         }
     }

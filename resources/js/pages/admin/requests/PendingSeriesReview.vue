@@ -4,6 +4,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { ChevronLeft, CheckCircle2, XCircle, AlertCircle, Info } from 'lucide-vue-next';
+import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
+import DeclineModal from '@/components/modal/DeclineModal.vue';
 
 const props = defineProps<{
     series: any;
@@ -23,13 +25,32 @@ const toggleAll = () => {
 const form = useForm({
     mode: 'full' as 'full' | 'partial',
     clipper_ids: [] as string[],
+    decline_reason: '' as string,
 });
 
+const showDeclineModal = ref(false);
+const showAcceptFullModal = ref(false);
+const showAcceptPartialModal = ref(false);
+const acceptPartialMessage = ref('');
+
+const declineSeries = () => {
+    showDeclineModal.value = true;
+};
+
+const confirmDecline = (reason: string) => {
+    form.decline_reason = reason;
+    form.delete(route('admin.requests.series.decline', props.series.id));
+    showDeclineModal.value = false;
+};
+
 const acceptFull = () => {
-    if (confirm('Are you sure you want to accept this series and ALL its clippers?')) {
-        form.mode = 'full';
-        form.post(route('admin.requests.series.accept', props.series.id));
-    }
+    showAcceptFullModal.value = true;
+};
+
+const confirmAcceptFull = () => {
+    form.mode = 'full';
+    form.post(route('admin.requests.series.accept', props.series.id));
+    showAcceptFullModal.value = false;
 };
 
 const acceptPartial = () => {
@@ -38,21 +59,18 @@ const acceptPartial = () => {
         return;
     }
 
-    const message = selectedClippers.value.length === props.series.clippers.length
+    acceptPartialMessage.value = selectedClippers.value.length === props.series.clippers.length
         ? 'Are you sure you want to accept all clippers?'
-        : `Are you sure you want to accept ${selectedClippers.value.length} clippers? Unselected clippers will be PERMANENTLY DELETED.`;
+        : `Are you sure you want to accept ${selectedClippers.value.length} clippers? Unselected clippers will be permanently deleted.`;
 
-    if (confirm(message)) {
-        form.mode = 'partial';
-        form.clipper_ids = selectedClippers.value;
-        form.post(route('admin.requests.series.accept', props.series.id));
-    }
+    showAcceptPartialModal.value = true;
 };
 
-const declineSeries = () => {
-    if (confirm('Are you sure you want to DECLINE and PERMANENTLY DELETE this entire series request?')) {
-        form.delete(route('admin.requests.series.decline', props.series.id));
-    }
+const confirmAcceptPartial = () => {
+    form.mode = 'partial';
+    form.clipper_ids = selectedClippers.value;
+    form.post(route('admin.requests.series.accept', props.series.id));
+    showAcceptPartialModal.value = false;
 };
 </script>
 
@@ -164,5 +182,37 @@ const declineSeries = () => {
                 </div>
             </div>
         </div>
+
+        <DeclineModal
+            :open="showDeclineModal"
+            title="Decline Series Request"
+            description="This will permanently delete the entire series and all its clippers. This action cannot be undone."
+            @confirm="confirmDecline"
+            @cancel="showDeclineModal = false"
+            @update:open="showDeclineModal = $event"
+            :loading="form.processing"
+        />
+
+        <ConfirmationModal
+            :open="showAcceptFullModal"
+            title="Accept All Clippers"
+            description="Are you sure you want to accept this series and ALL its clippers?"
+            confirmText="Accept All"
+            @confirm="confirmAcceptFull"
+            @cancel="showAcceptFullModal = false"
+            @update:open="showAcceptFullModal = $event"
+            :loading="form.processing"
+        />
+
+        <ConfirmationModal
+            :open="showAcceptPartialModal"
+            title="Accept Selected Clippers"
+            :description="acceptPartialMessage"
+            confirmText="Accept"
+            @confirm="confirmAcceptPartial"
+            @cancel="showAcceptPartialModal = false"
+            @update:open="showAcceptPartialModal = $event"
+            :loading="form.processing"
+        />
     </AppLayout>
 </template>
