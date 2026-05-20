@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Aws\S3\S3Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Finder\Finder;
@@ -14,6 +15,8 @@ class SeedStorage extends Command
     public function handle(): int
     {
         $s3 = $this->buildDisk();
+
+        $this->ensureBucketExists($s3);
 
         $existing = $s3->allFiles();
         if (count($existing) > 0) {
@@ -39,6 +42,29 @@ class SeedStorage extends Command
 
         $this->info("Storage seeded: {$count} files uploaded.");
         return self::SUCCESS;
+    }
+
+    private function ensureBucketExists($disk): void
+    {
+        $endpoint = $this->option('endpoint') ?: config('filesystems.disks.s3.endpoint');
+        $bucket   = config('filesystems.disks.s3.bucket');
+
+        $client = new S3Client([
+            'version'                 => 'latest',
+            'region'                  => config('filesystems.disks.s3.region') ?: 'us-east-1',
+            'endpoint'                => $endpoint,
+            'use_path_style_endpoint' => true,
+            'credentials'             => [
+                'key'    => config('filesystems.disks.s3.key'),
+                'secret' => config('filesystems.disks.s3.secret'),
+            ],
+        ]);
+
+        if (!$client->doesBucketExist($bucket)) {
+            $this->info("Bucket '{$bucket}' not found. Creating...");
+            $client->createBucket(['Bucket' => $bucket]);
+            $this->info("Bucket '{$bucket}' created.");
+        }
     }
 
     private function buildDisk()
