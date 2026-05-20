@@ -155,6 +155,21 @@ class ClipperService
     public function getPendingClipperRequests()
     {
         return Clipper::pending()
+            ->whereHas('series', fn($q) => $q->accepted())
+            ->with(['series', 'requester:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('series_id');
+    }
+
+    /**
+     * Get pending clipper requests for a specific user.
+     */
+    public function getPendingClipperRequestsForUser($user)
+    {
+        return Clipper::pending()
+            ->where('requested_by', $user->id)
+            ->whereHas('series', fn($q) => $q->accepted())
             ->with(['series', 'requester:id,name'])
             ->orderBy('created_at', 'desc')
             ->get()

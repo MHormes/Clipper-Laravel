@@ -176,6 +176,19 @@ class SeriesService
     }
 
     /**
+     * Get pending series requests for a specific user.
+     */
+    public function getPendingSeriesRequestsForUser(User $user)
+    {
+        return Series::pending()
+            ->where('requested_by', $user->id)
+            ->with(['requester', 'clippers'])
+            ->withCount('clippers')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
      * Shared logic for determining which series are completed for a user.
      * Official series: >= 4 collected accepted clippers.
      * Custom series: all accepted clippers collected (min 1).

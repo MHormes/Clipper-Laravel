@@ -72,6 +72,10 @@ Route::middleware(['crawler.access'])->group(function () {
 
 // Protected Routes (Require Login)
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Pending Requests for Users
+    Route::get('/requests/pending/series', [\App\Http\Controllers\Settings\PendingRequestController::class, 'seriesIndex'])->name('pending-requests.series');
+    Route::get('/requests/pending/clippers', [\App\Http\Controllers\Settings\PendingRequestController::class, 'clippersIndex'])->name('pending-requests.clippers');
+
     Route::get('/users', [UserDirectoryController::class, 'index'])->name('users.index');
     Route::get('/users/following', [UserDirectoryController::class, 'following'])->name('users.following');
     Route::post('/users/{user}/toggle-follow', [UserDirectoryController::class, 'toggleFollow'])->name('users.toggle-follow');

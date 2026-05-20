@@ -63,11 +63,20 @@ const mainNavItems = computed<NavItem[]>(() => {
             children: [{ title: 'User Management', href: '/admin/users', icon: Users }],
         });
         items.push({
-            title: 'Requests',
+            title: 'Admin Requests',
             icon: ClipboardList,
             children: [
                 { title: 'Series Requests', href: '/admin/requests/series', icon: ClipboardList },
                 { title: 'Clipper Requests', href: '/admin/requests/clippers', icon: ClipboardCheck },
+            ],
+        });
+    } else {
+        items.push({
+            title: 'Pending Requests',
+            icon: ClipboardList,
+            children: [
+                { title: 'My Series Requests', href: '/requests/pending/series', icon: ClipboardList },
+                { title: 'My Clipper Requests', href: '/requests/pending/clippers', icon: ClipboardCheck },
             ],
         });
     }
