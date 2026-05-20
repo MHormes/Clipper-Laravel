@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\EmailNotificationCategory;
 use App\Models\Series;
 use App\Models\Clipper;
 use App\Models\User;
+use App\Notifications\Requests\NewSeriesRequestNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
 
@@ -14,7 +16,8 @@ class SeriesService
     public function __construct(
         protected ImageService $imageService,
         protected ClipperService $clipperService,
-        protected CollectionService $collectionService
+        protected CollectionService $collectionService,
+        protected EmailNotificationService $emailNotificationService
     ) {}
 
     /**
@@ -22,7 +25,7 @@ class SeriesService
      */
     public function createSeriesWithClippers($user, array $data, bool $isRequest = false)
     {
-        return DB::transaction(function () use ($user, $data, $isRequest) {
+        $series = DB::transaction(function () use ($user, $data, $isRequest) {
             $seriesPath = null;
             if (isset($data['image'])) {
                 $seriesPath = $this->imageService->uploadImage($data['image'], 'series');
@@ -49,6 +52,15 @@ class SeriesService
 
             return $series;
         });
+
+        if ($isRequest) {
+            $this->emailNotificationService->notifyAdmins(
+                EmailNotificationCategory::NewSeriesRequest,
+                new NewSeriesRequestNotification($series, $user)
+            );
+        }
+
+        return $series;
     }
 
     /**
