@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
-import { Plus, X, AlertCircle, ImageIcon, Loader2 } from 'lucide-vue-next';
+import { Plus, X, AlertCircle, ImageIcon, Loader2, RefreshCw } from 'lucide-vue-next';
 import ImageCropper from '@/components/ImageCropper.vue';
 import { ensureJpg } from '@/util/imageSupport';
 
@@ -190,6 +190,19 @@ const addSlot = () => {
         auto_add_to_collection: defaultAutoAddToCollection.value,
     });
     clipperPreviews.value.push(null);
+};
+
+const canReuseSeriesImage = computed(() =>
+    (props.mode === 'create' || props.mode === 'request') && seriesPreview.value !== null
+);
+
+const reuseSeriesImage = (index: number) => {
+    if (!seriesPreview.value) return;
+    cropperSrc.value = seriesPreview.value;
+    cropperTitle.value = `Crop Clipper #${index + 1}`;
+    cropperAspectRatio.value = 1 / 4;
+    cropperTarget.value = { type: 'clipper', index };
+    cropperOpen.value = true;
 };
 
 // Cropper State
@@ -394,6 +407,16 @@ const shouldShowSlotSaveState = (clipper: any, index: number) => {
                         type="button" @click="handleRemoveAction(index)"
                         class="absolute -top-2 -right-2 p-1.5 bg-error text-button-content rounded-full opacity-0 group-hover/slot:opacity-100 z-20 shadow-xl transition-all hover:scale-110">
                         <X class="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                        v-if="canReuseSeriesImage && !clipperPreviews[index]"
+                        type="button"
+                        @click="reuseSeriesImage(index)"
+                        class="mb-1.5 w-full flex flex-col items-center justify-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary transition-all rounded-lg border border-primary/30 bg-primary/10 py-1.5 active:bg-primary/20 lg:flex-row lg:text-[11px] lg:border-transparent lg:bg-transparent lg:py-0 lg:rounded-none lg:opacity-70 lg:hover:opacity-100"
+                    >
+                        <RefreshCw class="w-2.5 h-2.5" />
+                        Reuse image
                     </button>
 
                     <div
