@@ -147,7 +147,7 @@ const confirmAcceptPartial = () => {
                         </div>
 
                         <div class="p-6">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                            <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
                                 <div v-for="clipper in series.clippers" :key="clipper.id"
                                      @click="selectedClippers.includes(clipper.id) ? selectedClippers = selectedClippers.filter(id => id !== clipper.id) : selectedClippers.push(clipper.id)"
                                      class="relative group cursor-pointer">
