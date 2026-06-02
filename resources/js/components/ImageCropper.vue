@@ -107,37 +107,39 @@ const reset = () => {
 
             <!-- Footer -->
             <div class="grid grid-cols-1 md:flex md:items-center md:justify-between px-6 py-4 border-t border-border-color bg-muted-background/50">
-                <div class="flex items-center gap-1">
-                    <button
-                        @click="reset"
-                        class="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-muted-content hover:text-primary-content transition-colors"
-                        title="Reset"
-                    >
-                        <RotateCcw class="w-3.5 h-3.5" />
-                        Reset
-                    </button>
+                <div class="flex flex-wrap items-center gap-y-3">
+                    <div class="flex items-center gap-1">
+                        <button
+                            @click="reset"
+                            class="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-muted-content hover:text-primary-content transition-colors"
+                            title="Reset"
+                        >
+                            <RotateCcw class="w-3.5 h-3.5" />
+                            Reset
+                        </button>
 
-                    <div class="w-px h-4 bg-border-color mx-2"></div>
+                        <div class="w-px h-4 bg-border-color mx-2"></div>
 
-                    <button
-                        @click="rotateLeft"
-                        class="p-2 text-muted-content hover:text-primary-content transition-colors"
-                        title="Rotate Left"
-                    >
-                        <RotateCcw class="w-4 h-4" />
-                    </button>
+                        <button
+                            @click="rotateLeft"
+                            class="p-2 text-muted-content hover:text-primary-content transition-colors"
+                            title="Rotate Left"
+                        >
+                            <RotateCcw class="w-4 h-4" />
+                        </button>
 
-                    <button
-                        @click="rotateRight"
-                        class="p-2 text-muted-content hover:text-primary-content transition-colors"
-                        title="Rotate Right"
-                    >
-                        <RotateCw class="w-4 h-4" />
-                    </button>
+                        <button
+                            @click="rotateRight"
+                            class="p-2 text-muted-content hover:text-primary-content transition-colors"
+                            title="Rotate Right"
+                        >
+                            <RotateCw class="w-4 h-4" />
+                        </button>
+                    </div>
 
-                    <div class="w-px h-4 bg-border-color mx-2"></div>
+                    <div class="hidden md:block w-px h-4 bg-border-color mx-2"></div>
 
-                    <div class="flex items-center gap-3 px-2">
+                    <div class="flex items-center gap-3 px-2 w-full md:w-auto">
                         <span class="text-[10px] font-bold text-muted-content w-8 uppercase tracking-tighter">Rotate</span>
                         <input
                             type="range"
@@ -146,13 +148,13 @@ const reset = () => {
                             max="180"
                             step="1"
                             @input="handleRotationSlide"
-                            class="w-32 h-1.5 bg-muted-background rounded-lg appearance-none cursor-pointer accent-primary"
+                            class="flex-1 md:w-32 h-1.5 bg-muted-background rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                         <span class="text-[10px] font-mono font-bold text-primary w-8 text-right">{{ rotation }}°</span>
                     </div>
                 </div>
 
-                <div class="mt-2 md:mt-0 flex gap-3">
+                <div class="mt-4 md:mt-0 flex gap-3">
                     <button
                         @click="handleCancel"
                         class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-border-color hover:bg-[var(--hover-overlay)] transition-all text-muted-content"
