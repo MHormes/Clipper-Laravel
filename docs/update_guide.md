@@ -103,6 +103,20 @@ clipper-deploy
 
 ---
 
+## 6. Delete VM snapshot
+
+Deploy confirmed working? Delete the Proxmox snapshot taken before this update cycle.
+
+In Proxmox UI: select the VM → Snapshots → delete. Or via CLI:
+
+```bash
+qm delsnapshot <VMID> <snapshot-name>
+```
+
+Do not skip this — snapshots grow over time and degrade disk performance.
+
+---
+
 ## Rollback
 
 If something breaks after `composer update`:
