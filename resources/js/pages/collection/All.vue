@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import Pagination from '@/components/Pagination.vue';
+import Skeleton from '@/components/ui/Skeleton.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { Library, Search, X } from 'lucide-vue-next';
 import { useFilters } from '@/util/useFilters';
+import { ref } from 'vue';
 
 interface Clipper {
     id: number;
@@ -26,6 +28,16 @@ const props = defineProps<{
 }>();
 
 const { search, isFiltered } = useFilters('collection.clippers', props.filters);
+const clipperImageLoadState = ref<Record<string, boolean>>({});
+
+const clipperImageKey = (clipper: Clipper) => `${clipper.id}:${clipper.image_data}`;
+const isClipperImageLoaded = (clipper: Clipper) => !!clipperImageLoadState.value[clipperImageKey(clipper)];
+const markClipperImageLoaded = (clipper: Clipper) => {
+    clipperImageLoadState.value = {
+        ...clipperImageLoadState.value,
+        [clipperImageKey(clipper)]: true,
+    };
+};
 </script>
 
 <template>
@@ -33,7 +45,7 @@ const { search, isFiltered } = useFilters('collection.clippers', props.filters);
     <Head title="My Clippers" />
 
     <AppLayout>
-        <div class="w-full max-w-7xl mx-auto p-6">
+        <div class="w-full max-w-7xl mx-auto p-4 md:p-6">
             <!-- Header -->
             <div class="grid grid-cols-1 lg:grid-cols-[1fr,auto] items-center gap-6 mb-20 h-auto lg:h-16">
                 <div>
@@ -44,8 +56,12 @@ const { search, isFiltered } = useFilters('collection.clippers', props.filters);
                 <div class="grid grid-cols-1 md:flex md:items-center md:gap-4 w-full lg:w-auto">
                     <div class="relative flex-1 lg:w-96 mb-2 md:mb-0">
                         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-content" />
-                        <input v-model="search" type="text" placeholder="Search by series name..." class="w-full pl-10 pr-10 py-2.5 bg-primary-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm shadow-sm" />
-                        <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-content hover:text-primary-content p-1"><X class="w-4 h-4" /></button>
+                        <input v-model="search" type="text" placeholder="Search by series name..."
+                            class="w-full pl-10 pr-10 py-2.5 bg-primary-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm shadow-sm" />
+                        <button v-if="search" @click="search = ''"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-content hover:text-primary-content p-1">
+                            <X class="w-4 h-4" />
+                        </button>
                     </div>
 
                     <Link :href="route('collection.index')"
@@ -57,35 +73,46 @@ const { search, isFiltered } = useFilters('collection.clippers', props.filters);
 
             <!-- Grid -->
             <div class="min-h-[500px] flex flex-col">
-                <div v-if="clippers.data.length > 0" class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-1">
+                <div v-if="clippers.data.length > 0"
+                    class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-16 gap-1">
                     <div v-for="clipper in clippers.data" :key="clipper.id" class="group relative">
-                        <div class="bg-component-background rounded-2xl border-2 border-border-color shadow-sm transition-all hover:border-primary hover:shadow-lg">
+                        <div
+                            class="bg-component-background rounded-2xl border-2 border-border-color shadow-sm transition-all hover:border-primary hover:shadow-lg">
 
-                            <div class="aspect-[1/4] rounded-xl overflow-hidden border border-border-color bg-component-background relative group-hover:scale-[1.02] transition-transform duration-300">
-                                <img :src="clipper.image_data" :alt="clipper.series.name + ' #' + clipper.series_number + 'Clipper Lighter'" class="w-full h-full object-cover" />
+                            <div
+                                class="aspect-[1/4] rounded-xl overflow-hidden border border-border-color bg-component-background relative group-hover:scale-[1.02] transition-transform duration-300">
+                                <Skeleton v-if="!isClipperImageLoaded(clipper)"
+                                    class="absolute inset-0 h-full w-full rounded-xl" />
+                                <img v-show="isClipperImageLoaded(clipper)" :src="clipper.image_data"
+                                    :alt="clipper.series.name + ' #' + clipper.series_number + 'Clipper Lighter'"
+                                    class="w-full h-full object-cover" @load="markClipperImageLoaded(clipper)"
+                                    @error="markClipperImageLoaded(clipper)" />
                             </div>
 
-                            <Link :href="route('series.show', clipper.series.id)" class="absolute inset-0 z-0" aria-label="View Series">
+                            <Link :href="route('series.show', clipper.series.id)" class="absolute inset-0 z-0"
+                                aria-label="View Series">
                                 <span class="sr-only">View Series</span>
                             </Link>
                         </div>
                     </div>
                 </div>
 
-                <div v-else class="w-full h-full flex flex-col items-center justify-center py-24 bg-component-background rounded-3xl border border-dashed border-border-color shadow-sm">
+                <div v-else
+                    class="w-full h-full flex flex-col items-center justify-center py-24 bg-component-background rounded-3xl border border-dashed border-border-color shadow-sm">
                     <div class="p-8 rounded-full bg-muted-background mb-6 text-muted-content">
                         <component :is="isFiltered ? Search : Library" class="w-16 h-16" />
                     </div>
-                    <h2 class="text-3xl font-black mb-3">{{ isFiltered ? 'No Results Found' : 'No Clippers Found' }}</h2>
+                    <h2 class="text-3xl font-black mb-3">{{ isFiltered ? 'No Results Found' : 'No Clippers Found' }}
+                    </h2>
                     <p v-if="!isFiltered" class="text-muted-content mb-10 text-center max-w-sm px-6">
                         Start your collection by adding clippers from the Series Catalog.
                     </p>
-                    <button v-if="isFiltered" @click="search = ''" class="px-8 py-4 bg-muted-background rounded-2xl font-black active:scale-95 transition-all">
+                    <button v-if="isFiltered" @click="search = ''"
+                        class="px-8 py-4 bg-muted-background rounded-2xl font-black active:scale-95 transition-all">
                         RESET SEARCH
                     </button>
                     <Link v-else :href="route('series.index')"
-                        class="flex items-center gap-2 px-8 py-4 bg-primary text-button-content hover:bg-primary hover:text-button-content! rounded-2xl font-black transition-all shadow-lg shadow-primary/20 active:scale-95"
-                    >
+                        class="flex items-center gap-2 px-8 py-4 bg-primary text-button-content hover:bg-primary hover:text-button-content! rounded-2xl font-black transition-all shadow-lg shadow-primary/20 active:scale-95">
                         GO TO CATALOG
                     </Link>
                 </div>

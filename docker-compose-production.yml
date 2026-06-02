@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: clipper-app:${APP_VERSION:-latest}
     container_name: clipper_app_prod
     restart: unless-stopped
     environment:
@@ -71,6 +72,7 @@ services:
       MAIL_FROM_NAME: ${MAIL_FROM_NAME}
 
       VITE_APP_NAME: ${VITE_APP_NAME}
+      APP_VERSION: ${APP_VERSION}
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor
@@ -153,6 +155,7 @@ services:
       MAIL_FROM_NAME: ${MAIL_FROM_NAME}
 
       VITE_APP_NAME: ${VITE_APP_NAME}
+      APP_VERSION: ${APP_VERSION}
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor

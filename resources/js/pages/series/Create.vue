@@ -17,17 +17,15 @@ const submit = (form: any) => {
 </script>
 
 <template>
+
     <Head :title="isAdmin ? 'Register New Series' : 'Request New Series'" />
     <AppLayout>
-        <div class="max-w-5xl mx-auto p-6">
+        <div class="max-w-5xl mx-auto p-4 md:p-6">
             <h1 class="text-3xl font-black mb-8 uppercase tracking-tighter">
                 {{ isAdmin ? 'New Series' : 'Request Series' }}
             </h1>
-            <SeriesForm 
-                :mode="isAdmin ? 'create' : 'request'"
-                :submit-label="isAdmin ? 'Create Series' : 'Submit Request'" 
-                @submit="submit" 
-            />
+            <SeriesForm :mode="isAdmin ? 'create' : 'request'"
+                :submit-label="isAdmin ? 'Create Series' : 'Submit Request'" @submit="submit" />
         </div>
     </AppLayout>
 </template>

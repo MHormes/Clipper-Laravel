@@ -55,6 +55,7 @@ Route::get('/manifest.webmanifest', function () {
 
 Route::get('/privacy', fn() => Inertia::render('Privacy'))->name('privacy');
 Route::get('/terms', fn() => Inertia::render('Terms'))->name('terms');
+Route::get('/whats-new', fn() => Inertia::render('WhatsNew'))->name('whats-new');
 
 // SEO & Utility
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

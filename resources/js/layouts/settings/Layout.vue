@@ -54,12 +54,17 @@ const { urlIsActive } = useActiveUrl();
                         :key="toUrl(item.href)"
                         variant="ghost"
                         :class="[
-                            'w-full justify-start',
-                            { 'bg-muted': urlIsActive(item.href) },
+                            'w-full justify-start border-l-2 border-transparent text-muted-content',
+                            urlIsActive(item.href)
+                                ? 'border-primary bg-muted-background font-semibold text-primary shadow-sm'
+                                : 'hover:bg-muted-background hover:text-primary-content',
                         ]"
                         as-child
                     >
-                        <Link :href="item.href">
+                        <Link
+                            :href="item.href"
+                            :aria-current="urlIsActive(item.href) ? 'page' : undefined"
+                        >
                             <component :is="item.icon" class="h-4 w-4" />
                             {{ item.title }}
                         </Link>

@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: clipper-app:${APP_VERSION:-latest}
     container_name: clipper_app
     restart: unless-stopped
     ports:
@@ -70,8 +71,14 @@ services:
       MAIL_ENCRYPTION: ${MAIL_ENCRYPTION}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      MAILTRAP_HOST: ${MAILTRAP_HOST}
+      MAILTRAP_PORT: ${MAILTRAP_PORT}
+      MAILTRAP_USERNAME: ${MAILTRAP_USERNAME}
+      MAILTRAP_PASSWORD: ${MAILTRAP_PASSWORD}
+      MAILTRAP_SCHEME: ${MAILTRAP_SCHEME}
 
       VITE_APP_NAME: ${VITE_APP_NAME}
+      APP_VERSION: ${APP_VERSION}
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor
@@ -89,6 +96,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: clipper-app:${APP_VERSION:-latest}
     container_name: clipper_queue
     restart: unless-stopped
     environment:
@@ -152,8 +160,14 @@ services:
       MAIL_ENCRYPTION: ${MAIL_ENCRYPTION}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      MAILTRAP_HOST: ${MAILTRAP_HOST}
+      MAILTRAP_PORT: ${MAILTRAP_PORT}
+      MAILTRAP_USERNAME: ${MAILTRAP_USERNAME}
+      MAILTRAP_PASSWORD: ${MAILTRAP_PASSWORD}
+      MAILTRAP_SCHEME: ${MAILTRAP_SCHEME}
 
       VITE_APP_NAME: ${VITE_APP_NAME}
+      APP_VERSION: ${APP_VERSION}
     volumes:
       - .:/var/www/html
       - /var/www/html/vendor

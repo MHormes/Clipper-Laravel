@@ -41,6 +41,17 @@ Recommended for day-to-day development. Laravel Herd serves PHP natively, Vite h
 
 `QUEUE_CONNECTION=sync` in this setup means queued jobs (e.g. verification emails) run immediately without a separate worker.
 
+Local mail uses Mailtrap Email Sandbox through the dedicated `mailtrap` mailer. Add your Mailtrap Sandbox SMTP username and password to `.env`:
+
+```env
+MAIL_MAILER=mailtrap
+MAILTRAP_HOST=sandbox.smtp.mailtrap.io
+MAILTRAP_PORT=2525
+MAILTRAP_USERNAME=your-mailtrap-username
+MAILTRAP_PASSWORD=your-mailtrap-password
+MAILTRAP_SCHEME=null
+```
+
 **Prerequisites:**
 
 - [Laravel Herd](https://herd.laravel.com/) installed
@@ -84,6 +95,8 @@ Recommended for day-to-day development. Laravel Herd serves PHP natively, Vite h
 ## 2. Local Docker Compose
 
 Spins up the full stack (app, queue worker, PostgreSQL, AIStor) using `docker-compose-local.yml`. Useful for testing the containerized environment without touching production.
+
+Local Docker also uses Mailtrap Email Sandbox through `.env.local`. The mail variables are passed to both `clipper_app` and `clipper_queue`, so queued notifications are captured by the same Mailtrap inbox.
 
 **Prerequisites:**
 

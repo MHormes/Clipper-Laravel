@@ -35,7 +35,7 @@ const statusFilters = [
     <Head title="Series Catalog" />
 
     <AppLayout>
-        <div class="w-full max-w-7xl mx-auto p-3 sm:p-6">
+        <div class="w-full max-w-7xl mx-auto p-4 md:p-6">
             <div class="grid grid-cols-1 lg:grid-cols-[1fr,auto] items-center gap-6 mb-8">
                 <div>
                     <h1 class="text-3xl font-black uppercase tracking-tight">Series Catalog</h1>

@@ -25,55 +25,68 @@ const formatDate = (date: string) => {
 </script>
 
 <template>
+
     <Head title="Pending Series Requests" />
     <AppLayout>
-        <div class="max-w-7xl mx-auto p-6">
+        <div class="max-w-7xl mx-auto p-4 md:p-6">
             <div class="flex items-center gap-4 mb-10">
                 <div class="p-3 rounded-2xl bg-primary/10 text-primary">
                     <ClipboardList class="w-8 h-8" />
                 </div>
                 <div>
                     <h1 class="text-4xl font-black uppercase tracking-tighter text-primary-content">Series Requests</h1>
-                    <p class="text-muted-content font-bold uppercase tracking-widest text-xs mt-1">Review and approve new series submissions</p>
+                    <p class="text-muted-content font-bold uppercase tracking-widest text-xs mt-1">Review and approve
+                        new series submissions</p>
                 </div>
             </div>
 
-            <div v-if="series.length === 0" class="bg-component-background rounded-3xl p-20 border border-border-color text-center shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
+            <div v-if="series.length === 0"
+                class="bg-component-background rounded-3xl p-20 border border-border-color text-center shadow-sm relative overflow-hidden">
+                <div
+                    class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none">
+                </div>
                 <div class="relative z-10">
                     <div class="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Clock class="w-10 h-10 text-primary" />
                     </div>
                     <h2 class="text-2xl font-black uppercase tracking-tight mb-2">All Caught Up!</h2>
-                    <p class="text-muted-content font-medium max-w-md mx-auto uppercase text-xs tracking-widest">There are no pending series requests at the moment.</p>
+                    <p class="text-muted-content font-medium max-w-md mx-auto uppercase text-xs tracking-widest">There
+                        are no pending series requests at the moment.</p>
                 </div>
             </div>
 
             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div v-for="item in series" :key="item.id"
-                     class="bg-component-background rounded-3xl overflow-hidden border border-border-color hover:border-primary/50 transition-all group/card shadow-sm">
+                    class="bg-component-background rounded-3xl overflow-hidden border border-border-color hover:border-primary/50 transition-all group/card shadow-sm">
                     <div class="aspect-[4/3] relative overflow-hidden bg-media-bg">
-                        <img :src="item.image_data" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                        <img :src="item.image_data"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60">
+                        </div>
                     </div>
 
                     <div class="p-6">
-                        <h3 class="text-xl font-black uppercase tracking-tight mb-4 truncate text-primary-content">{{ item.name }}</h3>
+                        <h3 class="text-xl font-black uppercase tracking-tight mb-4 truncate text-primary-content">{{
+                            item.name }}</h3>
 
                         <div class="space-y-3 mb-8">
-                            <div class="flex items-center gap-3 text-xs font-bold text-muted-content uppercase tracking-widest">
+                            <div
+                                class="flex items-center gap-3 text-xs font-bold text-muted-content uppercase tracking-widest">
                                 <div class="p-1.5 rounded-lg bg-primary/10">
                                     <UserIcon class="w-3.5 h-3.5 text-primary" />
                                 </div>
                                 <span>{{ item.requester.name }}</span>
                             </div>
-                            <div class="flex items-center gap-3 text-xs font-bold text-muted-content uppercase tracking-widest">
+                            <div
+                                class="flex items-center gap-3 text-xs font-bold text-muted-content uppercase tracking-widest">
                                 <div class="p-1.5 rounded-lg bg-primary/10">
                                     <Layers class="w-3.5 h-3.5 text-primary" />
                                 </div>
                                 <span>{{ item.clippers_count }} Clippers</span>
                             </div>
-                            <div class="flex items-center gap-3 text-xs font-bold text-muted-content uppercase tracking-widest">
+                            <div
+                                class="flex items-center gap-3 text-xs font-bold text-muted-content uppercase tracking-widest">
                                 <div class="p-1.5 rounded-lg bg-primary/10">
                                     <Clock class="w-3.5 h-3.5 text-primary" />
                                 </div>
@@ -82,7 +95,7 @@ const formatDate = (date: string) => {
                         </div>
 
                         <Link :href="route('admin.requests.series.show', item.id)"
-                              class="w-full py-4 bg-primary text-button-content rounded-2xl font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 hover:bg-primary hover:text-button-content! transition-all shadow-lg shadow-primary/20 active:scale-95">
+                            class="w-full py-4 bg-primary text-button-content rounded-2xl font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 hover:bg-primary hover:text-button-content! transition-all shadow-lg shadow-primary/20 active:scale-95">
                             <Eye class="w-4 h-4" /> Review Submission
                         </Link>
                     </div>

@@ -24,7 +24,7 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 5. Install Dependencies
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 # Omdat we nu ook tests willen runnen, installeren we ook de dev-dependencies
 RUN composer install --no-scripts --no-autoloader
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
@@ -33,7 +33,7 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY . .
 
 # 7. Finalize Laravel & Build Assets
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize && php artisan package:discover --ansi
 RUN pnpm run build:ssr
 
 # 8. Set permissions AND make start.sh executable

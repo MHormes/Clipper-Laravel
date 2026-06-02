@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import NoteModal from '@/components/modal/NoteModal.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
+import NoteModal from '@/components/modal/NoteModal.vue';
+import Skeleton from '@/components/ui/Skeleton.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { AppPageProps } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { CheckCheck, Heart, PencilLine, User as UserIcon, Calendar, Library, CheckCircle } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import {
+    Calendar,
+    CheckCheck,
+    CheckCircle,
+    Heart,
+    Library,
+    PencilLine,
+    User as UserIcon,
+} from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import { route } from 'ziggy-js';
 
 interface Clipper {
@@ -43,29 +52,117 @@ const props = defineProps<{
 
 // --- Dates ---
 const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    new Date(dateStr).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
 
 // --- Auth & Admin ---
 const page = usePage<AppPageProps>();
 const isAdmin = computed(() => page.props.auth.is_admin);
 const canManageCollection = computed(() => !!props.canManageCollection);
 const collectionOwnerName = computed(() => props.collectionOwnerName || 'User');
-const isReadOnlyProfileView = computed(() => !canManageCollection.value && !!props.profileUserId);
+const isReadOnlyProfileView = computed(
+    () => !canManageCollection.value && !!props.profileUserId,
+);
 
 // --- Stats ---
 const registeredCount = computed(() => props.series.clippers.length);
 const collectedCount = computed(() => Object.keys(props.userCollection).length);
-const isFullyCollected = computed(() => collectedCount.value === registeredCount.value && registeredCount.value > 0);
+const isFullyCollected = computed(
+    () =>
+        collectedCount.value === registeredCount.value &&
+        registeredCount.value > 0,
+);
 
 // --- State ---
 const showDeleteModal = ref(false);
 const isDeleting = ref(false);
 const detailsModalOpen = ref(false);
 const activeClipper = ref<Clipper | null>(null);
+const seriesImageLoaded = ref(false);
+const clipperImagesLoaded = ref(false);
+let seriesPreloadRun = 0;
+let clipperPreloadRun = 0;
 
 // --- Helpers ---
+const clipperNumbers = computed(() =>
+    props.series.custom
+        ? props.series.clippers.map((c) => c.series_number)
+        : [1, 2, 3, 4],
+);
+const clippersByNumber = computed(
+    () =>
+        new Map(
+            props.series.clippers.map((clipper) => [
+                clipper.series_number,
+                clipper,
+            ]),
+        ),
+);
 const isOwned = (clipperId: number) => !!props.userCollection[clipperId];
-const getClipperByNumber = (n: number) => props.series.clippers.find(c => c.series_number === n);
+const getClipperByNumber = (n: number) => clippersByNumber.value.get(n);
+const clipperSlots = computed(() =>
+    clipperNumbers.value.map((number) => ({
+        number,
+        clipper: getClipperByNumber(number),
+    })),
+);
+
+const preloadImage = (src: string) =>
+    new Promise<void>((resolve) => {
+        if (!src || typeof window === 'undefined') {
+            resolve();
+            return;
+        }
+
+        const image = new window.Image();
+        image.onload = () => resolve();
+        image.onerror = () => resolve();
+        image.src = src;
+
+        if (image.complete) {
+            resolve();
+        }
+    });
+
+watch(
+    () => `${props.series.id}:${props.series.image_data}`,
+    async () => {
+        const run = ++seriesPreloadRun;
+        seriesImageLoaded.value = false;
+
+        await preloadImage(props.series.image_data);
+
+        if (run === seriesPreloadRun) {
+            seriesImageLoaded.value = true;
+        }
+    },
+    { immediate: true },
+);
+
+watch(
+    () =>
+        `${props.series.id}:${props.series.clippers
+            .map((clipper) => `${clipper.id}:${clipper.image_data}`)
+            .join('|')}`,
+    async () => {
+        const run = ++clipperPreloadRun;
+        clipperImagesLoaded.value = props.series.clippers.length === 0;
+
+        await Promise.all(
+            props.series.clippers.map((clipper) =>
+                preloadImage(clipper.image_data),
+            ),
+        );
+
+        if (run === clipperPreloadRun) {
+            clipperImagesLoaded.value = true;
+        }
+    },
+    { immediate: true },
+);
 
 // --- Actions ---
 const openClipperDetails = (clipper: Clipper) => {
@@ -75,12 +172,20 @@ const openClipperDetails = (clipper: Clipper) => {
 
 const toggleCollection = (clipperId: number) => {
     if (!canManageCollection.value) return;
-    router.post(route('clippers.toggle', clipperId), {}, { preserveScroll: true });
+    router.post(
+        route('clippers.toggle', clipperId),
+        {},
+        { preserveScroll: true },
+    );
 };
 
 const toggleAll = () => {
     if (!canManageCollection.value) return;
-    router.post(route('series.toggle-collection', props.series.id), {}, { preserveScroll: true });
+    router.post(
+        route('series.toggle-collection', props.series.id),
+        {},
+        { preserveScroll: true },
+    );
 };
 
 const confirmDelete = () => {
@@ -89,7 +194,7 @@ const confirmDelete = () => {
         onFinish: () => {
             isDeleting.value = false;
             showDeleteModal.value = false;
-        }
+        },
     });
 };
 </script>
@@ -101,137 +206,174 @@ const confirmDelete = () => {
     </Head>
 
     <AppLayout>
-        <div class="max-w-7xl mx-auto p-6 space-y-6">
+        <div class="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
             <div v-if="isReadOnlyProfileView">
-                <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight">
+                <h1 class="text-3xl font-black tracking-tight uppercase md:text-4xl">
                     Currently Viewing For {{ collectionOwnerName }}
                 </h1>
             </div>
 
             <!-- Series Header Card -->
             <div
-                class="flex flex-col md:flex-row gap-8 items-start bg-component-background p-4 sm:p-8 rounded-3xl border border-border-color shadow-sm relative overflow-hidden">
+                class="relative flex flex-col items-start gap-8 overflow-hidden rounded-3xl border border-border-color bg-component-background p-4 shadow-sm sm:p-8 md:flex-row">
                 <!-- Background Accent -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                <div class="absolute top-0 right-0 -mt-32 -mr-32 h-64 w-64 rounded-full bg-primary/5 blur-3xl"></div>
 
                 <div
-                    class="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-border-color bg-primary-background">
-                    <img :src="series.image_data" :alt="series.name + ' Clipper Lighter Series'"
-                        class="w-full h-full object-cover" />
+                    class="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border-color bg-primary-background shadow-2xl md:w-1/3">
+                    <Skeleton v-if="!seriesImageLoaded" class="absolute inset-0 h-full w-full rounded-2xl" />
+                    <img v-show="seriesImageLoaded" :src="series.image_data"
+                        :alt="series.name + ' Clipper Lighter Series'" class="h-full w-full object-cover" />
                 </div>
 
-                <div class="flex-1 min-w-0 space-y-6 relative z-10">
+                <div class="relative z-10 min-w-0 flex-1 space-y-6">
                     <div>
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <h1 class="text-4xl font-black uppercase tracking-tight">{{ series.name }}</h1>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <h1 class="text-4xl font-black tracking-tight uppercase">
+                                {{ series.name }}
+                            </h1>
                             <span v-if="series.custom"
-                                class="px-3 py-1 bg-primary/10 text-button-content text-[10px] font-black rounded-full uppercase border border-primary/20">Custom
+                                class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-black text-button-content uppercase">Custom
                                 Set</span>
                         </div>
 
-                        <div v-if="!isReadOnlyProfileView" class="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3">
+                        <div v-if="!isReadOnlyProfileView" class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
                             <div class="flex items-start gap-2 text-xs">
-                                <div class="p-1 rounded-md bg-muted-background mt-0.5">
-                                    <UserIcon class="w-3 h-3 text-muted-content" />
+                                <div class="mt-0.5 rounded-md bg-muted-background p-1">
+                                    <UserIcon class="h-3 w-3 text-muted-content" />
                                 </div>
                                 <div class="leading-tight">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Added
-                                        By</p>
-                                    <p class="font-bold text-primary-content">{{ series.requester?.name || 'System' }}
+                                    <p class="text-[10px] font-black tracking-widest text-muted-content uppercase">
+                                        Added By
+                                    </p>
+                                    <p class="font-bold text-primary-content">
+                                        {{ series.requester?.name || 'System' }}
                                     </p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-2 text-xs">
-                                <div class="p-1 rounded-md bg-muted-background mt-0.5">
-                                    <Calendar class="w-3 h-3 text-muted-content" />
+                                <div class="mt-0.5 rounded-md bg-muted-background p-1">
+                                    <Calendar class="h-3 w-3 text-muted-content" />
                                 </div>
                                 <div class="leading-tight">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">
-                                        Series Created</p>
-                                    <p class="font-bold text-primary-content">{{ formatDate(series.created_at) }}</p>
+                                    <p class="text-[10px] font-black tracking-widest text-muted-content uppercase">
+                                        Series Created
+                                    </p>
+                                    <p class="font-bold text-primary-content">
+                                        {{ formatDate(series.created_at) }}
+                                    </p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-2 text-xs">
-                                <div class="p-1 rounded-md bg-muted-background mt-0.5">
-                                    <Calendar class="w-3 h-3 text-muted-content" />
+                                <div class="mt-0.5 rounded-md bg-muted-background p-1">
+                                    <Calendar class="h-3 w-3 text-muted-content" />
                                 </div>
                                 <div class="leading-tight">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-muted-content">Last
-                                        Updated</p>
-                                    <p class="font-bold text-primary-content">{{ formatDate(series.last_updated_at) }}
+                                    <p class="text-[10px] font-black tracking-widest text-muted-content uppercase">
+                                        Last Updated
+                                    </p>
+                                    <p class="font-bold text-primary-content">
+                                        {{ formatDate(series.last_updated_at) }}
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-border-color pt-6">
+                    <div class="grid grid-cols-1 gap-4 border-t border-border-color pt-6 sm:grid-cols-2">
                         <div v-if="isAdmin"
-                            class="p-4 rounded-2xl bg-muted-background/30 border border-border-color/50">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-black text-muted-content uppercase tracking-widest">System
+                            class="rounded-2xl border border-border-color/50 bg-muted-background/30 p-4">
+                            <div class="mb-2 flex items-center justify-between">
+                                <span class="text-[10px] font-black tracking-widest text-muted-content uppercase">System
                                     Status</span>
-                                <Library class="w-4 h-4 text-info" />
+                                <Library class="h-4 w-4 text-info" />
                             </div>
-                            <p class="text-xl font-bold">{{ registeredCount }} / {{ series.custom ? registeredCount : 4
-                                }} Registered</p>
-                            <div class="w-full bg-muted-background h-1.5 rounded-full mt-2 overflow-hidden">
-                                <div class="bg-info h-full transition-all"
-                                    :style="{ width: `${(registeredCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }">
-                                </div>
+                            <p class="text-xl font-bold">
+                                {{ registeredCount }} /
+                                {{
+                                    series.custom ? registeredCount : 4
+                                }}
+                                Registered
+                            </p>
+                            <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted-background">
+                                <div class="h-full bg-info transition-all" :style="{
+                                    width: `${(registeredCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%`,
+                                }"></div>
                             </div>
                         </div>
-                        <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-black text-primary uppercase tracking-widest opacity-70">
-                                    {{ canManageCollection ? 'Your Collection' : 'Collection Progress' }}
+                        <div class="rounded-2xl border border-primary/10 bg-primary/5 p-4">
+                            <div class="mb-2 flex items-center justify-between">
+                                <span class="text-[10px] font-black tracking-widest text-primary uppercase opacity-70">
+                                    {{
+                                        canManageCollection
+                                            ? 'Your Collection'
+                                            : 'Collection Progress'
+                                    }}
                                 </span>
-                                <CheckCircle class="w-4 h-4 text-primary" />
+                                <CheckCircle class="h-4 w-4 text-primary" />
                             </div>
                             <p class="text-xl font-bold text-primary">
-                                {{ collectedCount }} / {{ series.custom ? registeredCount : 4 }} {{ canManageCollection
-                                    ? 'Owned' : 'Collected' }}
+                                {{ collectedCount }} /
+                                {{ series.custom ? registeredCount : 4 }}
+                                {{
+                                    canManageCollection ? 'Owned' : 'Collected'
+                                }}
                             </p>
-                            <div class="w-full bg-primary/10 h-1.5 rounded-full mt-2 overflow-hidden">
-                                <div class="bg-primary h-full transition-all"
-                                    :style="{ width: `${(collectedCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%` }">
-                                </div>
+                            <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-primary/10">
+                                <div class="h-full bg-primary transition-all" :style="{
+                                    width: `${(collectedCount / (series.custom ? Math.max(registeredCount, 1) : 4)) * 100}%`,
+                                }"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Action Buttons - RESTORED TO GRID -->
-                    <div v-if="canManageCollection" class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div v-if="canManageCollection" class="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2">
                         <button @click="toggleAll"
-                            class="w-full px-6 py-3 rounded-xl font-black uppercase text-sm transition-all flex items-center justify-center gap-2 group/btn"
-                            :class="isFullyCollected ? 'bg-error/10 text-error hover:bg-error hover:text-button-content!  border border-error/20 shadow-sm' : 'bg-primary text-button-content hover:bg-primary hover:text-button-content!  shadow-lg shadow-primary/20'">
-                            <CheckCheck v-if="isFullyCollected" class="w-4 h-4" />
-                            <Heart v-else class="w-4 h-4 fill-current group-hover/btn:scale-110 transition-transform" />
-                            {{ isFullyCollected ? 'Uncollect Series' : 'Collect Complete Series' }}
+                            class="group/btn flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-black uppercase transition-all"
+                            :class="isFullyCollected
+                                ? 'border border-error/20 bg-error/10 text-error shadow-sm hover:bg-error hover:text-button-content!'
+                                : 'bg-primary text-button-content shadow-lg shadow-primary/20 hover:bg-primary hover:text-button-content!'
+                                ">
+                            <CheckCheck v-if="isFullyCollected" class="h-4 w-4" />
+                            <Heart v-else class="h-4 w-4 fill-current transition-transform group-hover/btn:scale-110" />
+                            {{
+                                isFullyCollected
+                                    ? 'Uncollect Series'
+                                    : 'Collect Complete Series'
+                            }}
                         </button>
 
                         <div class="grid grid-cols-2 gap-3">
                             <template v-if="isAdmin">
                                 <Link :href="route('series.edit', series.id)"
-                                    class="flex items-center justify-center bg-primary text-button-content text-sm font-bold rounded-xl hover:bg-primary hover:text-button-content!  transition-all shadow-lg">
+                                    class="flex items-center justify-center rounded-xl bg-primary text-sm font-bold text-button-content shadow-lg transition-all hover:bg-primary hover:text-button-content!">
                                     Edit
                                 </Link>
                                 <button @click="showDeleteModal = true"
-                                    class="text-center bg-error/10 text-error text-sm font-bold rounded-xl hover:bg-error hover:text-button-content!  transition-all border border-error/20 shadow-sm">
+                                    class="rounded-xl border border-error/20 bg-error/10 text-center text-sm font-bold text-error shadow-sm transition-all hover:bg-error hover:text-button-content!">
                                     Delete
                                 </button>
                             </template>
                             <template v-else>
-                                <Link :href="route('series.request-clippers', series.id)"
-                                    class="col-span-2 flex items-center justify-center bg-primary/10 text-primary hover:bg-primary hover:text-button-content!  text-sm font-bold rounded-xl transition-all border border-primary/20 shadow-sm">
+                                <Link :href="route(
+                                    'series.request-clippers',
+                                    series.id,
+                                )
+                                    "
+                                    class="col-span-2 flex items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-sm font-bold text-primary shadow-sm transition-all hover:bg-primary hover:text-button-content!">
                                     Request Clippers
                                 </Link>
                             </template>
                         </div>
                     </div>
                     <div v-else class="pt-4">
-                        <Link :href="route('series.show', { series: series.id, slug: series.slug })"
-                            class="inline-flex w-full items-center justify-center rounded-xl border border-primary/20 bg-primary px-6 py-3 text-sm font-black uppercase tracking-wide text-button-content transition-all hover:bg-primary hover:text-button-content! shadow-lg shadow-primary/20">
+                        <Link :href="route('series.show', {
+                            series: series.id,
+                            slug: series.slug,
+                        })
+                            "
+                            class="inline-flex w-full items-center justify-center rounded-xl border border-primary/20 bg-primary px-6 py-3 text-sm font-black tracking-wide text-button-content uppercase shadow-lg shadow-primary/20 transition-all hover:bg-primary hover:text-button-content!">
                             View Series for Yourself
                         </Link>
                     </div>
@@ -239,73 +381,92 @@ const confirmDelete = () => {
             </div>
 
             <!-- Clippers Grid -->
-            <div class="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-                <template v-for="n in (series.custom ? series.clippers.map(c => c.series_number) : [1, 2, 3, 4])"
-                    :key="n">
-                    <div v-if="getClipperByNumber(n)" class="group">
+            <div class="grid grid-cols-4 gap-3 md:gap-4 lg:grid-cols-6 xl:grid-cols-8">
+                <template v-for="slot in clipperSlots" :key="slot.number">
+                    <div v-if="slot.clipper" class="group">
                         <div
-                            class="bg-component-background p-1 sm:p-4 rounded-2xl border border-border-color shadow-sm transition-all hover:border-primary/50 relative">
-                            <div class="flex items-center mb-4">
-                                <span class="hidden md:block text-xs font-black text-muted-content uppercase p-2">#{{ n
-                                    }}</span>
+                            class="relative rounded-2xl border border-border-color bg-component-background p-1 shadow-sm transition-all hover:border-primary/50 sm:p-4">
+                            <div class="mb-4 flex items-center">
+                                <span class="hidden p-2 text-xs font-black text-muted-content uppercase md:block">#{{
+                                    slot.number }}</span>
 
                                 <!-- canManageCollection: spread on small (pencil left, heart right), grouped on md+ -->
                                 <div v-if="canManageCollection"
-                                    class="flex-1 flex flex-row-reverse flex-wrap items-center justify-between gap-2 md:flex-none md:flex-row md:ml-auto md:justify-end md:gap-1">
+                                    class="flex flex-1 flex-row-reverse flex-wrap items-center justify-between gap-2 md:ml-auto md:flex-none md:flex-row md:justify-end md:gap-1">
                                     <!-- Heart first in DOM: right side on small (row-reverse), top if stacking -->
-                                    <button
-                                        @click="toggleCollection(getClipperByNumber(n)!.id)"
-                                        class="p-2 rounded-full transition-all"
-                                        :class="isOwned(getClipperByNumber(n)!.id) ? 'text-error bg-error/10' : 'text-muted-content hover:text-primary bg-muted-background'">
-                                        <Heart class="w-6 h-6 md:w-5 md:h-5"
-                                            :fill="isOwned(getClipperByNumber(n)!.id) ? 'currentColor' : 'none'" />
+                                    <button @click="
+                                        toggleCollection(slot.clipper.id)
+                                        " class="rounded-full p-2 transition-all" :class="isOwned(slot.clipper.id)
+                                            ? 'bg-error/10 text-error'
+                                            : 'bg-muted-background text-muted-content hover:text-primary'
+                                            ">
+                                        <Heart class="h-6 w-6 md:h-5 md:w-5" :fill="isOwned(slot.clipper.id)
+                                            ? 'currentColor'
+                                            : 'none'
+                                            " />
                                     </button>
                                     <!-- Pencil second in DOM: left side on small (row-reverse), below heart if stacking; first on md+ via order -->
-                                    <button v-if="isOwned(getClipperByNumber(n)!.id)"
-                                        @click="openClipperDetails(getClipperByNumber(n)!)"
-                                        class="p-2 rounded-full bg-muted-background text-muted-content hover:text-info transition-all md:order-first"
+                                    <button v-if="isOwned(slot.clipper.id)" @click="
+                                        openClipperDetails(slot.clipper)
+                                        "
+                                        class="rounded-full bg-muted-background p-2 text-muted-content transition-all hover:text-info md:order-first"
                                         title="Edit notes/location">
-                                        <PencilLine class="w-5 h-5 md:w-4 md:h-4" />
+                                        <PencilLine class="h-5 w-5 md:h-4 md:w-4" />
                                     </button>
                                     <!-- Invisible spacer: keeps uncollected cards same height as collected (stacked) cards below md -->
-                                    <div v-else class="p-2 md:hidden invisible" aria-hidden="true">
-                                        <div class="w-5 h-5" />
+                                    <div v-else class="invisible p-2 md:hidden" aria-hidden="true">
+                                        <div class="h-5 w-5" />
                                     </div>
                                 </div>
 
                                 <div v-else
-                                    class="mx-auto px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
-                                    :class="isOwned(getClipperByNumber(n)!.id) ? 'bg-success/10 text-success border border-success/20' : 'bg-muted-background text-muted-content border border-border-color'">
-                                    {{ isOwned(getClipperByNumber(n)!.id) ? 'Owned' : 'Missing' }}
+                                    class="mx-auto rounded-full px-2 py-1 text-[10px] font-black tracking-widest uppercase"
+                                    :class="isOwned(slot.clipper.id)
+                                        ? 'border border-success/20 bg-success/10 text-success'
+                                        : 'border border-border-color bg-muted-background text-muted-content'
+                                        ">
+                                    {{
+                                        isOwned(slot.clipper.id)
+                                            ? 'Owned'
+                                            : 'Missing'
+                                    }}
                                 </div>
                             </div>
 
                             <div
-                                class="aspect-[1/4] rounded-xl overflow-hidden border border-border-color bg-primary-background group-hover:scale-[1.02] transition-transform duration-300">
-                                <img :src="getClipperByNumber(n)!.image_data"
-                                    :alt="series.name + ' #' + n + ' Clipper Lighter'"
-                                    class="w-full h-full object-cover" />
+                                class="relative aspect-[1/4] overflow-hidden rounded-xl border border-border-color bg-primary-background transition-transform duration-300 group-hover:scale-[1.02]">
+                                <Skeleton v-if="!clipperImagesLoaded"
+                                    class="absolute inset-0 h-full w-full rounded-xl" />
+                                <img v-show="clipperImagesLoaded" :src="slot.clipper.image_data" :alt="series.name +
+                                    ' #' +
+                                    slot.number +
+                                    ' Clipper Lighter'
+                                    " class="h-full w-full object-cover" />
                             </div>
                         </div>
                     </div>
 
                     <div v-else-if="!series.custom"
-                        class="h-full border border-dashed border-border-color rounded-2xl flex flex-col items-center justify-center bg-muted-background/20 opacity-60">
-                        <div class="p-1 sm:p-3 rounded-xl bg-muted-background mb-2 sm:mb-3">
-                            <Library class="w-4 h-4 sm:w-6 sm:h-6 text-muted-content opacity-20" />
+                        class="flex h-full flex-col items-center justify-center rounded-2xl border border-dashed border-border-color bg-muted-background/20 opacity-60">
+                        <div class="mb-2 rounded-xl bg-muted-background p-1 sm:mb-3 sm:p-3">
+                            <Library class="h-4 w-4 text-muted-content opacity-20 sm:h-6 sm:w-6" />
                         </div>
-                        <span class="text-[8px] sm:text-xs font-bold uppercase text-muted-content tracking-wide sm:tracking-widest text-center leading-tight">#{{ n }} Missing</span>
+                        <span
+                            class="text-center text-[8px] leading-tight font-bold tracking-wide text-muted-content uppercase sm:text-xs sm:tracking-widest">#{{
+                                slot.number }} Missing</span>
                         <Link v-if="isAdmin" :href="route('series.edit', series.id)"
-                            class="mt-2 sm:mt-4 text-[7px] sm:text-[10px] font-bold text-primary underline uppercase text-center">Upload Design</Link>
+                            class="mt-2 text-center text-[7px] font-bold text-primary uppercase underline sm:mt-4 sm:text-[10px]">
+                            Upload Design</Link>
                     </div>
                 </template>
             </div>
         </div>
 
-        <NoteModal v-if="canManageCollection" :show="detailsModalOpen" :clipper="activeClipper"
-            :initial-notes="activeClipper ? userCollection[activeClipper.id]?.notes : ''"
-            :initial-location="activeClipper ? userCollection[activeClipper.id]?.location_bought : ''"
-            @close="detailsModalOpen = false" />
+        <NoteModal v-if="canManageCollection" :show="detailsModalOpen" :clipper="activeClipper" :initial-notes="activeClipper ? userCollection[activeClipper.id]?.notes : ''
+            " :initial-location="activeClipper
+                ? userCollection[activeClipper.id]?.location_bought
+                : ''
+                " @close="detailsModalOpen = false" />
 
         <ConfirmationModal v-model:open="showDeleteModal" :title="`Delete ${series.name}?`"
             description="Are you sure you want to delete this entire series? This will remove all images and collection data for all users. This action cannot be undone."
