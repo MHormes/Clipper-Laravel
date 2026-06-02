@@ -9,11 +9,17 @@ use Illuminate\Support\LazyCollection;
 
 class CsvDataSeeder extends Seeder
 {
+    private const BOOLEAN_COLUMNS = [
+        'clippers' => ['auto_add_to_collection'],
+        'series' => ['custom'],
+        'users' => ['is_active'],
+    ];
+
     public function run(): void
     {
         $driver = DB::getDriverName();
 
-        // 1. Handle Constraints based on Database Driver
+        // Handle constraints based on database driver.
         if ($driver === 'pgsql') {
             DB::statement('SET CONSTRAINTS ALL DEFERRED');
         } elseif ($driver === 'sqlite') {
@@ -31,7 +37,7 @@ class CsvDataSeeder extends Seeder
         ];
 
         foreach ($tables as $table => $fileName) {
-            $path = database_path("data/{$fileName}");
+            $path = "{$this->dataDirectory()}/{$fileName}";
 
             if (!File::exists($path)) {
                 $this->command->warn("Skipping {$table}: File not found at {$path}");
@@ -43,7 +49,7 @@ class CsvDataSeeder extends Seeder
 
         DB::commit();
 
-        // Re-enable for SQLite (Postgres transaction commit handles it automatically)
+        // Re-enable for SQLite. Postgres transaction commit handles it automatically.
         if ($driver === 'sqlite') {
             DB::statement('PRAGMA foreign_keys = ON');
         }
@@ -60,7 +66,6 @@ class CsvDataSeeder extends Seeder
             $header = fgetcsv($handle);
 
             while (($row = fgetcsv($handle)) !== false) {
-                // Combine header with row values
                 yield array_combine($header, $row);
             }
             fclose($handle);
@@ -71,30 +76,65 @@ class CsvDataSeeder extends Seeder
                 return; 
             }
 
-            $preparedData = $chunk->map(function ($item) {
-                // Convert values for better database integrity
-                return array_map(function($value) {
-                    if ($value === '' || $value === null) return null;
-                    if ($value === 'true') return true;
-                    if ($value === 'false') return false;
-                    return $value;
-                }, $item);
+            $preparedData = $chunk->map(function ($item) use ($table) {
+                return $this->prepareRow($table, $item);
             })->toArray();
 
             if (empty($preparedData)) {
                 return;
             }
 
-            // Get columns for the upsert update list
             $columns = array_keys(reset($preparedData));
 
-            // SQLite upsert requires a unique index to work. 
-            // 'id' is perfect since it's our primary key.
+            // SQLite upsert requires a unique index. The UUID id is the shared key.
             DB::table($table)->upsert(
                 $preparedData, 
                 ['id'],          
                 $columns         
             );
         });
+    }
+
+    private function dataDirectory(): string
+    {
+        return config('database.seed_data_path', database_path('data'));
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array<string, mixed>
+     */
+    private function prepareRow(string $table, array $row): array
+    {
+        foreach ($row as $column => $value) {
+            $row[$column] = $this->prepareValue($table, $column, $value);
+        }
+
+        return $row;
+    }
+
+    private function prepareValue(string $table, string $column, mixed $value): mixed
+    {
+        if ($value === '' || $value === null) {
+            return null;
+        }
+
+        if (!$this->isBooleanColumn($table, $column)) {
+            return $value;
+        }
+
+        $normalized = strtolower(trim((string) $value));
+
+        return match ($normalized) {
+            't', 'true', '1' => true,
+            'f', 'false', '0' => false,
+            default => $value,
+        };
+    }
+
+    private function isBooleanColumn(string $table, string $column): bool
+    {
+        return in_array($column, self::BOOLEAN_COLUMNS[$table] ?? [], true);
     }
 }
