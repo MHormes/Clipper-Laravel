@@ -24,7 +24,7 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 5. Install Dependencies
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 # Omdat we nu ook tests willen runnen, installeren we ook de dev-dependencies
 RUN composer install --no-scripts --no-autoloader
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
