@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: clipper-app:${APP_VERSION:-latest}
     container_name: clipper_app
     restart: unless-stopped
     ports:

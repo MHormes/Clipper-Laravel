@@ -33,7 +33,7 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 COPY . .
 
 # 7. Finalize Laravel & Build Assets
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize && php artisan package:discover --ansi
 RUN pnpm run build:ssr
 
 # 8. Set permissions AND make start.sh executable
