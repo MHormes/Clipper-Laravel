@@ -55,6 +55,7 @@ watch(search, () => {
 </script>
 
 <template>
+
     <Head title="Users" />
 
     <AppLayout>
@@ -72,13 +73,10 @@ watch(search, () => {
 
                 <div class="relative w-full lg:w-96">
                     <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-content" />
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Search by username..."
-                        class="w-full pl-10 pr-10 py-2.5 bg-primary-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary text-sm shadow-sm"
-                    />
-                    <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-content p-1">
+                    <input v-model="search" type="text" placeholder="Search by username..."
+                        class="w-full pl-10 pr-10 py-2.5 bg-primary-background border border-border-color rounded-xl focus:ring-2 focus:ring-primary text-sm shadow-sm" />
+                    <button v-if="search" @click="search = ''"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-content p-1">
                         <X class="w-4 h-4" />
                     </button>
                 </div>
@@ -95,12 +93,13 @@ watch(search, () => {
                 <UserCard v-for="user in users.data" :key="user.id" :user="user" />
             </div>
 
-            <div v-else class="flex w-full flex-col items-center justify-center rounded-3xl border border-dashed border-border-color bg-component-background py-24">
+            <div v-else
+                class="flex w-full flex-col items-center justify-center rounded-3xl border border-dashed border-border-color bg-component-background py-24">
                 <Users class="mb-5 size-14 text-muted-content" />
-                <h2 class="text-2xl font-black uppercase tracking-tight text-primary-content">
+                <h2 class="text-2xl font-black uppercase tracking-tight text-primary-content text-center">
                     {{ hasSearch ? 'No users found' : 'Start typing to see results' }}
                 </h2>
-                <p class="mt-2 text-sm text-muted-content">
+                <p class="mt-2 text-sm text-muted-content text-center">
                     {{ hasSearch ? 'Try a broader username search.' : 'Search by username to find collectors.' }}
                 </p>
             </div>
