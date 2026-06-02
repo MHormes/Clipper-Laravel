@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 
 const currentYear = new Date().getFullYear();
+const page = usePage();
+const appVersion = page.props.app_version;
 </script>
 
 <template>
@@ -14,7 +16,7 @@ const currentYear = new Date().getFullYear();
                         CLIPPER<span class="text-[var(--primary)]">-MS</span>
                     </p>
                     <p class="text-xs leading-relaxed text-muted-content">
-                        © {{ currentYear }} Clipper-MS. All rights reserved.
+                        © {{ currentYear }} Clipper-MS. <span v-if="appVersion" class="opacity-50">v{{ appVersion }}</span>. All rights reserved.
                     </p>
                     <p class="mt-4 text-xs leading-relaxed text-muted-content">
                         Clipper-MS is a fan-made project and is not affiliated with, endorsed by, or in any way officially connected with Clipper® or Flamagas S.A.
@@ -24,6 +26,7 @@ const currentYear = new Date().getFullYear();
                 <div class="flex flex-wrap gap-8 text-sm font-medium">
                     <div class="flex flex-col gap-3">
                         <span class="text-xs font-bold uppercase tracking-wider text-primary-content/50">Legal</span>
+                        <Link :href="route('whats-new')" class="hover:text-[var(--primary)] transition">What's New</Link>
                         <Link :href="route('terms')" class="hover:text-[var(--primary)] transition">Terms of Use</Link>
                         <Link :href="route('privacy')" class="hover:text-[var(--primary)] transition">Privacy Policy</Link>
                     </div>
