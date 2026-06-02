@@ -11,11 +11,12 @@ import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { type BreadcrumbItem } from '@/types';
+import { edit as editProfile } from '@/routes/profile';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Security',
-        href: edit().url,
+        title: 'Settings',
+        href: editProfile().url,
     },
     {
         title: 'Password',
