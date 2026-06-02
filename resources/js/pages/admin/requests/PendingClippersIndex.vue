@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { ref } from 'vue';
-import { Clock, Check, X, ClipboardCheck } from 'lucide-vue-next';
+import { Clock, Check, X, ClipboardCheck, Loader2 } from 'lucide-vue-next';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import DeclineModal from '@/components/modal/DeclineModal.vue';
 
@@ -96,12 +96,19 @@ const formatDate = (date: string) => {
 
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         <div v-for="clipper in clippers" :key="clipper.id"
-                             class="bg-component-background rounded-2xl border border-border-color overflow-hidden group/item shadow-sm hover:border-primary/30 transition-all">
+                             class="relative bg-component-background rounded-2xl border border-border-color overflow-hidden group/item shadow-sm hover:border-primary/30 transition-all">
 
-                            <div class="aspect-[1/4] relative bg-media-bg overflow-hidden border-b border-border-color">
+                            <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0" leave-active-class="transition-opacity duration-200" leave-to-class="opacity-0">
+                                <div v-if="form.processing && pendingActionId === clipper.id"
+                                     class="absolute inset-0 z-20 bg-component-background/80 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+                                    <Loader2 class="w-6 h-6 text-primary animate-spin" />
+                                </div>
+                            </Transition>
+
+                            <div class="aspect-[1/2] sm:aspect-[1/4] relative bg-media-bg overflow-hidden border-b border-border-color">
                                 <img :src="clipper.image_data" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110" />
 
-                                <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent flex justify-center gap-2 translate-y-full group-hover/item:translate-y-0 transition-transform">
+                                <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent flex justify-center gap-2 sm:translate-y-full sm:group-hover/item:translate-y-0 transition-transform">
                                     <button @click="acceptClipper(clipper.id)" class="p-2 bg-primary text-button-content rounded-lg hover:bg-primary hover:text-button-content! transition-colors shadow-lg">
                                         <Check class="w-4 h-4" />
                                     </button>
