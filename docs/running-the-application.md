@@ -232,11 +232,11 @@ Shell aliases are configured on both the laptop and the server to speed up commo
 
 ### Laptop Aliases
 
-| Alias             | Description                                                                                                                 |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `clipper-connect` | Opens an SSH connection to server Ralph. **Requires VPN to be active.**                                                     |
-| `clipper-data`    | Copies the latest backup to the desktop. Contains `csv/` (database exports) and `storage/` (AIStor image mirror).          |
-| `clipper-start`   | Runs a local copy of production in Podman. Only the credentials differ and the Cloudflare container is absent.              |
+| Alias             | Description                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clipper-connect` | Opens an SSH connection to the Clipper VM. **Requires VPN to be active.**                                                                                                                                           |
+| `clipper-data`    | Runs `scripts/copy_backup.sh` — SSHs in, finds the latest backup, confirms, downloads it to `~/Desktop/ClipperBackups/`. Optionally stages `csv/` into `database/data/` and `storage/` into `storage/app/public/` for a local Docker seed. |
+| `clipper-up`      | Build and start the local Docker stack via `scripts/setup.sh local`.                                                                                                                                                |
 
 ### Server Aliases
 
@@ -246,9 +246,39 @@ Shell aliases are configured on both the laptop and the server to speed up commo
 | `clipper-deploy` | Runs `setup.sh` and deploys the current pull.                                                                                                  |
 | `clipper-backup` | Runs `backup.sh` — exports all database tables to CSV and mirrors the AIStor bucket, then removes the oldest backup keeping the 3 most recent. |
 
-### Server Cron Job
+### VM OS Updates
 
-`backup.sh` runs automatically every night at **02:00** via a server cron job.
+`scripts/vm-update.sh` automates the monthly OS update cycle. Run it from the project root on the server:
+
+```bash
+sudo bash scripts/vm-update.sh
+```
+
+It runs `apt update && apt upgrade -y`. If a kernel update requires a reboot, it automatically enables the Cloudflare maintenance page via `scripts/maintenance-on.sh` before rebooting. If no reboot is needed, it exits cleanly with zero downtime.
+
+After a reboot the Docker containers come back up automatically (`restart: unless-stopped`). The `@reboot` cron entry below re-disables maintenance mode once the system is back.
+
+### Cloudflare Maintenance Scripts
+
+Three helper scripts in `scripts/` manage the Cloudflare maintenance page independently of deployment:
+
+| Script | Purpose |
+| --- | --- |
+| `scripts/maintenance-on.sh` | Creates a Cloudflare Worker route that serves the maintenance page |
+| `scripts/maintenance-off.sh` | Deletes the Worker route, restoring normal traffic |
+| `scripts/utils.sh` | Sourced by the above; loads `.env.production` and derives domain + worker name |
+
+These are also called by `scripts/setup.sh production` around the build/restart cycle.
+
+### Server Cron Jobs
+
+```cron
+# Nightly database and storage backup at 02:00
+0 2 * * * /path/to/Clipper-Laravel/scripts/backup.sh
+
+# Re-enable site after a VM reboot triggered by vm-update.sh
+@reboot sleep 30 && /path/to/Clipper-Laravel/scripts/maintenance-off.sh
+```
 
 Each backup creates a timestamped folder under `backups/` containing:
 

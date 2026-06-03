@@ -1,6 +1,7 @@
 #!/bin/bash
 
 REMOTE_HOST="clipper"
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REMOTE_BACKUPS_DIR="/home/clipper/clipper-ms/Clipper-Laravel/backups"
 LOCAL_DEST="$HOME/Desktop/ClipperBackups"
 
@@ -13,10 +14,9 @@ if [ -z "$FOLDER_NAME" ]; then
 fi
 
 echo "📦 Latest backup: '$FOLDER_NAME'"
-echo "🔗 Full remote path: '$REMOTE_BACKUPS_DIR/$FOLDER_NAME'"
 mkdir -p "$LOCAL_DEST"
 
-read -p "Proceed with copy? (y/n) " CONFIRM
+read -rp "Copy to $LOCAL_DEST/$FOLDER_NAME? (y/n) " CONFIRM
 [ "$CONFIRM" != "y" ] && exit 0
 
 echo "📥 Copying $FOLDER_NAME..."
@@ -28,3 +28,23 @@ ssh "$REMOTE_HOST" "ls $REMOTE_BACKUPS_DIR/*.log 2>/dev/null | tr -d '\r'" | whi
 done
 
 echo "✅ Done. Backup saved to $LOCAL_DEST/$FOLDER_NAME"
+
+echo ""
+read -rp "Stage for local Docker seed? Copies csv/ → database/data/ and storage/ → storage/app/public/ (y/n) " STAGE
+if [ "$STAGE" = "y" ]; then
+    DATA_DIR="$BASE_DIR/../database/data"
+    STORAGE_DIR="$BASE_DIR/../storage/app/public"
+    mkdir -p "$DATA_DIR" "$STORAGE_DIR"
+
+    if [ -d "$LOCAL_DEST/$FOLDER_NAME/csv" ]; then
+        echo "📋 Staging CSVs..."
+        cp -r "$LOCAL_DEST/$FOLDER_NAME/csv/." "$DATA_DIR/"
+    fi
+
+    if [ -d "$LOCAL_DEST/$FOLDER_NAME/storage" ]; then
+        echo "🖼️  Staging images..."
+        cp -r "$LOCAL_DEST/$FOLDER_NAME/storage/." "$STORAGE_DIR/"
+    fi
+
+    echo "✅ Staged. Run 'bash scripts/setup.sh production' to boot and seed."
+fi
