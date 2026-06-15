@@ -1,0 +1,10 @@
+name: CI Main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    uses: ./.github/workflows/_lint-and-test.yml

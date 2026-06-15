@@ -1,0 +1,10 @@
+name: CI Development
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  lint-and-test:
+    uses: ./.github/workflows/_lint-and-test.yml
