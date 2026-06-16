@@ -9,6 +9,7 @@ defineProps<{
         series_id: string;
         series_number: number;
         image_data: string;
+        pending_image_data: string | null;
         created_at: string;
         requester: { name: string };
         series: { name: string; image_data: string };
@@ -75,8 +76,12 @@ const formatDate = (date: string) => {
                             class="bg-component-background rounded-2xl border border-border-color overflow-hidden group/item shadow-sm hover:border-primary/30 transition-all">
 
                             <div class="aspect-[1/4] relative bg-media-bg overflow-hidden border-b border-border-color">
-                                <img :src="clipper.image_data"
+                                <img :src="clipper.pending_image_data ?? clipper.image_data"
                                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110" />
+                                <div v-if="clipper.pending_image_data"
+                                    class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-warning/90 text-[8px] font-black uppercase tracking-widest text-white shadow">
+                                    Replacement
+                                </div>
                             </div>
 
                             <div class="p-3">

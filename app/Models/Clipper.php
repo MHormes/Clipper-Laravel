@@ -15,7 +15,7 @@ class Clipper extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['series_id', 'series_number', 'requested_by' ,'accepted_by', 'image_data', 'auto_add_to_collection'];
+    protected $fillable = ['series_id', 'series_number', 'requested_by', 'accepted_by', 'original_accepted_by', 'image_data', 'pending_image_data', 'auto_add_to_collection'];
 
     protected $casts = [
         'auto_add_to_collection' => 'boolean',
@@ -33,6 +33,13 @@ class Clipper extends Model
     }
 
     protected function imageData(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Storage::url($value) : null,
+        );
+    }
+
+    protected function pendingImageData(): Attribute
     {
         return Attribute::make(
             get: fn ($value) => $value ? Storage::url($value) : null,

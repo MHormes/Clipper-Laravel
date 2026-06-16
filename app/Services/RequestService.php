@@ -114,7 +114,20 @@ class RequestService
         $series = $clipper->series;
 
         DB::transaction(function () use ($clipper, $adminUser) {
-            $clipper->update(['accepted_by' => $adminUser->id]);
+            if ($clipper->getRawOriginal('pending_image_data')) {
+                // Replacement request: swap the staged image into the live slot.
+                $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
+
+                $clipper->update([
+                    'image_data'         => $clipper->getRawOriginal('pending_image_data'),
+                    'pending_image_data' => null,
+                    'accepted_by'        => $adminUser->id,
+                ]);
+            } else {
+                // New clipper request: just mark as accepted.
+                $clipper->update(['accepted_by' => $adminUser->id]);
+            }
+
             $this->autoAddRequestedClipperToCollection($clipper);
         });
 
@@ -137,7 +150,27 @@ class RequestService
         $clipper->load('series');
         $seriesName = $clipper->series?->name ?? '';
 
-        $this->clipperService->deleteClipper($clipper);
+        $isReplacement = $clipper->pending_image_data
+            || ($clipper->getRawOriginal('original_accepted_by') && !$clipper->accepted_by);
+
+        if ($isReplacement) {
+            // Replacement request: discard staged image and restore original accepted state.
+            if ($clipper->pending_image_data) {
+                $this->imageService->deleteImage($clipper->getRawOriginal('pending_image_data'));
+            }
+
+            $updates = ['pending_image_data' => null, 'original_accepted_by' => null];
+
+            // Restore accepted_by if it was cleared (handles data from earlier code revisions).
+            if (!$clipper->accepted_by && $clipper->getRawOriginal('original_accepted_by')) {
+                $updates['accepted_by'] = $clipper->getRawOriginal('original_accepted_by');
+            }
+
+            $clipper->update($updates);
+        } else {
+            // New clipper request: delete the entire record.
+            $this->clipperService->deleteClipper($clipper);
+        }
 
         if ($requester && $seriesName) {
             $this->emailNotificationService->notifyUser(
