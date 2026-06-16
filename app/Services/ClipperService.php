@@ -84,17 +84,35 @@ class ClipperService
      */
     public function updateClipper(Clipper $clipper, UploadedFile $image, $userId, bool $isRequest = false, bool $autoAddToCollection = false): Clipper
     {
-        // Delete old physical file
-        $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
+        if ($isRequest) {
+            // Stage the new image as a pending replacement without touching the live image.
+            // If there's already a staged pending image, delete it first (consecutive requests).
+            if ($clipper->getRawOriginal('pending_image_data')) {
+                $this->imageService->deleteImage($clipper->getRawOriginal('pending_image_data'));
+            }
 
-        $newPath = $this->imageService->uploadImage($image, 'clippers');
+            $pendingPath = $this->imageService->uploadImage($image, 'clippers');
 
-         $clipper->update([
-            'image_data' => $newPath,
-            'requested_by' => $isRequest ? $userId : $clipper->requested_by,
-            'auto_add_to_collection' => $isRequest ? $autoAddToCollection : $clipper->auto_add_to_collection,
-            'accepted_by' => $isRequest ? null : $userId,
-        ]);
+            // Keep accepted_by intact so the clipper remains visible on the series page.
+            // pending_image_data IS NOT NULL is the sole indicator of a pending replacement.
+            $clipper->update([
+                'pending_image_data'     => $pendingPath,
+                'requested_by'           => $userId,
+                'auto_add_to_collection' => $autoAddToCollection,
+            ]);
+        } else {
+            // Admin direct update: swap immediately.
+            $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
+
+            $newPath = $this->imageService->uploadImage($image, 'clippers');
+
+            $clipper->update([
+                'image_data'   => $newPath,
+                'requested_by' => $clipper->requested_by,
+                'auto_add_to_collection' => $clipper->auto_add_to_collection,
+                'accepted_by'  => $userId,
+            ]);
+        }
 
         return $clipper->refresh();
     }
@@ -118,9 +136,12 @@ class ClipperService
         // 1. Clean up pivot table (User collections)
         $clipper->collections()->delete();
 
-        // 2. Clean up physical image 
-        // We use getRawOriginal to ensure we get the path 'clippers/xxx.jpg' not the full URL
+        // 2. Clean up physical images
         $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
+
+        if ($clipper->getRawOriginal('pending_image_data')) {
+            $this->imageService->deleteImage($clipper->getRawOriginal('pending_image_data'));
+        }
 
         // 3. Delete DB record
         $clipper->delete();
@@ -154,7 +175,7 @@ class ClipperService
      */
     public function getPendingClipperRequests()
     {
-        return Clipper::pending()
+        return Clipper::where(fn($q) => $q->pending()->orWhereNotNull('pending_image_data'))
             ->whereHas('series', fn($q) => $q->accepted())
             ->with(['series', 'requester:id,name'])
             ->orderBy('created_at', 'desc')

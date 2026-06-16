@@ -193,7 +193,7 @@ const addSlot = () => {
 };
 
 const canReuseSeriesImage = computed(() =>
-    (props.mode === 'create' || props.mode === 'request') && seriesPreview.value !== null
+    (props.mode === 'create' || props.mode === 'request' || (props.mode === 'edit' && isAdmin.value)) && seriesPreview.value !== null
 );
 
 const reuseSeriesImage = (index: number) => {
@@ -284,6 +284,10 @@ const shouldShowSlotSaveState = (clipper: any, index: number) => {
 
     return false;
 };
+
+const anyCheckboxVisible = computed(() =>
+    form.clippers.some((clipper, index) => shouldShowSlotSaveState(clipper, index))
+);
 </script>
 
 <template>
@@ -391,26 +395,12 @@ const shouldShowSlotSaveState = (clipper: any, index: number) => {
                 <h3 class="text-xl font-black uppercase tracking-widest text-primary-content">The Collection</h3>
             </div>
 
-            <div
-                v-if="shouldShowClipperSaveState"
-                class="rounded-2xl border border-border-color/50 bg-muted-background/30 p-5"
-            >
-                <p class="text-sm font-bold text-primary-content">{{ autoAddInfoText }}</p>
-            </div>
-
             <div class="grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                 <div v-for="(clipper, index) in form.clippers" :key="index"
                     class="relative group/slot flex flex-col items-center">
 
                     <button
-                        v-if="((form.custom && (form.clippers.length > 1 || clipperPreviews[index])) || (!form.custom && clipperPreviews[index])) && (!isClipperRequest || (isClipperRequest && !clipper.id))"
-                        type="button" @click="handleRemoveAction(index)"
-                        class="absolute -top-2 -right-2 p-1.5 bg-error text-button-content rounded-full opacity-0 group-hover/slot:opacity-100 z-20 shadow-xl transition-all hover:scale-110">
-                        <X class="w-3.5 h-3.5" />
-                    </button>
-
-                    <button
-                        v-if="canReuseSeriesImage && !clipperPreviews[index]"
+                        v-if="canReuseSeriesImage"
                         type="button"
                         @click="reuseSeriesImage(index)"
                         class="mb-1.5 w-full flex flex-col items-center justify-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary transition-all rounded-lg border border-primary/30 bg-primary/10 py-1.5 active:bg-primary/20 lg:flex-row lg:text-[11px] lg:border-transparent lg:bg-transparent lg:py-0 lg:rounded-none lg:opacity-70 lg:hover:opacity-100"
@@ -419,17 +409,25 @@ const shouldShowSlotSaveState = (clipper: any, index: number) => {
                         Reuse image
                     </button>
 
-                    <div
-                        class="w-full aspect-[1/4] bg-component-background rounded-xl overflow-hidden relative border border-border-color group-hover/slot:border-primary/50 transition-all cursor-pointer shadow-sm">
-                        <img v-if="clipperPreviews[index]" :src="clipperPreviews[index]!"
-                            class="absolute inset-0 w-full h-full object-cover" />
-                        <div v-else class="absolute inset-0 flex flex-col items-center justify-center p-2 text-center bg-muted-background/30">
-                            <Plus class="w-5 h-5 text-muted-content opacity-30 mb-1" />
-                            <span class="text-[8px] uppercase font-black text-muted-content opacity-40">Add</span>
+                    <div class="relative w-full">
+                        <button
+                            v-if="((form.custom && (form.clippers.length > 1 || clipperPreviews[index])) || (!form.custom && clipperPreviews[index])) && (!isClipperRequest || !clipper.id || clipper.image !== null)"
+                            type="button" @click.stop="handleRemoveAction(index)"
+                            class="absolute -top-2 -right-2 p-1.5 bg-error text-button-content rounded-full opacity-100 lg:opacity-0 lg:group-hover/slot:opacity-100 z-20 shadow-xl transition-all hover:scale-110">
+                            <X class="w-3.5 h-3.5" />
+                        </button>
+                        <div
+                            class="w-full aspect-[1/4] bg-component-background rounded-xl overflow-hidden relative border border-border-color group-hover/slot:border-primary/50 transition-all cursor-pointer shadow-sm">
+                            <img v-if="clipperPreviews[index]" :src="clipperPreviews[index]!"
+                                class="absolute inset-0 w-full h-full object-cover" />
+                            <div v-else class="absolute inset-0 flex flex-col items-center justify-center p-2 text-center bg-muted-background/30">
+                                <Plus class="w-5 h-5 text-muted-content opacity-30 mb-1" />
+                                <span class="text-[8px] uppercase font-black text-muted-content opacity-40">Add</span>
+                            </div>
+                            <input v-if="!clipperPreviews[index] || (isAdmin && props.mode === 'edit') || isClipperRequest" type="file"
+                                @change="handleFile('clipper', index, $event)" accept="image/*"
+                                class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                         </div>
-                        <input v-if="!clipperPreviews[index] || (isAdmin && props.mode === 'edit')" type="file"
-                            @change="handleFile('clipper', index, $event)" accept="image/*"
-                            class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                     </div>
 
                     <div
@@ -464,6 +462,13 @@ const shouldShowSlotSaveState = (clipper: any, index: number) => {
                     <span class="text-[9px] font-black uppercase text-muted-content group-hover/add:text-primary mt-2 opacity-40">Add
                         Slot</span>
                 </button>
+            </div>
+
+            <div
+                v-if="anyCheckboxVisible"
+                class="rounded-2xl border border-border-color/50 bg-muted-background/30 p-5"
+            >
+                <p class="text-sm font-bold text-primary-content">{{ autoAddInfoText }}</p>
             </div>
 
             <div v-if="form.errors.clippers"

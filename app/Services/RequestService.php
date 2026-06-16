@@ -114,7 +114,20 @@ class RequestService
         $series = $clipper->series;
 
         DB::transaction(function () use ($clipper, $adminUser) {
-            $clipper->update(['accepted_by' => $adminUser->id]);
+            if ($clipper->getRawOriginal('pending_image_data')) {
+                // Replacement request: swap the staged image into the live slot.
+                $this->imageService->deleteImage($clipper->getRawOriginal('image_data'));
+
+                $clipper->update([
+                    'image_data'         => $clipper->getRawOriginal('pending_image_data'),
+                    'pending_image_data' => null,
+                    'accepted_by'        => $adminUser->id,
+                ]);
+            } else {
+                // New clipper request: just mark as accepted.
+                $clipper->update(['accepted_by' => $adminUser->id]);
+            }
+
             $this->autoAddRequestedClipperToCollection($clipper);
         });
 
@@ -137,7 +150,18 @@ class RequestService
         $clipper->load('series');
         $seriesName = $clipper->series?->name ?? '';
 
-        $this->clipperService->deleteClipper($clipper);
+        if ($clipper->getRawOriginal('pending_image_data')) {
+            // Replacement request: discard the staged image; live clipper is untouched.
+            $this->imageService->deleteImage($clipper->getRawOriginal('pending_image_data'));
+
+            $clipper->update([
+                'pending_image_data' => null,
+                'requested_by'       => null,
+            ]);
+        } else {
+            // New clipper request: delete the entire record.
+            $this->clipperService->deleteClipper($clipper);
+        }
 
         if ($requester && $seriesName) {
             $this->emailNotificationService->notifyUser(
