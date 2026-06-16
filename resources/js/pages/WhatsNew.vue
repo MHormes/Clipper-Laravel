@@ -12,13 +12,26 @@ interface Version {
 
 const versions = ref<Version[]>([
     {
+        number: '1.1',
+        date: 'June 2026',
+        title: 'Replace Requests & Stability',
+        changes: [
+            'Fixed an issue where replace clipper requests were not processed correctly.',
+            'Improved the re-use series image button for a smoother experience.',
+            'Replace requests are now included in the pending request count on the admin dashboard.',
+            'Better styling and layout for the pending clipper requests admin page.',
+            'Various stability, SSR, and deployment improvements.',
+        ],
+        isOpen: true
+    },
+    {
         number: '1.0',
         date: 'June 2026',
         title: 'Initial Release',
         changes: [
             'Clipper-ms.com has been released! We are no longer in beta!'
         ],
-        isOpen: true
+        isOpen: false
     }
 ]);
 
