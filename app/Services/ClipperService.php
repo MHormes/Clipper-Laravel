@@ -188,7 +188,7 @@ class ClipperService
      */
     public function getPendingClipperRequestsForUser($user)
     {
-        return Clipper::pending()
+        return Clipper::where(fn($q) => $q->pending()->orWhereNotNull('pending_image_data'))
             ->where('requested_by', $user->id)
             ->whereHas('series', fn($q) => $q->accepted())
             ->with(['series', 'requester:id,name'])

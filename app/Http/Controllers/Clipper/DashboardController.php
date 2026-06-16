@@ -34,7 +34,7 @@ class DashboardController extends Controller
             
             'pendingRequests' => [
                 'series' => $user?->isAdmin() ? Series::pending()->count() : 0,
-                'clippers' => $user?->isAdmin() ? Clipper::pending()->count() : 0,
+                'clippers' => $user?->isAdmin() ? Clipper::where(fn($q) => $q->pending()->orWhereNotNull('pending_image_data'))->count() : 0,
             ]
         ])->withViewData(SeoMetadata::forDashboard()->toArray());
     }

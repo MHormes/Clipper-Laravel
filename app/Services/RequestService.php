@@ -150,14 +150,23 @@ class RequestService
         $clipper->load('series');
         $seriesName = $clipper->series?->name ?? '';
 
-        if ($clipper->getRawOriginal('pending_image_data')) {
-            // Replacement request: discard the staged image; live clipper is untouched.
-            $this->imageService->deleteImage($clipper->getRawOriginal('pending_image_data'));
+        $isReplacement = $clipper->pending_image_data
+            || ($clipper->getRawOriginal('original_accepted_by') && !$clipper->accepted_by);
 
-            $clipper->update([
-                'pending_image_data' => null,
-                'requested_by'       => null,
-            ]);
+        if ($isReplacement) {
+            // Replacement request: discard staged image and restore original accepted state.
+            if ($clipper->pending_image_data) {
+                $this->imageService->deleteImage($clipper->getRawOriginal('pending_image_data'));
+            }
+
+            $updates = ['pending_image_data' => null, 'original_accepted_by' => null];
+
+            // Restore accepted_by if it was cleared (handles data from earlier code revisions).
+            if (!$clipper->accepted_by && $clipper->getRawOriginal('original_accepted_by')) {
+                $updates['accepted_by'] = $clipper->getRawOriginal('original_accepted_by');
+            }
+
+            $clipper->update($updates);
         } else {
             // New clipper request: delete the entire record.
             $this->clipperService->deleteClipper($clipper);

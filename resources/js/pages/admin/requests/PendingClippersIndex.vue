@@ -106,7 +106,66 @@ const formatDate = (date: string) => {
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                        <div v-for="clipper in clippers" :key="clipper.id"
+                        <template v-for="clipper in clippers" :key="clipper.id">
+                        <!-- Replacement: two boxes with arrow -->
+                        <template v-if="clipper.pending_image_data">
+                            <div class="relative col-span-2 bg-component-background rounded-2xl border border-border-color overflow-hidden group/item shadow-sm hover:border-primary/30 transition-all">
+                                <Transition enter-active-class="transition-opacity duration-200"
+                                    enter-from-class="opacity-0" leave-active-class="transition-opacity duration-200"
+                                    leave-to-class="opacity-0">
+                                    <div v-if="form.processing && pendingActionId === clipper.id"
+                                        class="absolute inset-0 z-20 bg-component-background/80 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+                                        <Loader2 class="w-6 h-6 text-primary animate-spin" />
+                                    </div>
+                                </Transition>
+
+                                <div class="p-3 flex items-center gap-3">
+                                    <div class="flex-1 rounded-xl overflow-hidden border border-border-color">
+                                        <div class="aspect-[1/4] relative bg-media-bg">
+                                            <img :src="clipper.image_data"
+                                                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105" />
+                                        </div>
+                                        <div class="px-2 py-1 text-center">
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-muted-content">Current</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0 text-muted-content font-bold text-sm">→</div>
+                                    <div class="flex-1 rounded-xl overflow-hidden border border-warning/50">
+                                        <div class="aspect-[1/4] relative bg-media-bg">
+                                            <img :src="clipper.pending_image_data"
+                                                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105" />
+                                        </div>
+                                        <div class="px-2 py-1 text-center">
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-warning">New</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="px-3 pb-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="px-1.5 py-0.5 rounded bg-warning/15 text-[8px] font-black uppercase tracking-widest text-warning">Replacement</span>
+                                        <span class="px-2 py-0.5 rounded bg-primary/10 text-[9px] font-black uppercase tracking-widest text-primary">Slot #{{ clipper.series_number }}</span>
+                                        <span class="text-[8px] font-bold text-muted-content">{{ formatDate(clipper.created_at) }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-[10px] font-bold text-muted-content truncate uppercase tracking-tight">{{ clipper.requester.name }}</p>
+                                        <div class="flex gap-2">
+                                            <button @click="acceptClipper(clipper.id)"
+                                                class="p-1.5 bg-primary text-button-content rounded-lg hover:bg-primary hover:text-button-content! transition-colors shadow-lg">
+                                                <Check class="w-3.5 h-3.5" />
+                                            </button>
+                                            <button @click="declineClipper(clipper.id)"
+                                                class="p-1.5 bg-error text-button-content rounded-lg hover:bg-error hover:text-button-content! transition-colors shadow-lg">
+                                                <X class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- New clipper: standard card -->
+                        <div v-else
                             class="relative bg-component-background rounded-2xl border border-border-color overflow-hidden group/item shadow-sm hover:border-primary/30 transition-all">
 
                             <Transition enter-active-class="transition-opacity duration-200"
@@ -118,16 +177,10 @@ const formatDate = (date: string) => {
                                 </div>
                             </Transition>
 
-                            <div
-                                class="aspect-[1/2] sm:aspect-[1/4] relative bg-media-bg overflow-hidden border-b border-border-color">
-                                <img :src="clipper.pending_image_data ?? clipper.image_data"
+                            <!-- New clipper: single image -->
+                            <div class="aspect-[1/2] sm:aspect-[1/4] relative bg-media-bg overflow-hidden border-b border-border-color">
+                                <img :src="clipper.image_data"
                                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110" />
-
-                                <div v-if="clipper.pending_image_data"
-                                    class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-warning/90 text-[8px] font-black uppercase tracking-widest text-white shadow">
-                                    Replacement
-                                </div>
-
                                 <div
                                     class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent flex justify-center gap-2 sm:translate-y-full sm:group-hover/item:translate-y-0 transition-transform">
                                     <button @click="acceptClipper(clipper.id)"
@@ -154,6 +207,7 @@ const formatDate = (date: string) => {
                                 </p>
                             </div>
                         </div>
+                        </template>
                     </div>
                 </div>
             </div>
