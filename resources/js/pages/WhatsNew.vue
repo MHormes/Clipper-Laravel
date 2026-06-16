@@ -14,8 +14,10 @@ const versions = ref<Version[]>([
     {
         number: '1.1',
         date: 'June 2026',
-        title: 'Replace Requests & Stability',
+        title: 'Copy Details, Replace Requests & More',
         changes: [
+            'You can now copy collection details (notes and/or location) from one clipper to others directly from the Clipper Details modal — great for clippers you picked up at the same place.',
+            'Fill in a clipper\'s details from another clipper using the new "Fill from another clipper" option in the edit form.',
             'Fixed an issue where replace clipper requests were not processed correctly.',
             'Improved the re-use series image button for a smoother experience.',
             'Replace requests are now included in the pending request count on the admin dashboard.',
