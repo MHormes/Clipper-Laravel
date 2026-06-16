@@ -87,4 +87,36 @@ class CollectionController extends Controller
 
         return back();
     }
+
+    /**
+     * Return a lightweight list of all collected clippers for the copy picker.
+     */
+    public function list(Request $request)
+    {
+        return response()->json(
+            $this->collectionService->getCollectedClipperList($request->user())
+        );
+    }
+
+    /**
+     * Copy notes/location from one collected clipper to selected others.
+     */
+    public function copyTo(Request $request, Clipper $clipper)
+    {
+        $validated = $request->validate([
+            'clipper_ids'   => 'required|array|min:1',
+            'clipper_ids.*' => 'uuid|exists:clippers,id',
+            'fields'        => 'required|array|min:1',
+            'fields.*'      => 'in:notes,location_bought',
+        ]);
+
+        $this->collectionService->copyCollectionInfo(
+            $request->user(),
+            $clipper,
+            $validated['clipper_ids'],
+            $validated['fields']
+        );
+
+        return back();
+    }
 }

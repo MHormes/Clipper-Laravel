@@ -1,7 +1,9 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # Move to the root of the project
-cd "$(dirname "$0")/.."
+cd "$SCRIPT_DIR/.."
 
 # 1. Bepaal het profiel (standaard 'local')
 PROFILE=${1:-local}
@@ -37,7 +39,7 @@ fi
 export $(grep -v '^#' "$ENV_FILE" | xargs)
 
 if [ "$PROFILE" = "production" ]; then
-    bash "$(dirname "$0")/maintenance-on.sh"
+    bash "$SCRIPT_DIR/maintenance-on.sh"
 fi
 
 echo "🛑 Stop & verwijder containers..."
@@ -89,7 +91,7 @@ docker exec $CONTAINER_NAME sh -c "
     mc anonymous set download local/clipper-ms"
 
 if [ "$PROFILE" = "production" ]; then
-    bash "$(dirname "$0")/maintenance-off.sh"
+    bash "$SCRIPT_DIR/maintenance-off.sh"
 fi
 
 echo "✅ Systeem is up op profiel: $PROFILE" 

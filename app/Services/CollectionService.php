@@ -203,6 +203,47 @@ class CollectionService
         ]);
     }
 
+    /**
+     * Return a lightweight list of all collected clippers for the copy picker UI.
+     */
+    public function getCollectedClipperList(User $user): array
+    {
+        return $user->myCollection()
+            ->whereHas('clipper', fn($q) => $q->accepted())
+            ->with(['clipper.series'])
+            ->get()
+            ->map(fn($item) => [
+                'clipper_id'      => $item->clipper->id,
+                'series_id'       => $item->clipper->series->id,
+                'series_name'     => $item->clipper->series->name,
+                'series_number'   => $item->clipper->series_number,
+                'image_data'      => $item->clipper->image_data,
+                'notes'           => $item->notes,
+                'location_bought' => $item->location_bought,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Copy specified fields from source clipper to target clippers (all must be owned by user).
+     */
+    public function copyCollectionInfo(User $user, Clipper $source, array $targetIds, array $fields): void
+    {
+        $sourceRecord = CollectedClipper::where('user_id', $user->id)
+            ->where('clipper_id', $source->id)
+            ->firstOrFail();
+
+        $data = collect($fields)
+            ->mapWithKeys(fn($f) => [$f => $sourceRecord->{$f}])
+            ->all();
+
+        CollectedClipper::where('user_id', $user->id)
+            ->whereIn('clipper_id', $targetIds)
+            ->get()
+            ->each(fn($record) => $record->update($data));
+    }
+
     private function parseCoordinates(?string $coordinates): ?array
     {
         if (blank($coordinates)) {
