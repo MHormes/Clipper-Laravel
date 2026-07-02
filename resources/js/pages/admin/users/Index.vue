@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { reactive } from 'vue';
-import { Users, Mail, Calendar, Trash2, Ban, CheckCircle, Search, UserRoundSearch } from 'lucide-vue-next';
+import { Users, Mail, Calendar, Trash2, Ban, CheckCircle, Search, UserRoundSearch } from '@lucide/vue';
 import { AppPageProps } from '@/types';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import SortButton from '@/components/SortButton.vue';

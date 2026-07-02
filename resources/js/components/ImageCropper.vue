@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { X, Check, RotateCcw, RotateCw } from 'lucide-vue-next';
+import { X, Check, RotateCcw, RotateCw } from '@lucide/vue';
 
 const props = defineProps<{
     open: boolean;

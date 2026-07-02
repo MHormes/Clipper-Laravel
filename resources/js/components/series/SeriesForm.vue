@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
-import { Plus, X, AlertCircle, ImageIcon, Loader2, RefreshCw } from 'lucide-vue-next';
+import { Plus, X, AlertCircle, ImageIcon, Loader2, RefreshCw } from '@lucide/vue';
 import ImageCropper from '@/components/ImageCropper.vue';
 import { ensureJpg } from '@/util/imageSupport';
 

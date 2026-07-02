@@ -9,7 +9,7 @@ import {
     DialogTitle,
 } from "@/components/ui"
 import { Button } from "@/components/ui"
-import { Loader2 } from "lucide-vue-next"
+import { Loader2 } from "@lucide/vue"
 
 interface Props {
     title: string

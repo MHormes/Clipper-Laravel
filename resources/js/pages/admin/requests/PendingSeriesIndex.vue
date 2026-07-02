@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { Eye, Clock, User as UserIcon, Layers, ClipboardList } from 'lucide-vue-next';
+import { Eye, Clock, User as UserIcon, Layers, ClipboardList } from '@lucide/vue';
 
 defineProps<{
     series: Array<{

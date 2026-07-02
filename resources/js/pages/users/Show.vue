@@ -4,7 +4,7 @@ import Pagination from '@/components/Pagination.vue';
 import SeriesCard from '@/components/series/SeriesCard.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { ArrowLeft, CheckCircle2, Package, Search, Sparkles, X } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, Package, Search, Sparkles, X } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 
 interface Profile {

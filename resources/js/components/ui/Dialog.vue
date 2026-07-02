@@ -9,7 +9,7 @@ import {
 } from "reka-ui"
 import { cn } from "@/lib/utils"
 import { reactiveOmit } from "@vueuse/core"
-import { X } from "lucide-vue-next"
+import { X } from "@lucide/vue"
 
 export const DialogTrigger = {
   name: 'DialogTrigger',

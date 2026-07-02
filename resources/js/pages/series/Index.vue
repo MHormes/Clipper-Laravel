@@ -5,7 +5,7 @@ import Pagination from '@/components/Pagination.vue';
 import SortButton from '@/components/SortButton.vue';
 import { useFilters } from '@/util/useFilters';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { Search, X } from 'lucide-vue-next';
+import { Search, X } from '@lucide/vue';
 import { computed } from 'vue';
 import { route } from 'ziggy-js';
 

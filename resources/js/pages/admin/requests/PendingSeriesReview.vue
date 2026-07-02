@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { ChevronLeft, CheckCircle2, XCircle, AlertCircle, Info } from 'lucide-vue-next';
+import { ChevronLeft, CheckCircle2, XCircle, AlertCircle, Info } from '@lucide/vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import DeclineModal from '@/components/modal/DeclineModal.vue';
 

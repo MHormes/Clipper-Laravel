@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { ArrowLeft, MapPin } from 'lucide-vue-next';
+import { ArrowLeft, MapPin } from '@lucide/vue';
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';

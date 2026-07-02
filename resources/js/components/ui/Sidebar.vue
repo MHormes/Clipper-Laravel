@@ -5,7 +5,7 @@ import { SIDEBAR_WIDTH_MOBILE, useSidebar, provideSidebarContext, SIDEBAR_COOKIE
 import { defaultDocument, useEventListener, useMediaQuery, useVModel } from "@vueuse/core"
 import { TooltipProvider } from "reka-ui"
 import { Button } from './index'
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-vue-next'
+import { PanelLeftClose, PanelLeftOpen } from '@lucide/vue'
 
 export const SidebarInset = (props: { class?: VueHTMLAttributes }, { slots }: any) => h('main', {
   class: utilCn('bg-primary-background relative flex w-full flex-1 flex-col md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-0', props.class)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Calendar, CheckCircle2, Package, Sparkles } from 'lucide-vue-next';
+import { Calendar, CheckCircle2, Package, Sparkles } from '@lucide/vue';
 import { Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 
