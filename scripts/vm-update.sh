@@ -1,5 +1,5 @@
 #!/bin/bash
-apt update && apt upgrade -y
+sudo apt update && sudo apt upgrade -y
 
 if [ -f /var/run/reboot-required ]; then
     echo "Reboot required. Enabling maintenance mode..."
