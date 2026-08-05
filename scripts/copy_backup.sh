@@ -2,7 +2,7 @@
 
 REMOTE_HOST="clipper"
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REMOTE_BACKUPS_DIR="/home/clipper/clipper-ms/Clipper-Laravel/backups"
+REMOTE_BACKUPS_DIR="/home/clipper/clipper-laravel/backups"
 LOCAL_DEST="$HOME/Desktop/ClipperBackups"
 
 echo "🔍 Checking latest backup on $REMOTE_HOST..."
