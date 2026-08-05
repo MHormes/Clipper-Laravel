@@ -4,7 +4,7 @@ import Pagination from '@/components/Pagination.vue';
 import SeriesCard from '@/components/series/SeriesCard.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { ArrowLeft, CheckCircle2, Package, Search, Sparkles, X } from '@lucide/vue';
+import { ArrowLeft, CheckCircle2, Loader2, Package, Search, Sparkles, X } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 
 interface Profile {
@@ -83,11 +83,19 @@ watch(completedOnly, () => {
 
 const initial = computed(() => props.profile.name.charAt(0).toUpperCase());
 
+const followLoading = ref(false);
 const toggleFollow = () => {
+    followLoading.value = true;
     router.post(
         route('users.toggle-follow', props.profile.id),
         {},
-        { preserveScroll: true, preserveState: true }
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => {
+                followLoading.value = false;
+            },
+        }
     );
 };
 </script>
@@ -122,11 +130,12 @@ const toggleFollow = () => {
                         </div>
                     </div>
 
-                    <button v-if="profile.can_follow" type="button" @click="toggleFollow"
-                        class="mt-4 w-full px-4 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all border"
+                    <button v-if="profile.can_follow" type="button" @click="toggleFollow" :disabled="followLoading"
+                        class="mt-4 w-full px-4 py-2.5 rounded-xl font-black text-sm uppercase tracking-wider transition-all border flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                         :class="profile.is_following
                             ? 'bg-primary-background text-primary-content border-border-color hover:border-primary/40'
                             : 'bg-primary text-button-content border-primary hover:bg-primary hover:text-button-content!'">
+                        <Loader2 v-if="followLoading" class="w-4 h-4 animate-spin" />
                         {{ profile.is_following ? 'Unfollow' : 'Follow' }}
                     </button>
 
