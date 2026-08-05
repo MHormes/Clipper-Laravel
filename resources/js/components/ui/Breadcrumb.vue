@@ -2,7 +2,7 @@
 import { h, type HTMLAttributes as VueHTMLAttributes } from "vue"
 import { cn } from "@/lib/utils"
 import { Primitive, type PrimitiveProps } from "reka-ui"
-import { ChevronRight } from "lucide-vue-next"
+import { ChevronRight } from "@lucide/vue"
 
 export const BreadcrumbItem = {
   name: "BreadcrumbItem",

@@ -12,7 +12,7 @@ import { dashboard } from '@/routes';
 import { type NavItem, type AppPageProps } from '@/types';
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Map, Users, ClipboardCheck, ClipboardList, ListCheck, CheckCircle, Library, ChevronsUpDown, Settings, LogOut } from 'lucide-vue-next';
+import { LayoutGrid, Map, Users, ClipboardCheck, ClipboardList, ListCheck, CheckCircle, Library, ChevronsUpDown, Settings, LogOut } from '@lucide/vue';
 import AppLogo from './AppLogo.vue';
 import AppLogoIcon from './AppLogoIcon.vue';
 import InstallAppButton from './InstallAppButton.vue';

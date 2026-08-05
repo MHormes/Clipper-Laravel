@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import { ref } from 'vue';
-import { Clock, Check, X, ClipboardCheck, Loader2 } from 'lucide-vue-next';
+import { Clock, Check, X, ClipboardCheck, Loader2 } from '@lucide/vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import DeclineModal from '@/components/modal/DeclineModal.vue';
 

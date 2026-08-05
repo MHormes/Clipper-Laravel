@@ -4,7 +4,7 @@ import Pagination from '@/components/Pagination.vue';
 import Skeleton from '@/components/ui/Skeleton.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { Library, Search, X } from 'lucide-vue-next';
+import { Library, Search, X } from '@lucide/vue';
 import { useFilters } from '@/util/useFilters';
 import { ref } from 'vue';
 

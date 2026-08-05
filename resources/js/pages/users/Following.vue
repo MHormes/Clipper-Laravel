@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import Pagination from '@/components/Pagination.vue';
 import UserCard from '@/components/users/UserCard.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { Search, Users, X } from 'lucide-vue-next';
+import { Search, Users, X } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { route } from 'ziggy-js';
 

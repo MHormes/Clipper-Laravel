@@ -13,7 +13,7 @@ import {
     Library,
     PencilLine,
     User as UserIcon,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { route } from 'ziggy-js';
 

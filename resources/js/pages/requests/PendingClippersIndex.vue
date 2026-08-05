@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { Clock, ClipboardCheck } from 'lucide-vue-next';
+import { Clock, ClipboardCheck } from '@lucide/vue';
 
 defineProps<{
     groupedClippers: Record<string, Array<{

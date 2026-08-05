@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import SeriesForm from '@/components/series/SeriesForm.vue';
 import { route } from 'ziggy-js';
-import { ChevronLeft } from 'lucide-vue-next';
+import { ChevronLeft } from '@lucide/vue';
 
 const props = defineProps<{
     series: any;

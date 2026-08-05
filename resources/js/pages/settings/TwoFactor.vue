@@ -11,7 +11,7 @@ import { edit as editProfile } from '@/routes/profile';
 import { disable, enable, show } from '@/routes/two-factor';
 import { BreadcrumbItem } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
-import { ShieldBan, ShieldCheck, Lock } from 'lucide-vue-next';
+import { ShieldBan, ShieldCheck, Lock } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
 
 interface Props {

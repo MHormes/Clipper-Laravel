@@ -5,7 +5,7 @@ BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$BASE_DIR/utils.sh"
 
 # 2. Instellingen
-BACKUP_BASE_DIR="/home/clipper/clipper-ms/Clipper-Laravel/backups"
+BACKUP_BASE_DIR="/home/clipper/clipper-laravel/backups"
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_DIR="$BACKUP_BASE_DIR/$TIMESTAMP"
 DB_CONTAINER="clipper_postgres_prod"

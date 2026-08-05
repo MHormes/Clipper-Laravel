@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useInstallPrompt } from '@/composables/useInstallPrompt';
 import { Button } from '@/components/ui';
-import { Download } from 'lucide-vue-next';
+import { Download } from '@lucide/vue';
 
 interface Props {
     fullWidth?: boolean;

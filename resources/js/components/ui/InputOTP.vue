@@ -16,7 +16,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 <script lang="ts">
 import { h, computed } from "vue"
 import { useForwardProps, useForwardPropsEmits as useRekaForwardPropsEmits } from "reka-ui"
-import { MinusIcon } from "lucide-vue-next"
+import { MinusIcon } from "@lucide/vue"
 import { useVueOTPContext } from "vue-input-otp"
 
 export const InputOTPGroup = {

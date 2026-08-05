@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { geocodingService } from '@/util/geocodingSupport';
-import { MapPin, Search, Loader2, Check, ExternalLink, Copy, ChevronDown, ChevronUp } from 'lucide-vue-next';
+import { MapPin, Search, Loader2, Check, ExternalLink, Copy, ChevronDown, ChevronUp } from '@lucide/vue';
 import {
     Tooltip,
     TooltipContent,

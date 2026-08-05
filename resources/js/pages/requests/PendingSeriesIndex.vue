@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { Clock, User as UserIcon, Layers, ClipboardList } from 'lucide-vue-next';
+import { Clock, User as UserIcon, Layers, ClipboardList } from '@lucide/vue';
 
 defineProps<{
     series: Array<{
