@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { geocodingService } from '@/util/geocodingSupport';
 import { MapPin, Search, Loader2, Check, ExternalLink, Copy, ChevronDown, ChevronUp } from '@lucide/vue';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Skeleton } from '@/components/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Skeleton, SearchableSelect } from '@/components/ui';
 
 const props = defineProps<{
     show: boolean;
@@ -100,10 +100,14 @@ const copyFromSource = computed(
 // Copy FROM: filtered + grouped for the source select
 const copyFromGrouped = computed(() => filterSortGroup(otherCollected.value, copyFromSearch.value));
 
-// Clear the source selection if it's filtered out by a new search term
-watch(copyFromSearch, () => {
-    copyFromSelectedId.value = null;
-});
+// Copy FROM: groups reshaped for the SearchableSelect component
+const copyFromSelectGroups = computed(() =>
+    copyFromGrouped.value.map((group) => ({ label: group.series_name, items: group.items })),
+);
+
+const copyFromSelectedLabel = computed(() =>
+    copyFromSource.value ? `#${copyFromSource.value.series_number} — ${copyFromSource.value.series_name}` : null,
+);
 
 const toggleSelectAllInSeries = (items: any[]) => {
     const ids = items.map((i) => i.clipper_id);
@@ -515,39 +519,21 @@ const submit = () => {
                                         class="mb-1 block text-[10px] font-black tracking-widest text-muted-content uppercase"
                                         >Select source clipper</label
                                     >
-                                    <div class="relative mb-2">
-                                        <input
-                                            v-model="copyFromSearch"
-                                            type="text"
-                                            class="w-full rounded-xl border border-border-color bg-component-background p-3 pl-10 text-sm text-primary-content placeholder:text-muted-content/50 focus:border-primary focus:ring-primary"
-                                            placeholder="Filter by series name..."
-                                        />
-                                        <Search
-                                            class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-content"
-                                        />
-                                    </div>
-                                    <select
+                                    <SearchableSelect
                                         v-model="copyFromSelectedId"
-                                        class="w-full rounded-xl border border-border-color bg-component-background p-3 text-sm text-primary-content focus:border-primary focus:ring-primary"
+                                        v-model:search="copyFromSearch"
+                                        :groups="copyFromSelectGroups"
+                                        :item-value="(item) => item.clipper_id"
+                                        :selected-label="copyFromSelectedLabel"
+                                        placeholder="Choose a clipper..."
+                                        search-placeholder="Search series..."
+                                        empty-text="No matching clippers."
                                     >
-                                        <option value="" disabled selected>Choose a clipper...</option>
-                                        <optgroup
-                                            v-for="group in copyFromGrouped"
-                                            :key="group.series_name"
-                                            :label="group.series_name"
-                                        >
-                                            <option
-                                                v-for="item in group.items"
-                                                :key="item.clipper_id"
-                                                :value="item.clipper_id"
-                                            >
-                                                #{{ item.series_number
-                                                }}{{
-                                                    item.notes || item.location_bought ? ' — has info' : ' — no info'
-                                                }}
-                                            </option>
-                                        </optgroup>
-                                    </select>
+                                        <template #item="{ item }">
+                                            #{{ item.series_number
+                                            }}{{ item.notes || item.location_bought ? ' — has info' : ' — no info' }}
+                                        </template>
+                                    </SearchableSelect>
                                 </div>
 
                                 <!-- Field toggles -->

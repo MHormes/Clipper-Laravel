@@ -10,6 +10,7 @@ export { default as DropdownMenu, DropdownMenuContent, DropdownMenuItem, Dropdow
 export { default as Input } from "./Input.vue"
 export { default as InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "./InputOTP.vue"
 export { default as Label } from "./Label.vue"
+export { default as SearchableSelect } from "./SearchableSelect.vue"
 export { default as Separator } from "./Separator.vue"
 export { default as Sheet, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription } from "./Sheet.vue"
 export { 
