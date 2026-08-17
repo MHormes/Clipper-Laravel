@@ -62,6 +62,14 @@ test('collection list endpoint excludes clippers not owned by the user', functio
     expect($ids)->not->toContain($otherClipper->id);
 });
 
+test('collection list endpoint 404s for a plain (non-JSON) browser request', function () {
+    $this->actingAs($this->user);
+
+    $response = $this->get(route('collection.list'));
+
+    $response->assertStatus(404);
+});
+
 test('user can copy notes to another collected clipper', function () {
     $this->actingAs($this->user);
 

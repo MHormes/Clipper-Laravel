@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'crawler.access' => \App\Http\Middleware\HandleCrawlerAccess::class,
+            'json.only' => \App\Http\Middleware\EnsureRequestWantsJson::class,
         ]);
         
         $middleware->trustProxies(at: '*');

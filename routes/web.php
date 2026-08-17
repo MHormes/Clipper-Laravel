@@ -66,8 +66,8 @@ Route::middleware(['crawler.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
     Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
     Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
-    Route::get('/collection', fn() => redirect()->route('series.index', ['filter' => 'collected'], 301))->name('collection.index');
-    Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+    Route::get('/my-series', fn() => redirect()->route('series.index', ['filter' => 'collected'], 301))->name('collection.index');
+    Route::get('/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
 });
 
 
@@ -86,7 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Clipper Management
     Route::post('/clippers/{clipper}/toggle', [CollectionController::class, 'toggle'])->name('clippers.toggle');
     Route::post('/series/{series}/toggle-collection', [CollectionController::class, 'toggleCollection'])->name('series.toggle-collection');
-    Route::get('/collection/list', [CollectionController::class, 'list'])->name('collection.list');
+    Route::get('/collection/list', [CollectionController::class, 'list'])->middleware('json.only')->name('collection.list');
     Route::post('/collection/{clipper}/copy-to', [CollectionController::class, 'copyTo'])->name('collection.copy-to');
     Route::patch('/collection/{clipper}', [CollectionController::class, 'update'])->name('collection.update');
 

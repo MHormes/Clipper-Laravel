@@ -4,7 +4,7 @@ import Pagination from '@/components/Pagination.vue';
 import SeriesCard from '@/components/series/SeriesCard.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
-import { ArrowLeft, CheckCircle2, Loader2, Package, Search, Sparkles, X } from '@lucide/vue';
+import { ArrowLeft, Check, CheckCircle2, Loader2, Package, Search, Share2, Sparkles, X } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 
 interface Profile {
@@ -83,6 +83,30 @@ watch(completedOnly, () => {
 
 const initial = computed(() => props.profile.name.charAt(0).toUpperCase());
 
+const shareCopied = ref(false);
+const shareProfile = async () => {
+    const url = window.location.href;
+
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: `${props.profile.name} | Collector Profile`, url });
+        } catch {
+            // user cancelled share sheet, no-op
+        }
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(url);
+        shareCopied.value = true;
+        setTimeout(() => {
+            shareCopied.value = false;
+        }, 1500);
+    } catch {
+        window.prompt('Copy this link:', url);
+    }
+};
+
 const followLoading = ref(false);
 const toggleFollow = () => {
     followLoading.value = true;
@@ -122,12 +146,17 @@ const toggleFollow = () => {
                             class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary text-lg font-black">
                             {{ initial }}
                         </div>
-                        <div class="min-w-0">
+                        <div class="min-w-0 flex-1">
                             <h1 class="truncate text-xl font-black uppercase tracking-tight text-primary-content">{{
                                 profile.name }}</h1>
                             <p class="text-xs text-muted-content uppercase tracking-widest font-bold">Collector Profile
                             </p>
                         </div>
+                        <button type="button" @click="shareProfile" title="Share profile"
+                            class="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border-color bg-primary-background text-muted-content hover:text-primary hover:border-primary/40 transition-colors">
+                            <Check v-if="shareCopied" class="size-4 text-primary" />
+                            <Share2 v-else class="size-4" />
+                        </button>
                     </div>
 
                     <button v-if="profile.can_follow" type="button" @click="toggleFollow" :disabled="followLoading"

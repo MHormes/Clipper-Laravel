@@ -12,6 +12,19 @@ interface Version {
 
 const versions = ref<Version[]>([
     {
+        number: '1.2',
+        date: 'August 2026',
+        title: 'Profile Sharing & Picker Improvements',
+        changes: [
+            'Added a share button to collector profile pages — uses your device\'s share sheet where available, or copies the profile link to your clipboard.',
+            'The "Fill from another clipper" source picker is now a searchable dropdown, sorted alphabetically by series and grouped just like the "Copy to Other Clippers" list.',
+            'Fixed sorting in the "Copy to Other Clippers" picker so results are consistently ordered alphabetically by series.',
+            'Fixed a bug where the collected list could fail to load when copying clipper details.',
+            'Renamed the "Your Series" and "Your Clippers" pages to /my-series and /clippers — update any bookmarks to the old /collection URLs.',
+        ],
+        isOpen: true
+    },
+    {
         number: '1.1',
         date: 'June 2026',
         title: 'Copy Details, Replace Requests & More',
@@ -24,7 +37,7 @@ const versions = ref<Version[]>([
             'Better styling and layout for the pending clipper requests admin page.',
             'Various stability, SSR, and deployment improvements.',
         ],
-        isOpen: true
+        isOpen: false
     },
     {
         number: '1.0',
