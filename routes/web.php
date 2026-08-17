@@ -86,7 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Clipper Management
     Route::post('/clippers/{clipper}/toggle', [CollectionController::class, 'toggle'])->name('clippers.toggle');
     Route::post('/series/{series}/toggle-collection', [CollectionController::class, 'toggleCollection'])->name('series.toggle-collection');
-    Route::get('/collection/list', [CollectionController::class, 'list'])->name('collection.list');
+    Route::get('/collection/list', [CollectionController::class, 'list'])->middleware('json.only')->name('collection.list');
     Route::post('/collection/{clipper}/copy-to', [CollectionController::class, 'copyTo'])->name('collection.copy-to');
     Route::patch('/collection/{clipper}', [CollectionController::class, 'update'])->name('collection.update');
 
