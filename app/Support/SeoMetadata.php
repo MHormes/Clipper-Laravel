@@ -74,19 +74,6 @@ class SeoMetadata
     }
 
     /**
-     * Get SEO metadata for the user's collection index (My Series).
-     */
-    public static function forCollectionIndex(): self
-    {
-        return new self(
-            title: 'My Clipper Lighter Series Collection | Clipper-MS',
-            description: 'View your Clipper series collection. Track completion progress, manage your series, and see which designs you still need to collect.',
-            image: url('/images/default-og.jpg'),
-            canonical: route('collection.index')
-        );
-    }
-
-    /**
      * Get SEO metadata for the user's clippers board view.
      */
     public static function forClippersBoard(): self
