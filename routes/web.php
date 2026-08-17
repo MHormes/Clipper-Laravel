@@ -66,8 +66,8 @@ Route::middleware(['crawler.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, '__invoke'])->name('dashboard');
     Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
     Route::get('/mapview', [CollectionController::class, 'mapview'])->name('mapview.index');
-    Route::get('/collection', fn() => redirect()->route('series.index', ['filter' => 'collected'], 301))->name('collection.index');
-    Route::get('/collection/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
+    Route::get('/my-series', fn() => redirect()->route('series.index', ['filter' => 'collected'], 301))->name('collection.index');
+    Route::get('/clippers', [CollectionController::class, 'clippers'])->name('collection.clippers');
 });
 
 
