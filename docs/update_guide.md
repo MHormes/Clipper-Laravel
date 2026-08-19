@@ -17,7 +17,8 @@ Run after server OS updates are done (see global `update_guide.md`). Do all step
 
 - `clipper_postgres_prod` — `postgres:x-alpine` — bump patch/minor freely; major needs migration check
 - `clipper_storage_prod` — `quay.io/minio/aistor/minio:latest` — always pulls latest, nothing to pin
-- `clipper_tunnel_prod` — `cloudflare/cloudflared:latest` — always pulls latest, nothing to pin
+
+> Cloudflare Tunnel runs in a separate shared LXC container, not in this compose file — update it independently.
 
 ---
 

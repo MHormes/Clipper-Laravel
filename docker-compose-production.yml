@@ -6,6 +6,8 @@ services:
     image: clipper-app:${APP_VERSION:-latest}
     container_name: clipper_app_prod
     restart: unless-stopped
+    ports:
+      - "3000:80"
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
@@ -168,14 +170,6 @@ services:
         condition: service_started
     entrypoint: /bin/sh /var/www/html/scripts/queue.sh
 
-  clipper_tunnel_prod:
-    image: cloudflare/cloudflared:latest
-    container_name: clipper_tunnel_prod
-    restart: unless-stopped
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
-    command: tunnel --no-autoupdate run
-
   clipper_postgres_prod:
     image: postgres:17-alpine
     container_name: clipper_postgres_prod
@@ -200,6 +194,9 @@ services:
     environment:
       MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - clipper_storage_data_prod:/mnt/data
       - ./minio.license:/minio.license
