@@ -147,13 +147,13 @@ Subsequent restarts skip steps 3 and 5 automatically.
 
 ## 3. Production Docker Compose
 
-The production setup (`docker-compose-production.yml`) runs on the server and adds a Cloudflare Tunnel container for public HTTPS access. No ports are exposed for the database or storage — all traffic goes through the tunnel.
+The production setup (`docker-compose-production.yml`) runs on the server. Public HTTPS access is provided by Cloudflare Tunnel, which runs in a separate, shared LXC container on the same Proxmox host (not in this repo's Docker Compose) — that LXC proxies to this VM's published `80` port. No ports are exposed for the database or storage.
 
 **Prerequisites:**
 
 - `.env.production` configured on the server
-- Valid `CLOUDFLARE_TUNNEL_TOKEN` in the production env file
 - Docker installed on the server
+- The shared cloudflared LXC configured with a route for this VM (managed outside this repo)
 - CSV files present in `database/data/` (from backup)
 - Images present in `storage/app/public/` (from backup)
 
@@ -173,7 +173,7 @@ The production setup (`docker-compose-production.yml`) runs on the server and ad
 
     The script:
     - Copies `.env.production` → `.env` and `docker-compose-production.yml` → `docker-compose.yml` for Dockge compatibility
-    - Enables a Cloudflare maintenance page during deploy
+    - Enables a Cloudflare maintenance page during deploy (Worker-based, independent of tunnel location)
     - Stops existing containers
     - Creates production volumes (`clipper_db_data_prod`, `clipper_storage_data_prod`) if missing
     - Builds and starts all containers
@@ -185,15 +185,14 @@ The same auto-seeding logic from `start.sh` applies — DB and storage are seede
 
 **What runs:**
 
-| Container               | Role                      |
-| ----------------------- | ------------------------- |
-| `clipper_app_prod`      | Laravel + Apache          |
-| `clipper_queue_prod`    | Laravel queue worker      |
-| `clipper_postgres_prod` | PostgreSQL 17             |
-| `clipper_storage_prod`  | AIStor (S3-compatible)    |
-| `clipper_tunnel_prod`   | Cloudflare Tunnel (HTTPS) |
+| Container               | Role                    | Port(s)      |
+| ------------------------ | ----------------------- | ------------ |
+| `clipper_app_prod`      | Laravel + Apache        | `80 -> 80`   |
+| `clipper_queue_prod`    | Laravel queue worker    | —            |
+| `clipper_postgres_prod` | PostgreSQL 17           | —            |
+| `clipper_storage_prod`  | AIStor (S3-compatible)  | —            |
 
-> The database and AIStor are not exposed on any host port in production — they are only reachable from within the Docker network.
+> The database and AIStor are not exposed on any host port in production — they are only reachable from within the Docker network. HTTPS/routing is handled outside this compose file by the shared cloudflared LXC, which reaches the app over the published `80` port.
 
 ---
 

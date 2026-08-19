@@ -6,6 +6,8 @@ services:
     image: clipper-app:${APP_VERSION:-latest}
     container_name: clipper_app_prod
     restart: unless-stopped
+    ports:
+      - "80:80"
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
@@ -167,14 +169,6 @@ services:
       clipper_storage_prod:
         condition: service_started
     entrypoint: /bin/sh /var/www/html/scripts/queue.sh
-
-  clipper_tunnel_prod:
-    image: cloudflare/cloudflared:latest
-    container_name: clipper_tunnel_prod
-    restart: unless-stopped
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
-    command: tunnel --no-autoupdate run
 
   clipper_postgres_prod:
     image: postgres:17-alpine
