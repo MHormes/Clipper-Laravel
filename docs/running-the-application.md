@@ -147,7 +147,7 @@ Subsequent restarts skip steps 3 and 5 automatically.
 
 ## 3. Production Docker Compose
 
-The production setup (`docker-compose-production.yml`) runs on the server. Public HTTPS access is provided by Cloudflare Tunnel, which runs in a separate, shared LXC container on the same Proxmox host (not in this repo's Docker Compose) — that LXC proxies to this VM's published `80` port. No ports are exposed for the database or storage.
+The production setup (`docker-compose-production.yml`) runs on the server. Public HTTPS access is provided by Cloudflare Tunnel, which runs in a separate, shared LXC container on the same Proxmox host (not in this repo's Docker Compose) — that LXC proxies to this VM's published `3000` (app) and `9000`/`9001` (AIStor) ports.
 
 **Prerequisites:**
 
@@ -185,14 +185,14 @@ The same auto-seeding logic from `start.sh` applies — DB and storage are seede
 
 **What runs:**
 
-| Container               | Role                    | Port(s)      |
-| ------------------------ | ----------------------- | ------------ |
-| `clipper_app_prod`      | Laravel + Apache        | `80 -> 80`   |
-| `clipper_queue_prod`    | Laravel queue worker    | —            |
-| `clipper_postgres_prod` | PostgreSQL 17           | —            |
-| `clipper_storage_prod`  | AIStor (S3-compatible)  | —            |
+| Container               | Role                    | Port(s)        |
+| ------------------------ | ----------------------- | -------------- |
+| `clipper_app_prod`      | Laravel + Apache        | `3000 -> 80`   |
+| `clipper_queue_prod`    | Laravel queue worker    | —              |
+| `clipper_postgres_prod` | PostgreSQL 17           | —              |
+| `clipper_storage_prod`  | AIStor (S3-compatible)  | `9000`, `9001` |
 
-> The database and AIStor are not exposed on any host port in production — they are only reachable from within the Docker network. HTTPS/routing is handled outside this compose file by the shared cloudflared LXC, which reaches the app over the published `80` port.
+> The database is not exposed on any host port in production — it is only reachable from within the Docker network. HTTPS/routing is handled outside this compose file by the shared cloudflared LXC, which reaches the app and AIStor over their published ports.
 
 ---
 
